@@ -97,20 +97,31 @@
 .google-translate-container {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
+}
+
+#google_translate_element, #google_translate_element_mobile {
+  display: inline-block;
+  min-width: 120px;
+  flex-shrink: 0;
 }
 
 #google_translate_element select, #google_translate_element_mobile select {
+  width: 100% !important;
+  min-width: 120px !important;
+  height: 32px !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   color: #0D2C54 !important;
   border: 1px solid #E5E7EB !important;
   border-radius: 8px !important;
-  padding: 5px 10px !important;
+  padding: 4px 8px !important;
   background-color: #FFFFFF !important;
   outline: none !important;
   font-family: "Poppins", sans-serif !important;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box !important;
 }
 
 #google_translate_element select:hover, #google_translate_element_mobile select:hover {
