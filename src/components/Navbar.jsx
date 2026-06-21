@@ -21,16 +21,6 @@ export default function Navbar() {
           },
           'google_translate_element'
         );
-        
-        new window.google.translate.TranslateElement(
-          {
-            pageLanguage: 'en',
-            includedLanguages: 'en,ta,hi,ml,te,kn,mr,gu,bn',
-            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false
-          },
-          'google_translate_element_mobile'
-        );
       }
     };
 
@@ -105,76 +95,71 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Login / Admin Action */}
-          <div className="hidden md:flex items-center space-x-6">
-            {/* Google Translate Desktop */}
+          {/* Actions Toolbar - Shared on desktop & mobile */}
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            
+            {/* Google Translate (Unified element to prevent API mount crashes) */}
             <div className="flex items-center space-x-1 google-translate-container">
-              <Globe size={14} className="text-primary" />
+              <Globe size={13} className="text-primary" />
               <div id="google_translate_element"></div>
             </div>
 
-             {/* Cart Link with Badge */}
+            {/* Cart Link with Badge */}
             <Link
               to="/cart"
               className="relative p-2 text-gray-500 hover:text-primary transition-colors flex items-center"
               title="Shopping Cart"
             >
-              <ShoppingCart size={20} />
+              <ShoppingCart size={19} />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {cartItemCount}
                 </span>
               )}
             </Link>
 
-            {/* Admin Login / Panel Button */}
-            {isAdminAuthenticated ? (
-              <div className="flex items-center space-x-3 border-l pl-4 border-gray-200">
-                <Link
-                  to="/admin"
-                  className="bg-primary/5 hover:bg-primary/10 text-primary text-[10px] font-bold px-3 py-1.5 rounded-large border border-primary/20 flex items-center space-x-1 transition-all"
-                >
-                  <Shield size={12} className="text-accent" />
-                  <span>Admin Panel</span>
-                </Link>
-                <button
-                  onClick={logoutAdmin}
-                  className="text-gray-500 hover:text-red-600 text-xs font-semibold focus:outline-none cursor-pointer"
-                  title="Logout"
-                >
-                  <LogOut size={16} />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3 border-l pl-4 border-gray-200 font-sans">
-                {currentUser ? (
-                  <div className="flex items-center space-x-2.5">
-                    <span className="text-[10px] font-bold text-gray-700">Hello, {currentUser.name.split(' ')[0]}</span>
-                    <button
-                      onClick={logoutUser}
-                      className="text-[10px] font-bold text-red-500 hover:underline focus:outline-none cursor-pointer"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                ) : (
+            {/* Desktop Admin/Client Login desk */}
+            <div className="hidden md:flex items-center space-x-3">
+              {isAdminAuthenticated ? (
+                <div className="flex items-center space-x-3 border-l pl-4 border-gray-200">
                   <Link
-                    to="/login"
-                    className="bg-secondary hover:bg-secondary-light text-white text-[10px] font-bold px-3 py-1.5 rounded-large flex items-center space-x-1 transition-all shadow-sm"
+                    to="/admin"
+                    className="bg-primary/5 hover:bg-primary/10 text-primary text-[10px] font-bold px-3 py-1.5 rounded-large border border-primary/20 flex items-center space-x-1 transition-all"
                   >
-                    <span>Client Login</span>
+                    <Shield size={12} className="text-accent" />
+                    <span>Admin Panel</span>
                   </Link>
-                )}
-                
-                <Link
-                  to="/admin/login"
-                  className="text-gray-400 hover:text-primary text-[10px] font-bold ml-1"
-                  title="Admin Portal"
-                >
-                  Admin
-                </Link>
-              </div>
-            )}
+                  <button
+                    onClick={logoutAdmin}
+                    className="text-gray-500 hover:text-red-600 text-xs font-semibold focus:outline-none cursor-pointer"
+                    title="Logout"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-3 border-l pl-4 border-gray-200 font-sans">
+                  {currentUser ? (
+                    <div className="flex items-center space-x-2.5">
+                      <span className="text-[10px] font-bold text-gray-700">Hello, {currentUser.name.split(' ')[0]}</span>
+                      <button
+                        onClick={logoutUser}
+                        className="text-[10px] font-bold text-red-500 hover:underline focus:outline-none cursor-pointer"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="bg-secondary hover:bg-secondary-light text-white text-[10px] font-bold px-3 py-1.5 rounded-large flex items-center space-x-1 transition-all shadow-sm"
+                    >
+                      <span>Client Login</span>
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
 
           </div>
 
@@ -191,7 +176,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Drawer Menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -210,33 +195,7 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {/* Google Translate Mobile */}
-            <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500 flex items-center space-x-1">
-                <Globe size={14} className="text-gray-400" />
-                <span>Language / மொழி:</span>
-              </span>
-              <div id="google_translate_element_mobile"></div>
-            </div>
-
-             {/* Mobile Cart Link */}
-            <Link
-              to="/cart"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between px-3 py-2 rounded-large text-sm font-semibold text-gray-600 hover:text-primary hover:bg-gray-50 border-b border-gray-100"
-            >
-              <span className="flex items-center space-x-2">
-                <ShoppingCart size={18} />
-                <span>Shopping Cart</span>
-              </span>
-              {cartItemCount > 0 && (
-                <span className="bg-red-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                  {cartItemCount} items
-                </span>
-              )}
-            </Link>
-
-            {/* Mobile Admin Actions */}
+            {/* Mobile Actions Drawer (No Admin login links publicly shown) */}
             {isAdminAuthenticated ? (
               <div className="px-3 py-2.5 flex items-center justify-between border-t border-gray-100 mt-2">
                 <Link
@@ -277,15 +236,6 @@ export default function Navbar() {
                     <span>Client Login</span>
                   </Link>
                 )}
-
-                <Link
-                  to="/admin/login"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-large text-sm font-semibold text-gray-400 hover:text-primary hover:bg-gray-50"
-                >
-                  <Shield size={16} className="text-gray-300" />
-                  <span>Admin Login</span>
-                </Link>
               </div>
             )}
           </div>
