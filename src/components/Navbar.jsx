@@ -5,12 +5,23 @@ import { useApp } from '../context/AppContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const location = useLocation();
   const { settings, isAdminAuthenticated, logoutAdmin, currentUser, logoutUser, cart } = useApp();
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
     const initTranslateElement = () => {
-      if (window.google && window.google.translate) {
+      const el = document.getElementById('google_translate_element');
+      if (el && window.google && window.google.translate) {
+        el.innerHTML = ''; // Clear previous translations element to avoid duplicate widgets
         try {
           new window.google.translate.TranslateElement(
             {
@@ -42,7 +53,10 @@ export default function Navbar() {
         document.body.appendChild(script);
       }
     }
-  }, []);
+
+    const timer = setTimeout(initTranslateElement, 300);
+    return () => clearTimeout(timer);
+  }, [isMobile, isOpen]);
 
   const companyName = settings?.company_name || "VictaSure Global";
   const cartItemCount = cart ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
@@ -106,11 +120,13 @@ export default function Navbar() {
           {/* Actions Toolbar - Shared on desktop & mobile */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             
-            {/* Google Translate (Unified element to prevent API mount crashes) */}
-            <div className="flex items-center space-x-1 google-translate-container">
-              <Globe size={13} className="text-primary" />
-              <div id="google_translate_element"></div>
-            </div>
+            {/* Google Translate (Desktop only in header to prevent mobile clutter) */}
+            {!isMobile && (
+              <div className="flex items-center space-x-1 google-translate-container">
+                <Globe size={13} className="text-primary" />
+                <div id="google_translate_element"></div>
+              </div>
+            )}
 
             {/* Cart Link with Badge */}
             <Link
@@ -188,6 +204,20 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            
+            {/* Google Translate Mobile (Inside Drawer Menu to keep header clean) */}
+            {isMobile && (
+              <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
+                <span className="text-xs font-semibold text-gray-500 flex items-center space-x-1">
+                  <Globe size={14} className="text-gray-400" />
+                  <span>Language / மொழி:</span>
+                </span>
+                <div className="google-translate-container">
+                  <div id="google_translate_element"></div>
+                </div>
+              </div>
+            )}
+
             {navigation.map((item) => (
               <Link
                 key={item.name}
