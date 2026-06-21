@@ -166,7 +166,7 @@ export default function Footer() {
       {/* Bottom Row: Copyright & Badges */}
       <div className="max-w-7xl mx-auto border-t border-gray-200/80 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
         <p className="text-[11px] text-gray-400">
-          &copy; 2024 {companyName}. All rights reserved. Built for Excellence.
+          &copy; 2026 {companyName}. All rights reserved. Built for Excellence.
         </p>
         
         {/* Mock Certification badges on right */}
