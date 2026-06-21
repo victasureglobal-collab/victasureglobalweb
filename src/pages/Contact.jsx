@@ -1,0 +1,397 @@
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Mail, Phone, MapPin, MessageSquare, Send, CheckCircle2, AlertCircle, Globe } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+
+const FacebookIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const TwitterIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+  </svg>
+);
+
+const LinkedinIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const InstagramIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
+const YoutubeIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
+    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" />
+  </svg>
+);
+
+const SocialIconMap = {
+  Facebook: FacebookIcon,
+  Twitter: TwitterIcon,
+  Linkedin: LinkedinIcon,
+  Instagram: InstagramIcon,
+  Youtube: YoutubeIcon,
+  Globe: Globe
+};
+
+export default function Contact({ enquiryProduct, setEnquiryProduct }) {
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    defaultValues: {
+      product_interested: enquiryProduct ? enquiryProduct.name : ""
+    }
+  });
+
+  const { submitEnquiry, settings, products } = useApp();
+  const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [openFaqIdx, setOpenFaqIdx] = useState(null);
+
+  if (!settings) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+      </div>
+    );
+  }
+
+  const onSubmit = async (data) => {
+    try {
+      setSuccess(false);
+      setErrorMsg("");
+      await submitEnquiry(data);
+      setSuccess(true);
+      setEnquiryProduct(null); // Clear interest state
+      reset();
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("Failed to submit enquiry. Please verify connections and try again.");
+    }
+  };
+
+  const handleWhatsApp = () => {
+    const whatsapp = settings.contact_whatsapp || "+919876543210";
+    const text = encodeURIComponent("Hello VictaSure Global Trade Desk, I have submitted an enquiry and want to follow up regarding bulk pricing.");
+    window.open(`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
+  };
+
+  return (
+    <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8 bg-neutral-lightBg">
+      <div className="max-w-7xl mx-auto space-y-12">
+        
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto space-y-5 pt-8 pb-4">
+          <span className="text-xs font-bold uppercase text-accent tracking-widest bg-primary/10 px-4 py-1.5 rounded-full inline-block mb-1">
+            Get In Touch
+          </span>
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-primary tracking-tight leading-tight">
+            Import Enquiry Desk
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-xl mx-auto">
+            Reach out directly for quotation requests, custom designs, container logistics schedules, and product specification sheets.
+          </p>
+        </div>
+
+        {/* Form and info grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Info Cards */}
+          <div className="space-y-6 lg:col-span-1">
+            
+            {/* Quick Card */}
+            <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium space-y-4">
+              <h3 className="font-bold text-lg text-primary">Trading Office</h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3 text-xs text-gray-600">
+                  <MapPin size={18} className="text-accent flex-shrink-0 mt-0.5" />
+                  <span>{settings.contact_address}</span>
+                </div>
+                <div className="flex items-center space-x-3 text-xs text-gray-600">
+                  <Phone size={16} className="text-accent flex-shrink-0" />
+                  <span>{settings.contact_phone}</span>
+                </div>
+                <div className="flex items-center space-x-3 text-xs text-gray-600">
+                  <Mail size={16} className="text-accent flex-shrink-0" />
+                  <a href={`mailto:${settings.contact_email}`} className="hover:underline">{settings.contact_email}</a>
+                </div>
+              </div>
+
+              {/* Social media connections */}
+              {settings.socials && settings.socials.length > 0 && (
+                <div className="border-t border-gray-100 pt-4 mt-2">
+                  <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Connect With Us</span>
+                  <div className="flex space-x-3">
+                    {settings.socials.map((soc, idx) => {
+                      const Icon = SocialIconMap[soc.platform] || Globe;
+                      return (
+                        <a
+                          key={idx}
+                          href={soc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-8 h-8 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-primary/10 hover:text-primary transition-all duration-300 shadow-sm"
+                          title={soc.platform}
+                        >
+                          <Icon size={14} />
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* WhatsApp support card */}
+            <div className="bg-primary text-white p-6 rounded-xlarge shadow-premium space-y-4 border border-primary-light">
+              <span className="text-accent font-bold text-xs uppercase tracking-widest block">Instant Support</span>
+              <h3 className="font-bold text-lg text-white">Direct Trade Chat</h3>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                Connect with our managers on WhatsApp for rapid response regarding logistics status and ocean freight costs.
+              </p>
+              <button
+                onClick={handleWhatsApp}
+                className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-4 rounded-large transition-colors shadow"
+              >
+                <MessageSquare size={14} />
+                <span>Open WhatsApp Desk</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* Form Card */}
+          <div className="bg-white border border-neutral-border p-6 sm:p-8 rounded-xlarge shadow-premium lg:col-span-2 space-y-6">
+            <h3 className="font-bold text-xl text-primary">Submit Trade Request</h3>
+            
+            {success && (
+              <div className="bg-secondary/10 border border-secondary text-secondary p-4 rounded-large flex items-start space-x-3">
+                <CheckCircle2 className="flex-shrink-0 mt-0.5" size={18} />
+                <div className="text-xs">
+                  <span className="font-bold block">Enquiry Submitted Successfully!</span>
+                  <span>Our trade managers will review your request and get back to you with specification sheets and quotations within 24 hours.</span>
+                </div>
+              </div>
+            )}
+
+            {errorMsg && (
+              <div className="bg-red-50 border border-red-500 text-red-700 p-4 rounded-large flex items-start space-x-3">
+                <AlertCircle className="flex-shrink-0 mt-0.5" size={18} />
+                <span className="text-xs font-semibold">{errorMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Name */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Company Contact Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Enter your name"
+                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
+                      errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    {...register("name", { required: "Name is required", minLength: { value: 3, message: "Min 3 characters" } })}
+                  />
+                  {errors.name && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.name.message}</span>}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Work Email Address *</label>
+                  <input
+                    type="email"
+                    placeholder="name@company.com"
+                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
+                      errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    {...register("email", { 
+                      required: "Email is required", 
+                      pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email format" }
+                    })}
+                  />
+                  {errors.email && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.email.message}</span>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Country */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Country *</label>
+                  <select
+                    className={`w-full text-xs px-4 py-2.5 rounded-large border bg-white ${
+                      errors.country ? 'border-red-500' : 'border-gray-300'
+                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    {...register("country", { required: "Country is required" })}
+                  >
+                    <option value="">Select country...</option>
+                    {["Australia", "Austria", "Bahrain", "Bangladesh", "Belgium", "Brazil", "Canada", "Denmark", "Egypt", "France", "Germany", "India", "Indonesia", "Ireland", "Italy", "Japan", "Kuwait", "Malaysia", "Mexico", "Netherlands", "New Zealand", "Oman", "Philippines", "Poland", "Qatar", "Saudi Arabia", "Singapore", "South Africa", "South Korea", "Spain", "Sweden", "Switzerland", "Thailand", "Turkey", "United Arab Emirates", "United Kingdom", "United States", "Vietnam", "Other"].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  {errors.country && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.country.message}</span>}
+                </div>
+
+                {/* State */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">State / Province *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. California"
+                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
+                      errors.state ? 'border-red-500' : 'border-gray-300'
+                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    {...register("state", { required: "State is required" })}
+                  />
+                  {errors.state && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.state.message}</span>}
+                </div>
+
+                {/* Pincode */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">ZIP / Postal Code</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 90210"
+                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
+                      errors.pincode ? 'border-red-500' : 'border-gray-300'
+                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    {...register("pincode", { 
+                      pattern: { value: /^[0-9]+$/, message: "Numbers only" } 
+                    })}
+                  />
+                  {errors.pincode && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.pincode.message}</span>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Phone */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Contact Phone Number *</label>
+                  <input
+                    type="tel"
+                    placeholder="Enter phone with country code"
+                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
+                      errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    {...register("phone", { 
+                      required: "Phone is required", 
+                      minLength: { value: 8, message: "Min 8 digits required" } 
+                    })}
+                  />
+                  {errors.phone && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.phone.message}</span>}
+                </div>
+
+                {/* Interested Product */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Product Interested *</label>
+                  <select
+                    className={`w-full text-xs px-4 py-2.5 rounded-large bg-white border ${
+                      errors.product_interested ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    {...register("product_interested", { required: "Please select an interested product" })}
+                  >
+                    <option value="">Select a product...</option>
+                    {products.map(p => (
+                      <option key={p.id} value={p.name}>{p.name}</option>
+                    ))}
+                    <option value="General Enquiry">General Export Query</option>
+                  </select>
+                  {errors.product_interested && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interested.message}</span>}
+                </div>
+              </div>
+
+              {/* Message */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Requirement Description *</label>
+                <textarea
+                  rows="4"
+                  placeholder="Detail your requirements, volume (annual or target container load count), preferred packaging and shipping ports..."
+                  className={`w-full text-xs px-4 py-2.5 rounded-large border ${
+                    errors.message ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                  } focus:outline-none focus:ring-2 focus:border-primary`}
+                  {...register("message", { 
+                    required: "Message description is required", 
+                    maxLength: { value: 1000, message: "Max 1000 characters allowed" } 
+                  })}
+                ></textarea>
+                {errors.message && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.message.message}</span>}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-secondary text-white font-bold text-xs py-3 rounded-large shadow transition-all duration-300 mt-6"
+              >
+                <Send size={14} className="text-accent" />
+                <span>Submit Trade Enquiry</span>
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+        {/* Map Location Section */}
+        <div className="bg-white border border-neutral-border p-4 rounded-xlarge shadow-premium overflow-hidden">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.9734918237937!2d77.59253457591666!3d12.973564114777553!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1672c3d52677%3A0x6bde1e88e22709e3!2sBangalore+Trade+Centre!5e0!3m2!1sen!2sin!4v1718999999999!5m2!1sen!2sin" 
+            width="100%" 
+            height="320" 
+            style={{ border: 0, borderRadius: '8px' }} 
+            allowFullScreen="" 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Trading Office Map Location"
+          ></iframe>
+        </div>
+
+        {/* FAQs Section */}
+        {settings.faqs && settings.faqs.length > 0 && (
+          <div className="bg-white border border-neutral-border p-6 sm:p-8 rounded-xlarge shadow-premium space-y-6">
+            <h3 className="font-sans font-bold text-lg text-primary border-b pb-4 uppercase tracking-wider">
+              Frequently Asked Trade Questions (FAQs)
+            </h3>
+            <div className="divide-y divide-gray-100">
+              {settings.faqs.map((faq, idx) => {
+                const isOpen = openFaqIdx === idx;
+                return (
+                  <div key={idx} className="py-4">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIdx(isOpen ? null : idx)}
+                      className="w-full flex justify-between items-center text-left font-bold text-xs sm:text-sm text-primary hover:text-secondary transition-colors focus:outline-none"
+                    >
+                      <span>{faq.question}</span>
+                      <span className="text-secondary text-base sm:text-lg ml-2">{isOpen ? '−' : '+'}</span>
+                    </button>
+                    {isOpen && (
+                      <p className="mt-2 text-xs text-gray-500 leading-relaxed pl-1 transition-all duration-300">
+                        {faq.answer}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}

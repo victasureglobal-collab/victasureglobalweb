@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0D2C54;
+  --color-primary-light: #1e4475;
+  --color-primary-dark: #06152b;
+  --color-secondary: #2E7D32;
+  --color-secondary-light: #3d9642;
+  --color-secondary-dark: #1e5221;
+  --color-accent: #C89B3C;
+  --color-accent-light: #d5af5c;
+  --color-accent-dark: #a27a28;
+  --color-neutral-dark: #1A1A1A;
+  --color-neutral-lightBg: #F8F9FA;
+  --color-neutral-border: #E5E7EB;
+  
+  --font-sans: "Poppins", "Inter", "sans-serif";
+  
+  --radius-large: 12px;
+  --radius-xlarge: 16px;
+  
+  --shadow-premium: 0 10px 30px -10px rgba(13, 44, 84, 0.08);
+  --shadow-premium-hover: 0 20px 40px -15px rgba(13, 44, 84, 0.15);
+  --shadow-gold-glow: 0 4px 14px 0 rgba(200, 155, 60, 0.3);
+}
+
+@layer base {
+  body {
+    @apply bg-neutral-lightBg text-neutral-dark font-sans antialiased;
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-semibold text-primary;
+  }
+}
+
+/* Premium Styles */
+.gradient-hero-overlay {
+  background: linear-gradient(180deg, rgba(13, 44, 84, 0.45) 0%, rgba(13, 44, 84, 0.85) 100%);
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, #C89B3C 0%, #E5C07B 100%);
+}
+
+.gradient-navy-green {
+  background: linear-gradient(135deg, #0D2C54 0%, #1e5221 100%);
+}
+
+/* Custom Scrollbar for dashboard and modal views */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Soft lift animation */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(13, 44, 84, 0.15);
+}
+
+/* Marquee Scrolling Testimonials */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% - 1.5rem)); }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+.marquee-parent:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* Premium Google Translate Widget Styling */
+.google-translate-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+#google_translate_element select, #google_translate_element_mobile select {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #0D2C54 !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 8px !important;
+  padding: 5px 10px !important;
+  background-color: #FFFFFF !important;
+  outline: none !important;
+  font-family: "Poppins", sans-serif !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#google_translate_element select:hover, #google_translate_element_mobile select:hover {
+  border-color: #0D2C54 !important;
+  box-shadow: 0 2px 8px rgba(13, 44, 84, 0.05);
+}
+
+/* Hide default Google Translate banner frame */
+.skiptranslate iframe, .goog-te-banner-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+/* Hide google branding elements inside the selector dropdown container */
+.goog-logo-link, .goog-te-gadget span, .goog-te-gadget-icon, .goog-te-gadget img, #google_translate_element img, #google_translate_element_mobile img {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.goog-te-gadget {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+.goog-te-combo {
+  margin: 0 !important;
+}
+
