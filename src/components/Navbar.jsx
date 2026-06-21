@@ -9,31 +9,39 @@ export default function Navbar() {
   const { settings, isAdminAuthenticated, logoutAdmin, currentUser, logoutUser, cart } = useApp();
 
   useEffect(() => {
-    // Add Google Translate Element Callback
-    window.googleTranslateElementInit = () => {
+    const initTranslateElement = () => {
       if (window.google && window.google.translate) {
-        new window.google.translate.TranslateElement(
-          {
-            pageLanguage: 'en',
-            includedLanguages: 'en,ta,hi,ml,te,kn,mr,gu,bn', // English, Tamil, Hindi, Malayalam, Telugu, etc.
-            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false
-          },
-          'google_translate_element'
-        );
+        try {
+          new window.google.translate.TranslateElement(
+            {
+              pageLanguage: 'en',
+              includedLanguages: 'en,ta,hi,ml,te,kn,mr,gu,bn', // English, Tamil, Hindi, Malayalam, Telugu, etc.
+              layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+              autoDisplay: false
+            },
+            'google_translate_element'
+          );
+        } catch (e) {
+          console.warn("Google Translate initialization delayed or failed:", e);
+        }
       }
     };
 
-    const addScript = () => {
-      if (document.getElementById('google-translate-script')) return;
-      const script = document.createElement('script');
-      script.id = 'google-translate-script';
-      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      script.async = true;
-      document.body.appendChild(script);
-    };
+    window.googleTranslateElementInit = initTranslateElement;
 
-    addScript();
+    // Check if script is already present and initialized
+    if (window.google && window.google.translate) {
+      initTranslateElement();
+    } else {
+      const scriptId = 'google-translate-script';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    }
   }, []);
 
   const companyName = settings?.company_name || "VictaSure Global";
