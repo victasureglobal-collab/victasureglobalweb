@@ -1738,11 +1738,11 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
   };
 
   return (
-    <div className="flex-grow min-h-screen bg-neutral-lightBg flex flex-col md:flex-row">
+    <div className="flex-grow md:h-screen md:overflow-hidden bg-neutral-lightBg flex flex-col md:flex-row">
       
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-primary text-gray-300 flex flex-col justify-between border-r border-primary-light">
-        <div className="p-6 space-y-6">
+      <aside className="w-full md:w-64 md:h-screen bg-primary text-gray-300 flex flex-col justify-between border-r border-primary-light flex-shrink-0">
+        <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-grow">
           
           {/* Header Brand */}
           <div className="flex items-center space-x-2 border-b border-primary-light pb-4">
@@ -1835,7 +1835,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
         </div>
 
         {/* Footer Logout */}
-        <div className="p-6 border-t border-primary-light">
+        <div className="p-6 border-t border-primary-light flex-shrink-0">
           <button
             onClick={handleLogout}
             className="w-full flex items-center space-x-3 text-xs font-bold text-red-400 hover:text-red-300 py-2 px-3 rounded hover:bg-red-500/10 transition-colors"
@@ -1847,10 +1847,10 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
       </aside>
 
       {/* Main Workspace Panel */}
-      <main className="flex-grow p-6 sm:p-8 overflow-y-auto space-y-6">
+      <main className="flex-grow flex flex-col md:h-screen md:overflow-hidden bg-neutral-lightBg">
         
         {/* Header toolbar */}
-        <div className="flex justify-between items-center border-b pb-4 border-gray-200">
+        <div className="flex justify-between items-center border-b p-6 sm:px-8 border-gray-200 bg-white flex-shrink-0 shadow-sm">
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-primary font-sans uppercase">
               {activeTab === 'analytics' ? 'Trading Metrics' : 
@@ -1868,6 +1868,21 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
           </div>
         </div>
 
+        {/* Scrollable content area */}
+        <div className="flex-grow p-6 sm:p-8 overflow-y-auto space-y-6 custom-scrollbar">
+          
+          {/* Tab Switching */}
+          {activeTab === 'analytics' && renderAnalytics()}
+          {activeTab === 'products' && renderProducts()}
+          {activeTab === 'categories' && renderCategories()}
+          {activeTab === 'leads' && renderLeads()}
+          {activeTab === 'orders' && renderOrders()}
+          {activeTab === 'blogs' && renderBlogs()}
+          {activeTab === 'certificates' && renderCertificates()}
+          {activeTab === 'settings' && renderSettings()}
+
+        </div>
+
         {/* Success Toast Notification */}
         {successToast && (
           <div className="bg-secondary text-white p-3 rounded-large shadow-lg flex items-center space-x-2 text-xs font-semibold animate-bounce fixed bottom-5 right-5 z-50">
@@ -1875,16 +1890,6 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             <span>{successToast}</span>
           </div>
         )}
-
-        {/* Tab Switching */}
-        {activeTab === 'analytics' && renderAnalytics()}
-        {activeTab === 'products' && renderProducts()}
-        {activeTab === 'categories' && renderCategories()}
-        {activeTab === 'leads' && renderLeads()}
-        {activeTab === 'orders' && renderOrders()}
-        {activeTab === 'blogs' && renderBlogs()}
-        {activeTab === 'certificates' && renderCertificates()}
-        {activeTab === 'settings' && renderSettings()}
 
       </main>
 
