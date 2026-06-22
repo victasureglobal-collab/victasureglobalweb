@@ -1602,12 +1602,16 @@ CREATE TABLE website_settings (
   contact_address TEXT,
   testimonials JSONB DEFAULT '[]'::jsonb,
   consignments JSONB DEFAULT '[]'::jsonb,
+  faqs JSONB DEFAULT '[]'::jsonb,
+  socials JSONB DEFAULT '[]'::jsonb,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- IF YOU ALREADY CREATED TABLES, RUN THIS TO ADD THE NEW COLUMNS:
 -- ALTER TABLE website_settings ADD COLUMN testimonials JSONB DEFAULT '[]'::jsonb;
 -- ALTER TABLE website_settings ADD COLUMN consignments JSONB DEFAULT '[]'::jsonb;
+-- ALTER TABLE website_settings ADD COLUMN faqs JSONB DEFAULT '[]'::jsonb;
+-- ALTER TABLE website_settings ADD COLUMN socials JSONB DEFAULT '[]'::jsonb;
 
 -- 9. Orders
 CREATE TABLE orders (
