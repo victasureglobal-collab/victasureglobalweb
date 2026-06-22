@@ -40,22 +40,40 @@ export default function Navbar() {
 
     window.googleTranslateElementInit = initTranslateElement;
 
-    // Check if script is already present and initialized
-    if (window.google && window.google.translate) {
-      initTranslateElement();
-    } else {
-      const scriptId = 'google-translate-script';
-      if (!document.getElementById(scriptId)) {
-        const script = document.createElement('script');
-        script.id = scriptId;
-        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-        script.async = true;
-        document.body.appendChild(script);
-      }
-    }
+    // To ensure fresh initialization on every mount/view switch, reload the script
+    const loadScript = () => {
+      // 1. Remove old script tags
+      const oldScript = document.getElementById('google-translate-script');
+      if (oldScript) oldScript.remove();
 
-    const timer = setTimeout(initTranslateElement, 300);
-    return () => clearTimeout(timer);
+      const allScripts = document.getElementsByTagName('script');
+      for (let i = allScripts.length - 1; i >= 0; i--) {
+        const src = allScripts[i].src || '';
+        if (src.includes('translate_a/element.js') || src.includes('translate_a/main.js') || src.includes('translate.google.com')) {
+          allScripts[i].remove();
+        }
+      }
+
+      // 2. Clear global google translation states
+      if (window.google) {
+        window.google.translate = undefined;
+      }
+
+      // 3. Create fresh script tag
+      const script = document.createElement('script');
+      script.id = 'google-translate-script';
+      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      document.body.appendChild(script);
+    };
+
+    loadScript();
+
+    const timer = setTimeout(initTranslateElement, 400);
+    return () => {
+      clearTimeout(timer);
+      window.googleTranslateElementInit = null;
+    };
   }, [isMobile, isOpen]);
 
   const companyName = settings?.company_name || "VictaSure Global";
