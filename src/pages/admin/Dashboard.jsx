@@ -2684,12 +2684,30 @@ function SettingsManager({ triggerToast }) {
           </div>
 
           <div className="border-t pt-4 space-y-4">
-            <span className="block text-xs font-bold text-primary uppercase tracking-wider">Social Media Links</span>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex justify-between items-center">
+              <span className="block text-xs font-bold text-primary uppercase tracking-wider">Social Media Links</span>
+              <button
+                type="button"
+                onClick={() => setSocials(prev => [...prev, { platform: "Globe", url: "" }])}
+                className="bg-primary hover:bg-secondary text-white text-[10px] font-bold py-1.5 px-3 rounded-large cursor-pointer flex items-center space-x-1.5 transition-all shadow-sm"
+              >
+                <Plus size={10} className="text-accent" />
+                <span>Add Social Link</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {socials.map((soc, idx) => (
-                <div key={idx} className="space-y-2">
-                  <label className="block text-xs font-bold text-gray-700">Platform Link {idx + 1}</label>
-                  <div className="flex space-x-2">
+                <div key={idx} className="space-y-2 bg-gray-50 p-3 rounded border border-gray-100 relative group">
+                  <button
+                    type="button"
+                    onClick={() => setSocials(prev => prev.filter((_, i) => i !== idx))}
+                    className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-bold focus:outline-none"
+                    title="Remove Link"
+                  >
+                    Remove
+                  </button>
+                  <label className="block text-[10px] font-bold text-gray-700">Link #{idx + 1}</label>
+                  <div className="flex space-x-2 pt-1">
                     <select
                       value={soc.platform}
                       onChange={(e) => {
@@ -2699,7 +2717,7 @@ function SettingsManager({ triggerToast }) {
                       }}
                       className="w-1/3 text-xs px-2 py-1.5 bg-white rounded border focus:outline-none"
                     >
-                      {["Facebook", "Twitter", "Linkedin", "Instagram", "Youtube", "Globe"].map(p => (
+                      {["Facebook", "Twitter", "Linkedin", "Instagram", "Youtube", "WhatsApp", "Pinterest", "TikTok", "Globe"].map(p => (
                         <option key={p} value={p}>{p}</option>
                       ))}
                     </select>
@@ -2712,11 +2730,16 @@ function SettingsManager({ triggerToast }) {
                         next[idx] = { ...next[idx], url: e.target.value };
                         setSocials(next);
                       }}
-                      className="w-2/3 text-xs px-3 py-1.5 rounded border focus:outline-none"
+                      className="w-2/3 text-xs px-3 py-1.5 bg-white rounded border focus:outline-none"
                     />
                   </div>
                 </div>
               ))}
+              {socials.length === 0 && (
+                <div className="md:col-span-2 text-center py-4 text-xs text-gray-400 font-medium italic">
+                  No social media links added. Click "Add Social Link" to create one.
+                </div>
+              )}
             </div>
           </div>
 
