@@ -53,7 +53,10 @@ export default function OrderSuccess() {
             <div className="bg-primary text-white p-6 flex justify-between items-center">
               <div className="space-y-1">
                 <h3 className="font-bold text-sm sm:text-base">Order Receipt & Details</h3>
-                <p className="text-[10px] text-gray-300">Placed on {new Date(order.created_at).toLocaleDateString()} at {new Date(order.created_at).toLocaleTimeString()}</p>
+                <p className="text-[10px] text-gray-300">Placed on {(() => {
+                  const d = new Date(order.created_at);
+                  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                })()} at {new Date(order.created_at).toLocaleTimeString()}</p>
               </div>
               <ClipboardList className="text-accent w-6 h-6" />
             </div>

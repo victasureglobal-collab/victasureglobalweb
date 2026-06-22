@@ -736,9 +736,12 @@ export default function Dashboard() {
     const formatDateAndDay = (dateStr) => {
       if (!dateStr) return '';
       const d = new Date(dateStr);
-      const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
       const dayOptions = { weekday: 'long' };
-      return `${d.toLocaleDateString(undefined, dateOptions)} (${d.toLocaleDateString(undefined, dayOptions)})`;
+      const weekdayStr = d.toLocaleDateString(undefined, dayOptions);
+      return `${day}/${month}/${year} (${weekdayStr})`;
     };
 
     return (
@@ -922,7 +925,10 @@ export default function Dashboard() {
                 <tr key={ord.id} className="hover:bg-gray-50">
                   <td className="p-3">
                     <span className="font-bold text-primary block">#{ord.id}</span>
-                    <span className="text-[10px] text-gray-400">{new Date(ord.created_at).toLocaleDateString()}</span>
+                    <span className="text-[10px] text-gray-400">{(() => {
+                      const d = new Date(ord.created_at);
+                      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                    })()}</span>
                   </td>
                   <td className="p-3">
                     <span className="font-bold text-primary block">{ord.customer_name}</span>
