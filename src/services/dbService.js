@@ -167,9 +167,15 @@ export const dbService = {
   },
 
   async createEnquiry(enquiry) {
+    const newEnq = {
+      id: 'enq-' + Math.random().toString(36).substr(2, 9),
+      ...enquiry,
+      status: 'new',
+      created_at: new Date().toISOString()
+    };
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('enquiries').insert(enquiry).select().single();
+        const { data, error } = await supabase.from('enquiries').insert(newEnq).select().single();
         if (error) throw error;
         return data;
       } catch (err) {
@@ -177,12 +183,6 @@ export const dbService = {
       }
     }
     const enquiries = getLocal('vs_enquiries') || [];
-    const newEnq = {
-      id: 'enq-' + Math.random().toString(36).substr(2, 9),
-      ...enquiry,
-      status: 'new',
-      created_at: new Date().toISOString()
-    };
     enquiries.unshift(newEnq);
     setLocal('vs_enquiries', enquiries);
     return newEnq;
@@ -223,9 +223,14 @@ export const dbService = {
   },
 
   async createDownload(lead) {
+    const newDl = {
+      id: 'dl-' + Math.random().toString(36).substr(2, 9),
+      ...lead,
+      created_at: new Date().toISOString()
+    };
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('catalogue_downloads').insert(lead).select().single();
+        const { data, error } = await supabase.from('catalogue_downloads').insert(newDl).select().single();
         if (error) throw error;
         return data;
       } catch (err) {
@@ -233,11 +238,6 @@ export const dbService = {
       }
     }
     const downloads = getLocal('vs_downloads') || [];
-    const newDl = {
-      id: 'dl-' + Math.random().toString(36).substr(2, 9),
-      ...lead,
-      created_at: new Date().toISOString()
-    };
     downloads.unshift(newDl);
     setLocal('vs_downloads', downloads);
     return newDl;
@@ -437,15 +437,6 @@ export const dbService = {
   },
 
   async createOrder(order) {
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('orders').insert(order).select().single();
-        if (error) throw error;
-        return data;
-      } catch (err) {
-        console.error("Supabase order creation failed, using localStorage:", err);
-      }
-    }
     const orders = getLocal('vs_orders') || [];
     const newOrder = {
       id: 'ord-' + (1000 + orders.length + 1),
@@ -453,6 +444,15 @@ export const dbService = {
       status: 'pending',
       created_at: new Date().toISOString()
     };
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('orders').insert(newOrder).select().single();
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        console.error("Supabase order creation failed, using localStorage:", err);
+      }
+    }
     orders.unshift(newOrder);
     setLocal('vs_orders', orders);
     return newOrder;
