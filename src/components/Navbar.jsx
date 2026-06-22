@@ -5,23 +5,13 @@ import { useApp } from '../context/AppContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const location = useLocation();
   const { settings, isAdminAuthenticated, logoutAdmin, currentUser, logoutUser, cart } = useApp();
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     const initTranslateElement = () => {
       const el = document.getElementById('google_translate_element');
       if (el && window.google && window.google.translate) {
-        el.innerHTML = ''; // Clear previous translations element to avoid duplicate widgets
         try {
           new window.google.translate.TranslateElement(
             {
@@ -40,41 +30,23 @@ export default function Navbar() {
 
     window.googleTranslateElementInit = initTranslateElement;
 
-    // To ensure fresh initialization on every mount/view switch, reload the script
-    const loadScript = () => {
-      // 1. Remove old script tags
-      const oldScript = document.getElementById('google-translate-script');
-      if (oldScript) oldScript.remove();
-
-      const allScripts = document.getElementsByTagName('script');
-      for (let i = allScripts.length - 1; i >= 0; i--) {
-        const src = allScripts[i].src || '';
-        if (src.includes('translate_a/element.js') || src.includes('translate_a/main.js') || src.includes('translate.google.com')) {
-          allScripts[i].remove();
-        }
+    // Check if script is already present and initialized
+    if (window.google && window.google.translate) {
+      initTranslateElement();
+    } else {
+      const scriptId = 'google-translate-script';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.async = true;
+        document.body.appendChild(script);
       }
+    }
 
-      // 2. Clear global google translation states
-      if (window.google) {
-        window.google.translate = undefined;
-      }
-
-      // 3. Create fresh script tag
-      const script = document.createElement('script');
-      script.id = 'google-translate-script';
-      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      script.async = true;
-      document.body.appendChild(script);
-    };
-
-    loadScript();
-
-    const timer = setTimeout(initTranslateElement, 400);
-    return () => {
-      clearTimeout(timer);
-      window.googleTranslateElementInit = null;
-    };
-  }, [isMobile, isOpen]);
+    const timer = setTimeout(initTranslateElement, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   const companyName = settings?.company_name || "VictaSure Global";
   const cartItemCount = cart ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
@@ -98,6 +70,21 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
+      {/* Top Bar for contact details and Google Translate */}
+      <div className="bg-primary text-white text-[10px] sm:text-[11px] py-2 px-4 sm:px-6 lg:px-8 border-b border-primary-light">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-3 text-gray-300">
+            <span>{settings?.contact_email || "export@victasure.com"}</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="hidden sm:inline">{settings?.contact_phone || "+91 98765 43210"}</span>
+          </div>
+          <div className="flex items-center space-x-1.5 ml-auto">
+            <Globe size={11} className="text-accent" />
+            <div id="google_translate_element" className="google-translate-topbar"></div>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
@@ -137,14 +124,6 @@ export default function Navbar() {
 
           {/* Actions Toolbar - Shared on desktop & mobile */}
           <div className="flex items-center space-x-3 sm:space-x-4">
-            
-            {/* Google Translate (Desktop only in header to prevent mobile clutter) */}
-            {!isMobile && (
-              <div className="flex items-center space-x-1 google-translate-container">
-                <Globe size={13} className="text-primary" />
-                <div id="google_translate_element"></div>
-              </div>
-            )}
 
             {/* Cart Link with Badge */}
             <Link
@@ -223,18 +202,7 @@ export default function Navbar() {
         <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             
-            {/* Google Translate Mobile (Inside Drawer Menu to keep header clean) */}
-            {isMobile && (
-              <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-500 flex items-center space-x-1">
-                  <Globe size={14} className="text-gray-400" />
-                  <span>Language / மொழி:</span>
-                </span>
-                <div className="google-translate-container">
-                  <div id="google_translate_element"></div>
-                </div>
-              </div>
-            )}
+
 
             {navigation.map((item) => (
               <Link
