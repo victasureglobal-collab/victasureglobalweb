@@ -24,6 +24,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import UserLogin from './pages/UserLogin';
+import Catalogue from './pages/Catalogue';
 
 export default function App() {
   const { settings } = useApp();
@@ -77,6 +78,10 @@ export default function App() {
           <Route path="/previous-work" element={<PreviousWork />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/cart" element={<Cart />} />
+          <Route 
+            path="/catalogue" 
+            element={<Catalogue onOpenDownloadModal={() => setIsDownloadOpen(true)} />} 
+          />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-success/:orderId" element={<OrderSuccess />} />
           <Route path="/login" element={<UserLogin />} />
