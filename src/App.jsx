@@ -35,6 +35,11 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [enquiryProduct, setEnquiryProduct] = useState(null);
 
+  // Scroll to top on route change
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
+
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
