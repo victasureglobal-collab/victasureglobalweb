@@ -408,32 +408,34 @@ export const dbService = {
 
   async saveWebsiteSettings(settings) {
     settings.id = 'main';
-    if (isSupabaseConfigured()) {
+    if (!isSupabaseConfigured()) {
+      const current = getLocal('vs_settings') || {};
+      const updated = { ...current, ...settings, updated_at: new Date().toISOString() };
+      setLocal('vs_settings', updated);
+      return updated;
+    }
+
+    const trySave = async (payload, strippedKeys = {}) => {
       try {
-        const { data, error } = await supabase.from('website_settings').upsert(settings).select().single();
+        const { data, error } = await supabase.from('website_settings').upsert(payload).select().single();
         if (error) throw error;
-        return data;
+        return { ...data, ...strippedKeys };
       } catch (err) {
-        if (err.message && err.message.includes('catalogue_pdf')) {
-          console.warn("catalogue_pdf column missing in Supabase, retrying settings save without it...");
-          const { catalogue_pdf, ...cleanSettings } = settings;
-          try {
-            const { data, error } = await supabase.from('website_settings').upsert(cleanSettings).select().single();
-            if (error) throw error;
-            return { ...data, catalogue_pdf };
-          } catch (retryErr) {
-            console.error("Supabase settings save retry failed:", retryErr);
-            throw retryErr;
+        if (err.message && err.message.includes('column') && err.message.includes('schema cache')) {
+          const match = err.message.match(/Could not find the '(.+?)' column/);
+          if (match && match[1]) {
+            const missingColumn = match[1];
+            console.warn(`Column '${missingColumn}' missing in Supabase. Retrying settings save without it...`);
+            const { [missingColumn]: value, ...remainingPayload } = payload;
+            return trySave(remainingPayload, { ...strippedKeys, [missingColumn]: value });
           }
         }
         console.error("Supabase settings save failed:", err);
         throw err;
       }
-    }
-    const current = getLocal('vs_settings') || {};
-    const updated = { ...current, ...settings, updated_at: new Date().toISOString() };
-    setLocal('vs_settings', updated);
-    return updated;
+    };
+
+    return trySave(settings);
   },
 
   // --- ORDERS ---
