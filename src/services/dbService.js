@@ -382,7 +382,8 @@ export const dbService = {
         if (error) throw error;
         return data;
       } catch (err) {
-        console.error("Supabase founder save failed, using localStorage:", err);
+        console.error("Supabase founder save failed:", err);
+        throw err;
       }
     }
     const current = getLocal('vs_founder') || {};
@@ -413,7 +414,8 @@ export const dbService = {
         if (error) throw error;
         return data;
       } catch (err) {
-        console.error("Supabase settings save failed, using localStorage:", err);
+        console.error("Supabase settings save failed:", err);
+        throw err;
       }
     }
     const current = getLocal('vs_settings') || {};

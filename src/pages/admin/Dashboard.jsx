@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { useApp } from '../../context/AppContext';
+import { isSupabaseConfigured } from '../../services/supabaseClient';
 
 export default function Dashboard() {
   const {
@@ -2037,8 +2038,17 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
                activeTab === 'certificates' ? 'Audit Accreditations' :
                activeTab === 'database' ? 'Supabase Sync & Setup' : 'CMS Settings Config'}
             </h1>
-            <p className="text-xs text-gray-400">
-              Admin console tracking session actions and database states.
+            <p className="text-xs text-gray-400 flex flex-wrap items-center gap-2 mt-1">
+              <span>Admin console tracking session actions and database states.</span>
+              {isSupabaseConfigured() ? (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">
+                  ● Supabase Connected
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
+                  ▲ Local Offline Storage Mode
+                </span>
+              )}
             </p>
           </div>
         </div>
