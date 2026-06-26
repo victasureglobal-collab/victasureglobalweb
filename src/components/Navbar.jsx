@@ -136,19 +136,13 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-3">
               {isAdminAuthenticated ? (
                 <div className="flex items-center space-x-3 border-l pl-4 border-gray-200">
-                  <Link
-                    to="/admin"
-                    className="bg-primary/5 hover:bg-primary/10 text-primary text-[10px] font-bold px-3 py-1.5 rounded-large border border-primary/20 flex items-center space-x-1 transition-all"
-                  >
-                    <Shield size={12} className="text-accent" />
-                    <span>Admin Panel</span>
-                  </Link>
                   <button
                     onClick={logoutAdmin}
-                    className="text-gray-500 hover:text-red-600 text-xs font-semibold focus:outline-none cursor-pointer"
+                    className="text-[10px] font-bold text-red-500 hover:underline focus:outline-none cursor-pointer flex items-center space-x-1"
                     title="Logout"
                   >
-                    <LogOut size={16} />
+                    <LogOut size={13} />
+                    <span>Admin Logout</span>
                   </button>
                 </div>
               ) : (
@@ -215,20 +209,12 @@ export default function Navbar() {
             {/* Mobile Actions Drawer (No Admin login links publicly shown) */}
             {isAdminAuthenticated ? (
               <div className="px-3 py-2.5 flex items-center justify-between border-t border-gray-100 mt-2">
-                <Link
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center space-x-2 text-sm font-semibold text-primary"
-                >
-                  <Shield size={16} className="text-accent" />
-                  <span>Go to Admin Panel</span>
-                </Link>
                 <button
                   onClick={() => { logoutAdmin(); setIsOpen(false); }}
                   className="text-red-500 font-semibold text-sm flex items-center space-x-1 focus:outline-none cursor-pointer"
                 >
                   <LogOut size={16} />
-                  <span>Logout</span>
+                  <span>Admin Logout</span>
                 </button>
               </div>
             ) : (
