@@ -55,12 +55,12 @@ export default function Navbar() {
 
   const navigation = [
     { name: 'Home', href: '/' },
+    { name: 'About Us', href: '/about' },
     { name: 'Products', href: '/products' },
     { name: 'Catalogue', href: '/catalogue' },
     { name: 'Previous Work', href: '/previous-work' },
     { name: 'Testimonials', href: '/testimonials' },
     { name: 'Blogs', href: '/blogs' },
-    { name: 'About Us', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
 

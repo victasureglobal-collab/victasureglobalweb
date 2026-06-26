@@ -57,14 +57,14 @@ export default function Catalogue({ onOpenDownloadModal }) {
                 <h3 className="text-white font-extrabold text-lg leading-tight tracking-wide font-sans">
                   Print-Ready <br/>Brochure Specification Sheets
                 </h3>
-                <p className="text-[10px] text-gray-400 leading-relaxed font-sans">
+                <p className="text-[10px] text-slate-200 leading-relaxed font-sans font-medium">
                   Includes full dimension specifications, container load capacities, moisture-compliance details, and standard FOB price matrices.
                 </p>
               </div>
 
               <button
                 onClick={onOpenDownloadModal}
-                className="w-full flex items-center justify-center space-x-2 bg-gradient-gold hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] text-primary-dark font-extrabold text-xs py-3 rounded-large transition-all shadow-gold-glow cursor-pointer"
+                className="w-full flex items-center justify-center space-x-2 bg-white text-primary hover:bg-slate-50 font-bold text-xs py-3 rounded-large transition-all shadow cursor-pointer"
               >
                 <Download size={14} className="stroke-[2.5]" />
                 <span>Get B2B PDF Copy</span>
@@ -208,7 +208,7 @@ export default function Catalogue({ onOpenDownloadModal }) {
         </div>
 
         {/* Beautiful bottom banner card */}
-        <div className="relative overflow-hidden bg-gradient-navy-green text-white rounded-3xl shadow-xl p-8 sm:p-12 text-center border border-white/5 space-y-6">
+        <div className="relative overflow-hidden gradient-navy-green text-white rounded-3xl shadow-xl p-8 sm:p-12 text-center border border-white/5 space-y-6">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent opacity-50 pointer-events-none"></div>
           
           <div className="relative z-10 space-y-4 max-w-xl mx-auto">
@@ -218,7 +218,7 @@ export default function Catalogue({ onOpenDownloadModal }) {
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-wide uppercase font-sans">
               Custom Molding & Molding Mockups
             </h2>
-            <p className="text-xs text-gray-300 leading-relaxed font-sans">
+            <p className="text-xs text-slate-200 leading-relaxed font-sans font-medium">
               Need custom shapes, sizes, logo-embossed plates, or direct distribution arrangements? Download our full specifications catalogue to see guidelines and contact our wholesale trade team.
             </p>
           </div>
@@ -226,7 +226,7 @@ export default function Catalogue({ onOpenDownloadModal }) {
           <div className="relative z-10 pt-2">
             <button
               onClick={onOpenDownloadModal}
-              className="inline-flex items-center space-x-2 bg-gradient-gold hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] text-primary-dark font-extrabold text-xs px-8 py-3.5 rounded-large shadow-gold-glow transition-all cursor-pointer"
+              className="inline-flex items-center space-x-2 bg-white text-primary hover:bg-slate-50 font-bold text-xs px-8 py-3.5 rounded-large shadow transition-all cursor-pointer"
             >
               <Download size={14} className="stroke-[2.5]" />
               <span>Generate Printable Catalogue PDF</span>
