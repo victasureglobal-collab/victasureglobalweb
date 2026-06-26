@@ -2249,7 +2249,7 @@ function SettingsManager({ triggerToast }) {
       triggerToast('General and contact configurations saved.');
     } catch (err) {
       console.error(err);
-      triggerToast('Error saving settings.');
+      triggerToast(`Error: ${err.message || err}`);
     }
   };
 
