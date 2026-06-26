@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { LogIn, UserPlus, ShieldAlert, Globe } from 'lucide-react';
+import logoIcon from '../assets/logo/VictaSure_Icon_Final.png';
 
 export default function UserLogin() {
   const { loginUser, signupUser, currentUser } = useApp();
@@ -81,9 +82,7 @@ export default function UserLogin() {
         
         {/* Title Block */}
         <div className="text-center space-y-2">
-          <span className="w-12 h-12 bg-primary/5 text-primary rounded-large font-bold flex items-center justify-center text-lg mx-auto shadow-sm">
-            VS
-          </span>
+          <img src={logoIcon} alt="VictaSure Logo" className="w-12 h-12 object-contain mx-auto mb-2" />
           <h2 className="text-2xl font-extrabold text-primary tracking-tight">
             {mode === 'login' ? 'Importers Login Desk' : 'Register B2B Account'}
           </h2>
