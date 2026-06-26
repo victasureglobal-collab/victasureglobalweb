@@ -15,15 +15,15 @@
 }
 
 @theme {
-  --color-primary: #0D2C54;
-  --color-primary-light: #1e4475;
-  --color-primary-dark: #06152b;
-  --color-secondary: #2E7D32;
-  --color-secondary-light: #3d9642;
-  --color-secondary-dark: #1e5221;
-  --color-accent: #C89B3C;
-  --color-accent-light: #d5af5c;
-  --color-accent-dark: #a27a28;
+  --color-primary: #0C2340;
+  --color-primary-light: #1E3E62;
+  --color-primary-dark: #06101E;
+  --color-secondary: #0099DE;
+  --color-secondary-light: #33ADEC;
+  --color-secondary-dark: #0073A7;
+  --color-accent: #00C2FF;
+  --color-accent-light: #40D1FF;
+  --color-accent-dark: #0092C0;
   --color-neutral-dark: #1A1A1A;
   --color-neutral-lightBg: #F8F9FA;
   --color-neutral-border: #E5E7EB;
@@ -36,7 +36,7 @@
   
   --shadow-premium: 0 10px 30px -10px rgba(13, 44, 84, 0.08);
   --shadow-premium-hover: 0 20px 40px -15px rgba(13, 44, 84, 0.15);
-  --shadow-gold-glow: 0 4px 14px 0 rgba(200, 155, 60, 0.3);
+  --shadow-gold-glow: 0 4px 14px 0 rgba(0, 194, 255, 0.3);
 }
 
 @layer base {
@@ -61,11 +61,11 @@
 }
 
 .gradient-gold {
-  background: linear-gradient(135deg, #C89B3C 0%, #E5C07B 100%);
+  background: linear-gradient(135deg, #0099DE 0%, #00C2FF 100%);
 }
 
 .gradient-navy-green {
-  background: linear-gradient(135deg, #0D2C54 0%, #1e5221 100%);
+  background: linear-gradient(135deg, #0C2340 0%, #0099DE 100%);
 }
 
 /* Custom Scrollbar for dashboard and modal views */
