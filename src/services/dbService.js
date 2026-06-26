@@ -534,6 +534,38 @@ export const dbService = {
     setLocal('vs_orders', list.filter(o => o.id !== id));
   },
 
+  // --- TRAFFIC VIEWS ---
+  async getTrafficViews() {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('traffic_views').select('*').order('created_at', { ascending: false });
+        if (!error && data) return data;
+      } catch (err) {
+        console.warn("Supabase traffic_views failed:", err);
+      }
+    }
+    return getLocal('vs_traffic_views') || [];
+  },
+
+  async logTrafficView(country) {
+    const view = {
+      id: 'view-' + Math.random().toString(36).substr(2, 9),
+      country: country || 'Unknown',
+      created_at: new Date().toISOString()
+    };
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('traffic_views').insert(view);
+      } catch (err) {
+        console.warn("Supabase traffic_views log failed:", err);
+      }
+    }
+    const list = getLocal('vs_traffic_views') || [];
+    list.push(view);
+    setLocal('vs_traffic_views', list);
+    return view;
+  },
+
   async checkSupabaseSchema() {
     const status = {
       configured: isSupabaseConfigured(),
@@ -550,7 +582,8 @@ export const dbService = {
       'blogs',
       'founder_details',
       'website_settings',
-      'orders'
+      'orders',
+      'traffic_views'
     ];
 
     for (const table of tablesToCheck) {

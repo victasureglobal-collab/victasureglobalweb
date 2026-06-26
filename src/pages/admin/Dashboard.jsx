@@ -15,7 +15,7 @@ export default function Dashboard() {
     saveProduct, deleteProduct, saveCategory, deleteCategory, updateEnquiryStatus,
     saveCertificate, deleteCertificate, saveBlog, deleteBlog, saveFounder, saveSettings, logoutAdmin,
     orders, changeOrderStatus, checkSupabaseSchema, seedDatabase, refreshData, trafficStats,
-    deleteEnquiry, deleteDownload, deleteOrder
+    deleteEnquiry, deleteDownload, deleteOrder, trafficViews
   } = useApp();
 
   const navigate = useNavigate();
@@ -162,12 +162,14 @@ export default function Dashboard() {
         return date >= dayStart && date <= dayEnd;
       }).length : 0;
 
-      // Base views on actual downloads/enquiries or minimum organic activity
-      const organicViews = Math.max(5, Math.round(5 + (i * 2 % 5) + (dayDls + dayEnqs) * 3));
+      const dayViews = trafficViews ? trafficViews.filter(v => {
+        const date = new Date(v.created_at);
+        return date >= dayStart && date <= dayEnd;
+      }).length : 0;
 
       chartData.push({
         name: dayName,
-        Visitors: organicViews,
+        Visitors: dayViews,
         Downloads: dayDls + dayEnqs
       });
     }

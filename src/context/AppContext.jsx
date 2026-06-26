@@ -14,6 +14,7 @@ export const AppProvider = ({ children }) => {
   const [founder, setFounder] = useState(null);
   const [settings, setSettings] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [trafficViews, setTrafficViews] = useState([]);
   const [trafficStats, setTrafficStats] = useState({ totalViews: 0, countryViews: {} });
 
   // Cart state persisted to localStorage
@@ -40,7 +41,7 @@ export const AppProvider = ({ children }) => {
   const refreshData = async () => {
     try {
       setLoading(true);
-      const [cats, prods, enqs, dls, certs, blgs, fndr, stgs, ords] = await Promise.all([
+      const [cats, prods, enqs, dls, certs, blgs, fndr, stgs, ords, views] = await Promise.all([
         dbService.getCategories(),
         dbService.getProducts(),
         dbService.getEnquiries(),
@@ -50,6 +51,7 @@ export const AppProvider = ({ children }) => {
         dbService.getFounderDetails(),
         dbService.getWebsiteSettings(),
         dbService.getOrders(),
+        dbService.getTrafficViews(),
       ]);
 
       setCategories(cats);
@@ -61,6 +63,16 @@ export const AppProvider = ({ children }) => {
       setFounder(fndr);
       setSettings(stgs);
       setOrders(ords);
+      setTrafficViews(views || []);
+
+      // Derive trafficStats from views array
+      const totalViews = (views || []).length;
+      const countryViews = {};
+      (views || []).forEach(v => {
+        const c = v.country || 'Unknown';
+        countryViews[c] = (countryViews[c] || 0) + 1;
+      });
+      setTrafficStats({ totalViews, countryViews });
     } catch (err) {
       console.error("Failed to refresh application data", err);
     } finally {
@@ -77,13 +89,6 @@ export const AppProvider = ({ children }) => {
       const sessionLogged = sessionStorage.getItem('vs_session_view_logged');
       
       if (sessionLogged) {
-        // Just load existing stats without incrementing
-        try {
-          const savedStats = localStorage.getItem('vs_traffic_stats');
-          if (savedStats) {
-            setTrafficStats(JSON.parse(savedStats));
-          }
-        } catch (e) {}
         return;
       }
 
@@ -92,25 +97,15 @@ export const AppProvider = ({ children }) => {
         const geoData = await geoRes.json();
         const country = geoData.country_name || 'Unknown';
 
-        const savedStats = localStorage.getItem('vs_traffic_stats');
-        let stats = savedStats ? JSON.parse(savedStats) : { totalViews: 0, countryViews: {} };
-        
-        stats.totalViews = (stats.totalViews || 0) + 1;
-        stats.countryViews[country] = (stats.countryViews[country] || 0) + 1;
-        
-        localStorage.setItem('vs_traffic_stats', JSON.stringify(stats));
+        const newView = await dbService.logTrafficView(country);
+        setTrafficViews(prev => [newView, ...prev]);
         sessionStorage.setItem('vs_session_view_logged', 'true');
-        setTrafficStats(stats);
       } catch (err) {
         console.error("Failed to log page view analytics", err);
         try {
-          const savedStats = localStorage.getItem('vs_traffic_stats');
-          let stats = savedStats ? JSON.parse(savedStats) : { totalViews: 0, countryViews: {} };
-          stats.totalViews = (stats.totalViews || 0) + 1;
-          stats.countryViews['Unknown'] = (stats.countryViews['Unknown'] || 0) + 1;
-          localStorage.setItem('vs_traffic_stats', JSON.stringify(stats));
+          const newView = await dbService.logTrafficView('Unknown');
+          setTrafficViews(prev => [newView, ...prev]);
           sessionStorage.setItem('vs_session_view_logged', 'true');
-          setTrafficStats(stats);
         } catch (e) {}
       }
     };
@@ -356,6 +351,7 @@ export const AppProvider = ({ children }) => {
       currentUser,
       orders,
       cart,
+      trafficViews,
       trafficStats,
       addToCart,
       updateCartQuantity,
