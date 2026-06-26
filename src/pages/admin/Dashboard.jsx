@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Box, FolderTree, FileSpreadsheet, Newspaper, Award, Settings, LogOut, 
   TrendingUp, Download, Mail, Users, Plus, Edit2, Trash2, Check, Eye, EyeOff, Save, CheckCircle,
-  ShoppingCart, Database, Upload
+  ShoppingCart, Database, Upload, Globe
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { useApp } from '../../context/AppContext';
 import { isSupabaseConfigured } from '../../services/supabaseClient';
+import logoImg from '../../assets/logo/VictaSure_Final.png';
 
 export default function Dashboard() {
   const {
@@ -1928,9 +1929,20 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
         <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-grow">
           
           {/* Header Brand */}
-          <div className="flex items-center space-x-2 border-b border-primary-light pb-4">
-            <span className="p-1.5 bg-gradient-gold rounded font-bold text-primary text-xs">VS</span>
-            <span className="text-white font-bold text-sm tracking-wide">VictaSure Admin</span>
+          <div className="flex flex-col space-y-3 border-b border-primary-light pb-4">
+            <div className="flex items-center space-x-2">
+              <img src={logoImg} alt="VictaSure Logo" className="h-8 w-auto object-contain" />
+              <span className="text-white font-bold text-sm tracking-wide">VictaSure Admin</span>
+            </div>
+            <a 
+              href="/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center justify-center space-x-1.5 bg-primary-light hover:bg-secondary text-white font-bold text-[10px] py-1.5 px-3 rounded-large border border-primary-light hover:border-secondary transition-all w-full cursor-pointer shadow-sm"
+            >
+              <Globe size={12} className="text-accent" />
+              <span>Visit Live Website</span>
+            </a>
           </div>
 
           {/* Nav List */}
