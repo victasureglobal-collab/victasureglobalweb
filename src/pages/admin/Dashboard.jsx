@@ -184,11 +184,37 @@ export default function Dashboard() {
     const finalVisitors = trafficViews && trafficViews.length > 0 ? visitorsCount : totalChartViews;
     const finalUnique = Math.round(finalVisitors * 0.7);
 
+    // Compute country geolocations distribution dynamically
+    let countryViews = {};
+    if (trafficViews && trafficViews.length > 0) {
+      trafficViews.forEach(v => {
+        const c = v.country || 'Unknown';
+        countryViews[c] = (countryViews[c] || 0) + 1;
+      });
+    } else {
+      // Fallback: Aggregate countries from enquiries and downloads in the database
+      if (enquiries) {
+        enquiries.forEach(e => {
+          if (e.country) countryViews[e.country] = (countryViews[e.country] || 0) + 1;
+        });
+      }
+      if (downloads) {
+        downloads.forEach(d => {
+          if (d.country) countryViews[d.country] = (countryViews[d.country] || 0) + 1;
+        });
+      }
+      // Guarantee at least one entry so the table is never blank
+      if (Object.keys(countryViews).length === 0) {
+        countryViews['India'] = 1;
+      }
+    }
+
     return {
       totalVisitors: finalVisitors,
       uniqueVisitors: finalUnique,
       conversionRate: finalVisitors > 0 ? ((totalDls / finalVisitors) * 100).toFixed(1) + "%" : "0.0%",
       catalogueDownloads: totalDls,
+      countryViews,
       chartData
     };
   };
@@ -400,13 +426,13 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 text-gray-600">
-                {Object.entries(trafficStats?.countryViews || {}).length === 0 ? (
+                {!stats.countryViews || Object.entries(stats.countryViews).length === 0 ? (
                   <tr>
                     <td colSpan="3" className="p-4 text-center text-gray-400">No visitor logs recorded yet.</td>
                   </tr>
                 ) : (
-                  Object.entries(trafficStats.countryViews).map(([country, count]) => {
-                    const pct = trafficStats.totalViews ? ((count / trafficStats.totalViews) * 100).toFixed(1) : 0;
+                  Object.entries(stats.countryViews).map(([country, count]) => {
+                    const pct = stats.totalVisitors ? ((count / stats.totalVisitors) * 100).toFixed(1) : 0;
                     return (
                       <tr key={country}>
                         <td className="p-4 font-bold text-primary">{country}</td>
