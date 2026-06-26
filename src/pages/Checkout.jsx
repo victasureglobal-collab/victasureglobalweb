@@ -8,7 +8,7 @@ export default function Checkout() {
   const { cart, placeOrder, currentUser } = useApp();
   const navigate = useNavigate();
   
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: currentUser ? {
       name: currentUser.name || '',
       email: currentUser.email || '',
@@ -20,6 +20,65 @@ export default function Checkout() {
       pincode: currentUser.pincode || '',
     } : {}
   });
+
+  const countryDialCodes = {
+    "Australia": "+61",
+    "Austria": "+43",
+    "Bahrain": "+973",
+    "Bangladesh": "+880",
+    "Belgium": "+32",
+    "Brazil": "+55",
+    "Canada": "+1",
+    "Denmark": "+45",
+    "Egypt": "+20",
+    "France": "+33",
+    "Germany": "+49",
+    "India": "+91",
+    "Indonesia": "+62",
+    "Ireland": "+353",
+    "Italy": "+39",
+    "Japan": "+81",
+    "Kuwait": "+965",
+    "Malaysia": "+60",
+    "Mexico": "+52",
+    "Netherlands": "+31",
+    "New Zealand": "+64",
+    "Oman": "+968",
+    "Philippines": "+63",
+    "Poland": "+48",
+    "Qatar": "+974",
+    "Saudi Arabia": "+966",
+    "Singapore": "+65",
+    "South Africa": "+27",
+    "South Korea": "+82",
+    "Spain": "+34",
+    "Sweden": "+46",
+    "Switzerland": "+41",
+    "Thailand": "+66",
+    "Turkey": "+90",
+    "United Arab Emirates": "+971",
+    "United Kingdom": "+44",
+    "United States": "+1",
+    "Vietnam": "+84"
+  };
+
+  const handleCountryChange = (e) => {
+    const selectedCountry = e.target.value;
+    const dialCode = countryDialCodes[selectedCountry];
+    if (dialCode) {
+      const currentPhone = watch("phone") || "";
+      if (!currentPhone || currentPhone.trim() === "" || Object.values(countryDialCodes).some(code => currentPhone.trim() === code)) {
+        setValue("phone", dialCode + " ");
+      } else {
+        const matchingPrevCode = Object.values(countryDialCodes).find(code => currentPhone.startsWith(code));
+        if (matchingPrevCode) {
+          setValue("phone", currentPhone.replace(matchingPrevCode, dialCode));
+        } else if (!currentPhone.startsWith("+")) {
+          setValue("phone", dialCode + " " + currentPhone);
+        }
+      }
+    }
+  };
 
   if (!currentUser) {
     return (
@@ -175,7 +234,10 @@ export default function Checkout() {
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Country *</label>
                 <select
                   className={`w-full text-sm px-4 py-2.5 rounded-large border bg-white ${errors.country ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary`}
-                  {...register("country", { required: "Country is required" })}
+                  {...register("country", { 
+                    required: "Country is required",
+                    onChange: handleCountryChange
+                  })}
                 >
                   <option value="">Select country...</option>
                   {["Australia", "Austria", "Bahrain", "Bangladesh", "Belgium", "Brazil", "Canada", "Denmark", "Egypt", "France", "Germany", "India", "Indonesia", "Ireland", "Italy", "Japan", "Kuwait", "Malaysia", "Mexico", "Netherlands", "New Zealand", "Oman", "Philippines", "Poland", "Qatar", "Saudi Arabia", "Singapore", "South Africa", "South Korea", "Spain", "Sweden", "Switzerland", "Thailand", "Turkey", "United Arab Emirates", "United Kingdom", "United States", "Vietnam", "Other"].map(c => (

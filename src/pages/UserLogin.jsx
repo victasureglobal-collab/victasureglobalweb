@@ -68,6 +68,47 @@ export default function UserLogin() {
     }
   };
 
+  const countryDialCodes = {
+    "Australia": "+61",
+    "Austria": "+43",
+    "Bahrain": "+973",
+    "Bangladesh": "+880",
+    "Belgium": "+32",
+    "Brazil": "+55",
+    "Canada": "+1",
+    "Denmark": "+45",
+    "Egypt": "+20",
+    "France": "+33",
+    "Germany": "+49",
+    "India": "+91",
+    "Indonesia": "+62",
+    "Ireland": "+353",
+    "Italy": "+39",
+    "Japan": "+81",
+    "Kuwait": "+965",
+    "Malaysia": "+60",
+    "Mexico": "+52",
+    "Netherlands": "+31",
+    "New Zealand": "+64",
+    "Oman": "+968",
+    "Philippines": "+63",
+    "Poland": "+48",
+    "Qatar": "+974",
+    "Saudi Arabia": "+966",
+    "Singapore": "+65",
+    "South Africa": "+27",
+    "South Korea": "+82",
+    "Spain": "+34",
+    "Sweden": "+46",
+    "Switzerland": "+41",
+    "Thailand": "+66",
+    "Turkey": "+90",
+    "United Arab Emirates": "+971",
+    "United Kingdom": "+44",
+    "United States": "+1",
+    "Vietnam": "+84"
+  };
+
   const countries = [
     "Australia", "Austria", "Bahrain", "Bangladesh", "Belgium", "Brazil", "Canada", "Denmark", "Egypt", 
     "France", "Germany", "India", "Indonesia", "Ireland", "Italy", "Japan", "Kuwait", "Malaysia", 
@@ -153,7 +194,23 @@ export default function UserLogin() {
                   <select
                     required
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
+                    onChange={(e) => {
+                      const newCountry = e.target.value;
+                      setCountry(newCountry);
+                      const dialCode = countryDialCodes[newCountry];
+                      if (dialCode) {
+                        if (!phone || phone.trim() === "" || Object.values(countryDialCodes).some(code => phone.trim() === code)) {
+                          setPhone(dialCode + " ");
+                        } else {
+                          const matchingPrevCode = Object.values(countryDialCodes).find(code => phone.startsWith(code));
+                          if (matchingPrevCode) {
+                            setPhone(phone.replace(matchingPrevCode, dialCode));
+                          } else if (!phone.startsWith("+")) {
+                            setPhone(dialCode + " " + phone);
+                          }
+                        }
+                      }
+                    }}
                     className="w-full text-xs px-2.5 py-2 border rounded bg-white focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="">Select country...</option>
