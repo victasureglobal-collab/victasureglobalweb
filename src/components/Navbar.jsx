@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Shield, ShieldAlert, LogIn, LogOut, ShoppingCart, Globe } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
+import logoImg from '../assets/logo/VictaSure_Final.png';
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -91,18 +93,8 @@ export default function Navbar() {
           
           {/* Logo Brand */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center space-x-2 group">
-              <span className="w-9 h-9 bg-primary text-white rounded-large font-bold flex items-center justify-center text-sm shadow-sm">
-                VS
-              </span>
-              <div className="flex flex-col">
-                <span className="text-primary font-extrabold text-base tracking-wide group-hover:text-secondary transition-colors">
-                  {companyName}
-                </span>
-                <span className="text-[9px] text-accent font-semibold tracking-widest uppercase">
-                  Global Exporter
-                </span>
-              </div>
+            <Link to="/" className="flex items-center group">
+              <img src={logoImg} alt={companyName} className="h-10 w-auto object-contain max-w-[180px]" />
             </Link>
           </div>
 

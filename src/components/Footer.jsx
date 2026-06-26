@@ -4,6 +4,7 @@ import {
   Mail, Phone, MapPin, Globe, Award, ShieldAlert, ShieldCheck
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import logoImg from '../assets/logo/VictaSure_Final.png';
 
 const FacebookIcon = (props) => (
   <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -84,11 +85,8 @@ export default function Footer() {
         
         {/* Left Column: Brand description & Socials */}
         <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <span className="w-7 h-7 bg-primary text-white rounded font-bold flex items-center justify-center text-xs shadow-sm">
-              VS
-            </span>
-            <span className="text-primary font-extrabold text-sm tracking-wide">{companyName}</span>
+          <div className="flex items-center">
+            <img src={logoImg} alt={companyName} className="h-8 w-auto object-contain max-w-[150px]" />
           </div>
           <p className="text-xs leading-relaxed text-gray-500 max-w-xs">
             Connecting premium eco-friendly manufacturers with international retailers through excellence.

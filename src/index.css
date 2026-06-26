@@ -1,6 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
-
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'Eurostile';
+  src: url('./assets/fonts/eurostile.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Eurostile';
+  src: url('./assets/fonts/eurostile_extended_black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
 
 @theme {
   --color-primary: #0D2C54;
@@ -17,6 +29,7 @@
   --color-neutral-border: #E5E7EB;
   
   --font-sans: "Poppins", "Inter", "sans-serif";
+  --font-display: "Eurostile", "Poppins", "Inter", "sans-serif";
   
   --radius-large: 12px;
   --radius-xlarge: 16px;
@@ -28,13 +41,17 @@
 
 @layer base {
   body {
-    @apply bg-neutral-lightBg text-neutral-dark font-sans antialiased;
+    background-color: var(--color-neutral-lightBg);
+    color: var(--color-neutral-dark);
+    font-family: var(--font-sans);
     margin: 0;
     padding: 0;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-sans font-semibold text-primary;
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--color-primary);
   }
 }
 

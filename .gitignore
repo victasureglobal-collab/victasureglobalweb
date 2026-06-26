@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Raw Assets Folder
+VictaSure_Final_26062026/
+
