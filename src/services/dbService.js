@@ -414,6 +414,18 @@ export const dbService = {
         if (error) throw error;
         return data;
       } catch (err) {
+        if (err.message && err.message.includes('catalogue_pdf')) {
+          console.warn("catalogue_pdf column missing in Supabase, retrying settings save without it...");
+          const { catalogue_pdf, ...cleanSettings } = settings;
+          try {
+            const { data, error } = await supabase.from('website_settings').upsert(cleanSettings).select().single();
+            if (error) throw error;
+            return { ...data, catalogue_pdf };
+          } catch (retryErr) {
+            console.error("Supabase settings save retry failed:", retryErr);
+            throw retryErr;
+          }
+        }
         console.error("Supabase settings save failed:", err);
         throw err;
       }
