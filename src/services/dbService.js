@@ -398,14 +398,6 @@ export const dbService = {
       try {
         const { data, error } = await supabase.from('website_settings').select('*').single();
         if (error) throw error;
-        
-        // Decode catalogue_pdf from about_overview if present
-        if (data && data.about_overview && data.about_overview.includes("|||CAT_PDF|||")) {
-          const parts = data.about_overview.split("|||CAT_PDF|||");
-          data.about_overview = parts[0];
-          data.catalogue_pdf = parts[1];
-        }
-        
         return data;
       } catch (err) {
         console.warn("Supabase settings query failed, using localStorage:", err);
@@ -417,16 +409,6 @@ export const dbService = {
   async saveWebsiteSettings(settings) {
     settings.id = 'main';
 
-    // Encode catalogue_pdf into about_overview before saving to Supabase
-    let rawOverview = settings.about_overview || "";
-    if (settings.catalogue_pdf) {
-      rawOverview = rawOverview.split("|||CAT_PDF|||")[0] + "|||CAT_PDF|||" + settings.catalogue_pdf;
-    }
-
-    // Create payload copy and strip catalogue_pdf to avoid schema cache error
-    const { catalogue_pdf, ...payload } = settings;
-    payload.about_overview = rawOverview;
-
     if (!isSupabaseConfigured()) {
       const current = getLocal('vs_settings') || {};
       const updated = { ...current, ...settings, updated_at: new Date().toISOString() };
@@ -434,18 +416,10 @@ export const dbService = {
       return updated;
     }
 
-    const trySave = async (payloadToSave, strippedKeys = {}) => {
+    const trySave = async (payload, strippedKeys = {}) => {
       try {
-        const { data, error } = await supabase.from('website_settings').upsert(payloadToSave).select().single();
+        const { data, error } = await supabase.from('website_settings').upsert(payload).select().single();
         if (error) throw error;
-
-        // Decode back for returned data
-        if (data && data.about_overview && data.about_overview.includes("|||CAT_PDF|||")) {
-          const parts = data.about_overview.split("|||CAT_PDF|||");
-          data.about_overview = parts[0];
-          data.catalogue_pdf = parts[1];
-        }
-
         return { ...data, ...strippedKeys };
       } catch (err) {
         if (err.message && err.message.includes('column') && err.message.includes('schema cache')) {
@@ -453,7 +427,7 @@ export const dbService = {
           if (match && match[1]) {
             const missingColumn = match[1];
             console.warn(`Column '${missingColumn}' missing in Supabase. Retrying settings save without it...`);
-            const { [missingColumn]: value, ...remainingPayload } = payloadToSave;
+            const { [missingColumn]: value, ...remainingPayload } = payload;
             return trySave(remainingPayload, { ...strippedKeys, [missingColumn]: value });
           }
         }
@@ -462,7 +436,7 @@ export const dbService = {
       }
     };
 
-    return trySave(payload, { catalogue_pdf: settings.catalogue_pdf });
+    return trySave(settings);
   },
 
   // --- ORDERS ---
