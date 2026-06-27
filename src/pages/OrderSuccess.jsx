@@ -122,30 +122,30 @@ export default function OrderSuccess() {
             <span>FOB Cargo Logistics Pipeline</span>
           </h3>
 
-          <div className="grid grid-cols-5 text-center text-[8px] sm:text-[10px] font-bold text-gray-400 relative">
+          <div className="grid grid-cols-5 text-center text-[10px] sm:text-xs font-bold relative">
             {/* Active connecting line */}
-            <div className="absolute top-3 left-1/10 right-1/10 h-0.5 bg-gray-200 -z-1"></div>
-            <div className="absolute top-3 left-1/10 w-1/4 h-0.5 bg-secondary -z-1"></div>
+            <div className="absolute top-3.5 left-[10%] right-[10%] h-0.5 bg-gray-200 -z-1"></div>
+            <div className="absolute top-3.5 left-[10%] w-[20%] h-0.5 bg-secondary -z-1"></div>
 
             <div className="space-y-2 text-secondary">
-              <span className="w-6.5 h-6.5 rounded-full bg-secondary text-white flex items-center justify-center mx-auto text-xs border-2 border-white shadow">✓</span>
-              <span>Confirmed</span>
+              <span className="w-7 h-7 rounded-full bg-secondary text-white flex items-center justify-center mx-auto text-xs border-2 border-white shadow font-bold">✓</span>
+              <span className="block">Confirmed</span>
             </div>
             <div className="space-y-2 text-primary">
-              <span className="w-6.5 h-6.5 rounded-full bg-primary text-white flex items-center justify-center mx-auto text-xs border-2 border-white shadow">2</span>
-              <span>Audit</span>
+              <span className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center mx-auto text-xs border-2 border-white shadow font-bold">2</span>
+              <span className="block">Audit</span>
             </div>
-            <div className="space-y-2">
-              <span className="w-6.5 h-6.5 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center mx-auto text-xs border-2 border-white">3</span>
-              <span>Fumigation</span>
+            <div className="space-y-2 text-gray-600">
+              <span className="w-7 h-7 rounded-full bg-gray-100 border border-gray-300 text-gray-700 flex items-center justify-center mx-auto text-xs font-bold">3</span>
+              <span className="block">Fumigation</span>
             </div>
-            <div className="space-y-2">
-              <span className="w-6.5 h-6.5 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center mx-auto text-xs border-2 border-white">4</span>
-              <span>Loading</span>
+            <div className="space-y-2 text-gray-600">
+              <span className="w-7 h-7 rounded-full bg-gray-100 border border-gray-300 text-gray-700 flex items-center justify-center mx-auto text-xs font-bold">4</span>
+              <span className="block">Loading</span>
             </div>
-            <div className="space-y-2">
-              <span className="w-6.5 h-6.5 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center mx-auto text-xs border-2 border-white">5</span>
-              <span>Sailed</span>
+            <div className="space-y-2 text-gray-600">
+              <span className="w-7 h-7 rounded-full bg-gray-100 border border-gray-300 text-gray-700 flex items-center justify-center mx-auto text-xs font-bold">5</span>
+              <span className="block">Sailed</span>
             </div>
           </div>
         </div>
