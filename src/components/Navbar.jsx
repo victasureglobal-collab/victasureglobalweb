@@ -65,7 +65,7 @@ export default function Navbar() {
   ];
 
   if (settings?.show_terms_page !== false) {
-    navigation.push({ name: 'Terms & Conditions', href: '/terms' });
+    navigation.splice(navigation.length - 1, 0, { name: 'Terms & Conditions', href: '/terms' });
   }
 
   const isActive = (path) => {
