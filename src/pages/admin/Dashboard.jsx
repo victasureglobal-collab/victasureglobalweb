@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Box, FolderTree, FileSpreadsheet, Newspaper, Award, Settings, LogOut, 
   TrendingUp, Download, Mail, Users, Plus, Edit2, Trash2, Check, Eye, EyeOff, Save, CheckCircle,
-  ShoppingCart, Database, Upload, Globe
+  ShoppingCart, Database, Upload, Globe, RefreshCw, Loader2
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { useApp } from '../../context/AppContext';
@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [itemType, setItemType] = useState(""); // 'product' | 'category' | 'blog' | 'certificate'
   const [successToast, setSuccessToast] = useState("");
   const [schemaStatus, setSchemaStatus] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCheckingSchema, setIsCheckingSchema] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedError, setSeedError] = useState("");
@@ -1075,12 +1076,33 @@ export default function Dashboard() {
       triggerToast("Order fulfillment status updated.");
     };
 
+    const handleReload = async () => {
+      setIsRefreshing(true);
+      await refreshData();
+      setTimeout(() => {
+        setIsRefreshing(false);
+        triggerToast("Live order records updated.");
+      }, 600);
+    };
+
+    const showOrdersLoading = loading || isRefreshing;
+
     return (
       <div className="space-y-6">
-        <h2 className="text-base font-bold text-primary flex items-center space-x-1.5">
-          <ShoppingCart size={18} className="text-accent" />
-          <span>Customer Purchase Orders</span>
-        </h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-base font-bold text-primary flex items-center space-x-1.5">
+            <ShoppingCart size={18} className="text-accent" />
+            <span>Customer Purchase Orders</span>
+          </h2>
+          <button
+            onClick={handleReload}
+            disabled={showOrdersLoading}
+            className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-all shadow disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw size={14} className={showOrdersLoading ? "animate-spin" : ""} />
+            <span>{showOrdersLoading ? "Loading..." : "Reload Desk"}</span>
+          </button>
+        </div>
 
         <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
           <table className="w-full text-left border-collapse text-[11px] sm:text-xs">
@@ -1092,92 +1114,110 @@ export default function Dashboard() {
                 <th className="p-3">Items Purchased</th>
                 <th className="p-3">Order Total</th>
                 <th className="p-3">Fulfillment Status</th>
+                <th className="p-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 text-gray-600">
-              {orders && orders.map((ord) => (
-                <tr key={ord.id} className="hover:bg-gray-50">
-                  <td className="p-3">
-                    <span className="font-bold text-primary block">#{ord.id}</span>
-                    <span className="text-[10px] text-gray-400">{(() => {
-                      const d = new Date(ord.created_at);
-                      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-                    })()}</span>
-                  </td>
-                  <td className="p-3">
-                    <span className="font-bold text-primary block">{ord.customer_name}</span>
-                    <span className="text-gray-400 block">{ord.company_name}</span>
-                    <span className="text-[10px] text-gray-400 block">{ord.email}</span>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="text-[10px] block font-medium">{ord.phone}</span>
-                      {ord.phone && (
-                        <a
-                          href={`https://wa.me/${ord.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${ord.customer_name}, we received your order #${ord.id} on Victa Sure Global. We would like to confirm your delivery to port ${ord.delivery_port}.`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-green-500 hover:bg-green-600 text-white rounded-full p-0.5 transition-all flex items-center justify-center"
-                          title="Chat on WhatsApp"
-                        >
-                          <svg className="w-3.5 h-3.5 fill-current text-white" viewBox="0 0 24 24">
-                            <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.135-1.348a9.957 9.957 0 0 0 4.877 1.28h.005c5.505 0 9.989-4.478 9.99-9.985A9.98 9.98 0 0 0 12.012 2zm5.72 14.12c-.244.688-1.22 1.25-1.68 1.314-.46.064-.9.23-2.92-.574-2.023-.805-3.327-2.855-3.428-2.99-.102-.134-.817-1.086-.817-2.072 0-.986.516-1.472.7-1.674.184-.202.402-.252.536-.252.135 0 .27 0 .387.006.122.006.286-.046.446.337.165.39.566 1.378.615 1.478.05.1.084.216.017.35-.067.135-.1.218-.2.336-.1.118-.2.264-.3.354-.1.1-.2.208-.084.402.118.196.52.854 1.116 1.385.768.683 1.414.894 1.616.994.2.1.32.084.437-.05.118-.135.516-.6.655-.807.135-.2.27-.168.454-.1.184.067 1.173.553 1.374.654.202.1.337.15.387.236.05.084.05.49-.193 1.178z"/>
-                          </svg>
-                        </a>
-                      )}
+              {showOrdersLoading ? (
+                <tr>
+                  <td colSpan="7" className="p-12 text-center">
+                    <div className="flex flex-col justify-center items-center space-y-3 text-gray-400">
+                      <Loader2 className="animate-spin text-accent" size={32} />
+                      <span className="text-xs font-semibold">Auto-loading live purchase orders...</span>
                     </div>
-                  </td>
-                  <td className="p-3">
-                    <span className="font-semibold text-secondary-dark block">{ord.delivery_port}</span>
-                    <span className="text-[10px] text-gray-400 block max-w-xs truncate">{ord.address}, {ord.country}</span>
-                  </td>
-                  <td className="p-3">
-                    <div className="space-y-1 max-w-xs">
-                      {ord.items && ord.items.map((item, idx) => (
-                        <div key={idx} className="text-[10px] leading-tight">
-                          • <span className="font-semibold text-primary">{item.product_name}</span> (Qty: {item.quantity})
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="p-3">
-                    <span className="font-extrabold text-accent block">₹{ord.total_inr.toLocaleString()}</span>
-                    <span className="text-[10px] font-bold text-gray-400 block">${ord.total_usd.toLocaleString()}</span>
-                  </td>
-                  <td className="p-3">
-                    <select
-                      value={ord.status}
-                      onChange={(e) => handleOrderStatus(ord.id, e.target.value)}
-                      className={`text-[10px] font-bold rounded border py-1 px-1 bg-white focus:outline-none ${
-                        ord.status === 'pending' ? 'text-blue-600 border-blue-400' :
-                        ord.status === 'confirmed' ? 'text-indigo-600 border-indigo-400' :
-                        ord.status === 'processing' ? 'text-yellow-600 border-yellow-400' :
-                        ord.status === 'dispatched' ? 'text-orange-600 border-orange-400' :
-                        ord.status === 'delivered' ? 'text-green-600 border-green-400' : 'text-red-500 border-red-400'
-                      }`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="processing">Processing</option>
-                      <option value="dispatched">Dispatched</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td className="p-3 text-center">
-                    <button
-                      onClick={async () => {
-                        if (confirm(`Are you sure you want to delete order #${ord.id}?`)) {
-                          await deleteOrder(ord.id);
-                          triggerToast("Order deleted.");
-                        }
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded transition-all cursor-pointer inline-flex items-center"
-                      title="Delete Order"
-                    >
-                      <Trash2 size={13} />
-                    </button>
                   </td>
                 </tr>
-              ))}
+              ) : orders && orders.length > 0 ? (
+                orders.map((ord) => (
+                  <tr key={ord.id} className="hover:bg-gray-50">
+                    <td className="p-3">
+                      <span className="font-bold text-primary block">#{ord.id}</span>
+                      <span className="text-[10px] text-gray-400">{(() => {
+                        const d = new Date(ord.created_at);
+                        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                      })()}</span>
+                    </td>
+                    <td className="p-3">
+                      <span className="font-bold text-primary block">{ord.customer_name}</span>
+                      <span className="text-gray-400 block">{ord.company_name}</span>
+                      <span className="text-[10px] text-gray-400 block">{ord.email}</span>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-[10px] block font-medium">{ord.phone}</span>
+                        {ord.phone && (
+                          <a
+                            href={`https://wa.me/${ord.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${ord.customer_name}, we received your order #${ord.id} on Victa Sure Global. We would like to confirm your delivery to port ${ord.delivery_port}.`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-green-500 hover:bg-green-600 text-white rounded-full p-0.5 transition-all flex items-center justify-center"
+                            title="Chat on WhatsApp"
+                          >
+                            <svg className="w-3.5 h-3.5 fill-current text-white" viewBox="0 0 24 24">
+                              <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.135-1.348a9.957 9.957 0 0 0 4.877 1.28h.005c5.505 0 9.989-4.478 9.99-9.985A9.98 9.98 0 0 0 12.012 2zm5.72 14.12c-.244.688-1.22 1.25-1.68 1.314-.46.064-.9.23-2.92-.574-2.023-.805-3.327-2.855-3.428-2.99-.102-.134-.817-1.086-.817-2.072 0-.986.516-1.472.7-1.674.184-.202.402-.252.536-.252.135 0 .27 0 .387.006.122.006.286-.046.446.337.165.39.566 1.378.615 1.478.05.1.084.216.017.35-.067.135-.1.218-.2.336-.1.118-.2.264-.3.354-.1.1-.2.208-.084.402.118.196.52.854 1.116 1.385.768.683 1.414.894 1.616.994.2.1.32.084.437-.05.118-.135.516-.6.655-.807.135-.2.27-.168.454-.1.184.067 1.173.553 1.374.654.202.1.337.15.387.236.05.084.05.49-.193 1.178z"/>
+                            </svg>
+                          </a>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <span className="font-semibold text-secondary-dark block">{ord.delivery_port}</span>
+                      <span className="text-[10px] text-gray-400 block max-w-xs truncate">{ord.address}, {ord.country}</span>
+                    </td>
+                    <td className="p-3">
+                      <div className="space-y-1 max-w-xs">
+                        {ord.items && ord.items.map((item, idx) => (
+                          <div key={idx} className="text-[10px] leading-tight">
+                            • <span className="font-semibold text-primary">{item.product_name}</span> (Qty: {item.quantity})
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <span className="font-extrabold text-accent block">₹{ord.total_inr.toLocaleString()}</span>
+                      <span className="text-[10px] font-bold text-gray-400 block">${ord.total_usd.toLocaleString()}</span>
+                    </td>
+                    <td className="p-3">
+                      <select
+                        value={ord.status}
+                        onChange={(e) => handleOrderStatus(ord.id, e.target.value)}
+                        className={`text-[10px] font-bold rounded border py-1 px-1 bg-white focus:outline-none ${
+                          ord.status === 'pending' ? 'text-blue-600 border-blue-400' :
+                          ord.status === 'confirmed' ? 'text-indigo-600 border-indigo-400' :
+                          ord.status === 'processing' ? 'text-yellow-600 border-yellow-400' :
+                          ord.status === 'dispatched' ? 'text-orange-600 border-orange-400' :
+                          ord.status === 'delivered' ? 'text-green-600 border-green-400' : 'text-red-500 border-red-400'
+                        }`}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="processing">Processing</option>
+                        <option value="dispatched">Dispatched</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={async () => {
+                          if (confirm(`Are you sure you want to delete order #${ord.id}?`)) {
+                            await deleteOrder(ord.id);
+                            triggerToast("Order deleted.");
+                          }
+                        }}
+                        className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded transition-all cursor-pointer inline-flex items-center"
+                        title="Delete Order"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="p-8 text-center text-gray-400 italic font-semibold">
+                    No purchase orders received yet.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
