@@ -409,10 +409,11 @@ export const dbService = {
   async saveWebsiteSettings(settings) {
     settings.id = 'main';
 
+    const current = getLocal('vs_settings') || {};
+    const updated = { ...current, ...settings, updated_at: new Date().toISOString() };
+    setLocal('vs_settings', updated);
+
     if (!isSupabaseConfigured()) {
-      const current = getLocal('vs_settings') || {};
-      const updated = { ...current, ...settings, updated_at: new Date().toISOString() };
-      setLocal('vs_settings', updated);
       return updated;
     }
 
@@ -422,17 +423,19 @@ export const dbService = {
         if (error) throw error;
         return { ...data, ...strippedKeys };
       } catch (err) {
-        if (err.message && err.message.includes('column') && err.message.includes('schema cache')) {
-          const match = err.message.match(/Could not find the '(.+?)' column/);
-          if (match && match[1]) {
-            const missingColumn = match[1];
-            console.warn(`Column '${missingColumn}' missing in Supabase. Retrying settings save without it...`);
-            const { [missingColumn]: value, ...remainingPayload } = payload;
-            return trySave(remainingPayload, { ...strippedKeys, [missingColumn]: value });
-          }
+        const errMsg = String(err.message || err);
+        const match = errMsg.match(/column "(.+?)" of relation/i) || 
+                      errMsg.match(/Could not find the '(.+?)' column/i) ||
+                      errMsg.match(/column "(.+?)" does not exist/i) ||
+                      errMsg.match(/column (.+?) does not exist/i);
+        if (match && match[1]) {
+          const missingColumn = match[1].replace(/["']/g, '');
+          console.warn(`Column '${missingColumn}' missing in Supabase. Retrying settings save without it...`);
+          const { [missingColumn]: value, ...remainingPayload } = payload;
+          return trySave(remainingPayload, { ...strippedKeys, [missingColumn]: value });
         }
-        console.error("Supabase settings save failed:", err);
-        throw err;
+        console.error("Supabase settings save failed, but saved locally:", err);
+        return updated;
       }
     };
 
