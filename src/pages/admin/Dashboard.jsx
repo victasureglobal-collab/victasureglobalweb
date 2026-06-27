@@ -1194,9 +1194,13 @@ export default function Dashboard() {
 
     const handleSaveBlog = async (e) => {
       e.preventDefault();
+      // Auto-generate slug from title if empty
+      if (!editingItem.slug) {
+        editingItem.slug = editingItem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      }
       await saveBlog(editingItem);
       setEditingItem(null);
-      triggerToast("Trade article saved.");
+      triggerToast("Trade article saved successfully.");
     };
 
     return (
@@ -1213,51 +1217,58 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium lg:col-span-2">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
-                  <th className="p-4">Image</th>
-                  <th className="p-4">Title</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Actions</th>
+        <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
+                <th className="p-4">Image</th>
+                <th className="p-4">Title</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 text-gray-600">
+              {blogs.map((b) => (
+                <tr key={b.id}>
+                  <td className="p-4">
+                    <img src={b.featured_image} alt="" className="w-12 h-8 object-cover rounded border" />
+                  </td>
+                  <td className="p-4 font-bold text-primary max-w-xs truncate" title={b.title}>{b.title}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      b.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {b.status}
+                    </span>
+                  </td>
+                  <td className="p-4 flex items-center space-x-3 mt-1">
+                    <button onClick={() => handleEditBlog(b)} className="text-primary hover:text-accent">
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => { if(confirm("Delete article?")) deleteBlog(b.id); }} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 text-gray-600">
-                {blogs.map((b) => (
-                  <tr key={b.id}>
-                    <td className="p-4">
-                      <img src={b.featured_image} alt="" className="w-12 h-8 object-cover rounded border" />
-                    </td>
-                    <td className="p-4 font-bold text-primary max-w-xs truncate" title={b.title}>{b.title}</td>
-                    <td className="p-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        b.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {b.status}
-                      </span>
-                    </td>
-                    <td className="p-4 flex items-center space-x-3 mt-1">
-                      <button onClick={() => handleEditBlog(b)} className="text-primary hover:text-accent">
-                        <Edit2 size={16} />
-                      </button>
-                      <button onClick={() => { if(confirm("Delete article?")) deleteBlog(b.id); }} className="text-red-500 hover:text-red-700">
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+              {blogs.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold italic">
+                    No articles drafted yet. Click Write New Article to create.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-          {editingItem && itemType === "blog" ? (
-            <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium lg:col-span-1 h-fit">
-              <form onSubmit={handleSaveBlog} className="space-y-4">
-                <h3 className="font-bold text-sm text-primary border-b pb-2">
-                  {editingItem.id ? "Edit Blog Details" : "Create Blog Post"}
+        {/* Modal for Add / Edit Blog Post */}
+        {editingItem && itemType === "blog" && (
+          <div className="fixed inset-0 bg-primary/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xlarge max-w-2xl w-full border border-neutral-border max-h-[90vh] overflow-y-auto custom-scrollbar shadow-premium">
+              <form onSubmit={handleSaveBlog} className="p-6 sm:p-8 space-y-4">
+                <h3 className="font-sans font-bold text-lg text-primary border-b pb-2">
+                  {editingItem.id ? "Edit Blog Details" : "Write New Article"}
                 </h3>
                 
                 <div>
@@ -1267,7 +1278,8 @@ export default function Dashboard() {
                     required
                     value={editingItem.title}
                     onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="e.g. The Rising Global Demand for Areca Leaf Dinnerware"
                   />
                 </div>
 
@@ -1281,45 +1293,49 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">HTML Content</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Article Content (HTML supported)</label>
                   <textarea
-                    rows="5"
+                    rows="6"
                     required
                     value={editingItem.content}
                     onChange={(e) => setEditingItem({ ...editingItem, content: e.target.value })}
-                    className="w-full text-xs px-3 py-2 rounded border font-mono focus:outline-none"
-                    placeholder="<p>Write content...</p>"
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Write your article content here..."
                   />
                 </div>
 
-                <div className="border-t pt-2 space-y-2">
+                <div className="border-t pt-3 space-y-3">
                   <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">SEO Metadata</span>
-                  <div>
-                    <label className="block text-[10px] font-semibold text-gray-600">Meta Title</label>
-                    <input
-                      type="text"
-                      value={editingItem.seo_title || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, seo_title: e.target.value })}
-                      className="w-full text-xs px-3 py-1.5 rounded border"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-semibold text-gray-600">Meta Description</label>
-                    <input
-                      type="text"
-                      value={editingItem.seo_description || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, seo_description: e.target.value })}
-                      className="w-full text-xs px-3 py-1.5 rounded border"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-gray-600">Meta Title</label>
+                      <input
+                        type="text"
+                        value={editingItem.seo_title || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, seo_title: e.target.value })}
+                        className="w-full text-xs px-3 py-1.5 rounded border"
+                        placeholder="Search engine title..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-gray-600">Meta Description</label>
+                      <input
+                        type="text"
+                        value={editingItem.seo_description || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, seo_description: e.target.value })}
+                        className="w-full text-xs px-3 py-1.5 rounded border"
+                        placeholder="Search engine brief..."
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-2 border-t">
-                  <label className="flex items-center space-x-2 text-xs">
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700">
                     <select
                       value={editingItem.status}
                       onChange={(e) => setEditingItem({ ...editingItem, status: e.target.value })}
-                      className="border rounded text-xs py-1"
+                      className="border rounded text-xs py-1 px-2"
                     >
                       <option value="published">Published</option>
                       <option value="draft">Draft</option>
@@ -1327,25 +1343,26 @@ export default function Dashboard() {
                     <span>Status</span>
                   </label>
 
-                  <div className="flex space-x-2">
-                    <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
+                  <div className="flex space-x-3">
+                    <button 
+                      type="button" 
+                      onClick={() => setEditingItem(null)} 
+                      className="px-4 py-2 border text-xs font-bold rounded hover:bg-gray-100"
+                    >
                       Cancel
                     </button>
-                    <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                      Save Post
+                    <button 
+                      type="submit" 
+                      className="px-4 py-2 bg-secondary text-white text-xs font-bold rounded hover:bg-secondary-light"
+                    >
+                      Save Article
                     </button>
                   </div>
                 </div>
               </form>
             </div>
-          ) : (
-            <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
-              <Newspaper size={36} className="mx-auto text-gray-300 mb-2" />
-              <span className="text-xs font-semibold">Select write / edit article to show parameter forms.</span>
-            </div>
-          )}
-
-        </div>
+          </div>
+        )}
 
       </div>
     );
