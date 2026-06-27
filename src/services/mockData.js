@@ -379,13 +379,7 @@ export const initialWebsiteSettings = {
   about_mission_icon: "Target",
   about_vision: "We envision VictaSure Global as a globally recognized exporter of sustainable and value-driven Indian products, contributing to a greener future while creating shared growth opportunities for our customers, suppliers, and communities. Our guiding philosophy is simple: We grow by helping our partners grow.",
   about_vision_icon: "Compass",
-  about_core_values: [
-    "Integrity and ethical business practices",
-    "Customer-first service and responsive communication",
-    "Sustainable and environmentally responsible sourcing",
-    "Long-term partnerships based on mutual trust and success",
-    "Mutually beneficial business framework for all stakeholders"
-  ],
+  about_core_values: "At VictaSure Global, our business is built on integrity and ethical business practices, Customer-first service and responsive communication. We support Sustainable and environmentally responsible sourcing through the long-term partnerships based on mutual trust and success. We believe in a mutually beneficial business framework where every stakeholder—customers, manufacturers, and communities—can thrive together.",
   about_quality_commitment: "Quality is at the heart of everything we do. We work closely with skilled and trusted manufacturers and suppliers to source high quality products that meet stringent quality standards and international export requirements. Every shipment undergoes careful evaluation to ensure consistency, durability, and customer satisfaction.\nOur commitment extends beyond the products themselves. From inquiry to delivery, we emphasize accurate documentation, timely updates, efficient logistics, and dependable support, ensuring a smooth and hassle-free experience for every client.\nAt VictaSure Global, we don't just export products—we support innovation that benefit the society, environment sustainability and build lasting relationships through reliability, excellence, and an unwavering commitment to quality.",
   why_choose_us_items: [
     {

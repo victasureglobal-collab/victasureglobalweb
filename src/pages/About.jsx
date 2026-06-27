@@ -104,22 +104,17 @@ export default function About() {
       <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12">
         
         {/* Core Values */}
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <span className="text-secondary font-bold text-xs uppercase tracking-widest">Our Foundation</span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-primary">Core Ethical Values</h2>
+        <div className="bg-white p-8 sm:p-10 border border-neutral-border rounded-xlarge shadow-premium flex flex-col justify-center space-y-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/10 rounded-bl-full flex items-center justify-center">
+            <Users className="text-secondary w-8 h-8" />
           </div>
-
-          <div className="space-y-4">
-            {settings.about_core_values?.map((value, idx) => (
-              <div key={idx} className="flex items-center space-x-4 bg-white p-4 border border-neutral-border rounded-large shadow-sm hover:shadow-md transition-shadow">
-                <div className="p-2 bg-secondary/10 rounded-large">
-                  {valueIcons[idx % valueIcons.length]}
-                </div>
-                <span className="text-xs font-bold text-primary">{value}</span>
-              </div>
-            ))}
-          </div>
+          <span className="text-secondary font-bold text-xs uppercase tracking-widest block">Our Foundation</span>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-primary">Our Core Values</h2>
+          <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-line">
+            {typeof settings.about_core_values === 'string' 
+              ? settings.about_core_values 
+              : settings.about_core_values?.join('\n')}
+          </p>
         </div>
 
         {/* Quality Commitment Card */}
