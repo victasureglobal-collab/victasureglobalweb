@@ -441,16 +441,24 @@ export const dbService = {
 
   // --- ORDERS ---
   async getOrders() {
+    let supabaseOrders = [];
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
         if (error) throw error;
-        return data;
+        supabaseOrders = data || [];
       } catch (err) {
-        console.warn("Supabase orders query failed, using localStorage:", err);
+        console.warn("Supabase orders query failed:", err);
       }
     }
-    return getLocal('vs_orders') || [];
+    const localOrders = getLocal('vs_orders') || [];
+    const merged = [...supabaseOrders];
+    localOrders.forEach(lo => {
+      if (!merged.some(so => so.id === lo.id)) {
+        merged.push(lo);
+      }
+    });
+    return merged.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   },
 
   async createOrder(order) {
