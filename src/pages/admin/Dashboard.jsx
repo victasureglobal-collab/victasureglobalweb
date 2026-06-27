@@ -16,7 +16,7 @@ export default function Dashboard() {
     saveProduct, deleteProduct, saveCategory, deleteCategory, updateEnquiryStatus,
     saveCertificate, deleteCertificate, saveBlog, deleteBlog, saveFounder, saveSettings, logoutAdmin,
     orders, changeOrderStatus, checkSupabaseSchema, seedDatabase, refreshData, trafficStats,
-    deleteEnquiry, deleteDownload, deleteOrder, trafficViews
+    deleteEnquiry, deleteDownload, deleteOrder, trafficViews, loading
   } = useApp();
 
   const navigate = useNavigate();
