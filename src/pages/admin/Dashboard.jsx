@@ -2219,7 +2219,7 @@ function SettingsManager({ triggerToast }) {
       setAboutMissionIcon(settings.about_mission_icon || 'Target');
       setAboutVision(settings.about_vision || '');
       setAboutVisionIcon(settings.about_vision_icon || 'Compass');
-      setCoreValuesText(Array.isArray(settings.about_core_values) ? settings.about_core_values.join('\n') : '');
+      setCoreValuesText(Array.isArray(settings.about_core_values) ? settings.about_core_values.join('\n') : (settings.about_core_values || ''));
       setQualityCommitment(settings.about_quality_commitment || '');
 
       setWhyChooseUsItems(settings.why_choose_us_items && settings.why_choose_us_items.length === 4 
