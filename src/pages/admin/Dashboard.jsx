@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Box, FolderTree, FileSpreadsheet, Newspaper, Award, Settings, LogOut, 
   TrendingUp, Download, Mail, Users, Plus, Edit2, Trash2, Check, Eye, EyeOff, Save, CheckCircle,
-  ShoppingCart, Database, Upload, Globe, RefreshCw, Loader2
+  ShoppingCart, Database, Upload, Globe, RefreshCw
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { useApp } from '../../context/AppContext';
@@ -1122,7 +1122,7 @@ export default function Dashboard() {
                 <tr>
                   <td colSpan="7" className="p-12 text-center">
                     <div className="flex flex-col justify-center items-center space-y-3 text-gray-400">
-                      <Loader2 className="animate-spin text-accent" size={32} />
+                      <RefreshCw className="animate-spin text-accent" size={28} />
                       <span className="text-xs font-semibold">Auto-loading live purchase orders...</span>
                     </div>
                   </td>
