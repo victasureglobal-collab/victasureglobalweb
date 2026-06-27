@@ -13,7 +13,7 @@ import {
 
 // Initialize localStorage if not already set
 const initializeLocalStorage = () => {
-  if (!localStorage.getItem('vs_initialized_v5')) {
+  if (!localStorage.getItem('vs_initialized_v6')) {
     localStorage.setItem('vs_categories', JSON.stringify(initialCategories));
     localStorage.setItem('vs_products', JSON.stringify(initialProducts));
     localStorage.setItem('vs_enquiries', JSON.stringify(initialEnquiries));
@@ -23,7 +23,7 @@ const initializeLocalStorage = () => {
     localStorage.setItem('vs_founder', JSON.stringify(initialFounderDetails));
     localStorage.setItem('vs_settings', JSON.stringify(initialWebsiteSettings));
     localStorage.setItem('vs_orders', JSON.stringify(initialOrders));
-    localStorage.setItem('vs_initialized_v5', 'true');
+    localStorage.setItem('vs_initialized_v6', 'true');
   }
 };
 

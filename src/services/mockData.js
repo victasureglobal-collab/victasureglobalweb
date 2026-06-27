@@ -365,7 +365,7 @@ export const initialFounderDetails = {
   photo_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
   name: "Vikraman Sundararajan",
   designation: "Founder & Managing Director",
-  message: "At VictaSure Global, we bridge the gap between premium Indian manufacturing and global markets. Our commitment to sustainability, uncompromised quality standards, and absolute trust forms the cornerstone of every trade alliance we nurture. We thank you for partnering with us to build a sustainable, green future.",
+  message: "Trust is earned through actions, not promises. At VictaSure Global, we are committed to delivering quality products, transparent communication, and dependable service that foster long-term partnerships across global markets.",
   is_visible: true
 };
 
@@ -374,19 +374,19 @@ export const initialWebsiteSettings = {
   hero_title: "Trusted Alliances. Assured Quality. Global Reach.",
   hero_subtitle: "Connecting premium eco-friendly manufacturers with high-end international retailers through a commitment to sustainability and excellence.",
   hero_banner_url: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1600",
-  about_overview: "VictaSure Global is a premier export house based in India, dedicated to manufacturing and distributing sustainable, eco-friendly Areca Leaf dinnerware, plates, bowls, trays, and cutlery. We serve clients across 15+ countries, providing seamless logistics and strict quality controls.",
-  about_mission: "To deliver reliable, certified, and premium quality Areca palm leaf tableware, plates, bowls, and cutlery to international markets while ensuring environmental sustainability and fair trade partnerships.",
+  about_overview: "Founded in 2026, VictaSure Global was established with a simple yet powerful mission—to bring the finest Made in India products to customers across the globe while delivering an exceptional export experience through transparent communication, seamless order tracking, and real-time shipment updates.\nWith the combined efforts of team over the years of experience in the industry we specialize in exporting premium eco-friendly products, with a strong focus on sustainability, quality, and customer satisfaction. Our portfolio includes Areca palm leaf tableware, biodegradable dining solutions, organic products, and other responsibly sourced goods that meet the evolving needs of global markets.",
+  about_mission: "Our mission is to become a trusted global export partner by supplying superior-quality products backed by reliable service, hassle-free shipping, and clear communication at every stage of the export process. We are committed to making international trade simple, transparent, and dependable for our customers while building long-term business relationships based on trust and consistency.",
   about_mission_icon: "Target",
-  about_vision: "To become the most trusted global connector for sustainable palm leaf tableware, known for absolute quality assurance and robust trade alliances.",
+  about_vision: "We envision VictaSure Global as a globally recognized exporter of sustainable and value-driven Indian products, contributing to a greener future while creating shared growth opportunities for our customers, suppliers, and communities. Our guiding philosophy is simple: We grow by helping our partners grow.",
   about_vision_icon: "Compass",
   about_core_values: [
-    "Uncompromising Quality Assurance",
-    "Eco-Friendly & Sustainable Focus",
-    "Absolute Integrity & Transparency",
-    "Customer-Centric Logistics Support",
-    "Long-term Trade Alliances"
+    "Integrity and ethical business practices",
+    "Customer-first service and responsive communication",
+    "Sustainable and environmentally responsible sourcing",
+    "Long-term partnerships based on mutual trust and success",
+    "Mutually beneficial business framework for all stakeholders"
   ],
-  about_quality_commitment: "We adhere to ISO 9001:2015 and international bio-degradability standards. Every product batch undergoes rigid inspection prior to loading to maintain moisture between 10% and 12%, preventing mold and ensuring structural strength.",
+  about_quality_commitment: "Quality is at the heart of everything we do. We work closely with skilled and trusted manufacturers and suppliers to source high quality products that meet stringent quality standards and international export requirements. Every shipment undergoes careful evaluation to ensure consistency, durability, and customer satisfaction.\nOur commitment extends beyond the products themselves. From inquiry to delivery, we emphasize accurate documentation, timely updates, efficient logistics, and dependable support, ensuring a smooth and hassle-free experience for every client.\nAt VictaSure Global, we don't just export products—we support innovation that benefit the society, environment sustainability and build lasting relationships through reliability, excellence, and an unwavering commitment to quality.",
   why_choose_us_items: [
     {
       "icon": "ShieldCheck",
@@ -414,14 +414,13 @@ export const initialWebsiteSettings = {
   show_why_choose_us: true,
   show_founder_section: true,
   show_overview_section: true,
-  contact_whatsapp: "+919876543210",
+  contact_whatsapp: "+91 83909 00120",
   contact_email: "export@victasure.com",
-  contact_phone: "+91 98765 43210",
-  contact_address: "123 Global Trade Centre, Bangalore, India 560001",
+  contact_phone: "+91 83909 00120",
+  contact_address: "Bengaluru, Karnataka, India",
   socials: [
-    { "platform": "Globe", "url": "https://victasure.com" },
-    { "platform": "Linkedin", "url": "https://linkedin.com/company/victasure" },
-    { "platform": "Facebook", "url": "https://facebook.com/victasure" }
+    { "platform": "Facebook", "url": "https://www.facebook.com/profile.php?id=61590500655930" },
+    { "platform": "Instagram", "url": "https://www.instagram.com/victasure?igsh=MTJvdnRqbm5uZHhsdg%3D%3D&utm_source=qr" }
   ],
   faqs: [
     {
