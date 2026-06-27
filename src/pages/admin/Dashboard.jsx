@@ -2227,6 +2227,16 @@ function SettingsManager({ triggerToast }) {
   const [termsNotice, setTermsNotice] = React.useState('');
   const [termsContent, setTermsContent] = React.useState('');
 
+  // Setting buttons loading states
+  const [isSavingGeneral, setIsSavingGeneral] = React.useState(false);
+  const [isSavedGeneral, setIsSavedGeneral] = React.useState(false);
+  const [isSavingAbout, setIsSavingAbout] = React.useState(false);
+  const [isSavedAbout, setIsSavedAbout] = React.useState(false);
+  const [isSavingFounder, setIsSavingFounder] = React.useState(false);
+  const [isSavedFounder, setIsSavedFounder] = React.useState(false);
+  const [isSavingTerms, setIsSavingTerms] = React.useState(false);
+  const [isSavedTerms, setIsSavedTerms] = React.useState(false);
+
   // Sync settings local state to context data when loaded
   React.useEffect(() => {
     if (settings) {
@@ -2315,6 +2325,7 @@ function SettingsManager({ triggerToast }) {
   // Save Terms & Conditions Settings
   const handleSaveTerms = async (e) => {
     e.preventDefault();
+    setIsSavingTerms(true);
     try {
       const updated = {
         ...settings,
@@ -2324,16 +2335,21 @@ function SettingsManager({ triggerToast }) {
         terms_content: termsContent
       };
       await saveSettings(updated);
+      setIsSavedTerms(true);
       triggerToast('Terms & Conditions settings updated.');
+      setTimeout(() => setIsSavedTerms(false), 2000);
     } catch (err) {
       console.error(err);
       triggerToast(`Error: ${err.message || err}`);
+    } finally {
+      setIsSavingTerms(false);
     }
   };
 
   // Save General & Contact Settings
   const handleSaveGeneral = async (e) => {
     e.preventDefault();
+    setIsSavingGeneral(true);
     try {
       const updated = {
         ...settings,
@@ -2355,16 +2371,21 @@ function SettingsManager({ triggerToast }) {
         socials: socials
       };
       await saveSettings(updated);
+      setIsSavedGeneral(true);
       triggerToast('General and contact configurations saved.');
+      setTimeout(() => setIsSavedGeneral(false), 2000);
     } catch (err) {
       console.error(err);
       triggerToast(`Error: ${err.message || err}`);
+    } finally {
+      setIsSavingGeneral(false);
     }
   };
 
   // Save About Details
   const handleSaveAbout = async (e) => {
     e.preventDefault();
+    setIsSavingAbout(true);
     try {
       const valuesArray = coreValuesText
         .split('\n')
@@ -2382,16 +2403,21 @@ function SettingsManager({ triggerToast }) {
         about_quality_commitment: qualityCommitment
       };
       await saveSettings(updated);
+      setIsSavedAbout(true);
       triggerToast('About Us sections saved successfully.');
+      setTimeout(() => setIsSavedAbout(false), 2000);
     } catch (err) {
       console.error(err);
       triggerToast('Error saving About Us info.');
+    } finally {
+      setIsSavingAbout(false);
     }
   };
 
   // Save Founder info
   const handleSaveFounder = async (e) => {
     e.preventDefault();
+    setIsSavingFounder(true);
     try {
       const updated = {
         ...founder,
@@ -2402,10 +2428,14 @@ function SettingsManager({ triggerToast }) {
         is_visible: founderIsVisible
       };
       await saveFounder(updated);
+      setIsSavedFounder(true);
       triggerToast('Founder details saved successfully.');
+      setTimeout(() => setIsSavedFounder(false), 2000);
     } catch (err) {
       console.error(err);
       triggerToast('Error saving founder details.');
+    } finally {
+      setIsSavingFounder(false);
     }
   };
 
@@ -2921,10 +2951,25 @@ function SettingsManager({ triggerToast }) {
           <div className="flex justify-end pt-4 border-t">
             <button
               type="submit"
-              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-6 rounded-large shadow transition-all cursor-pointer"
+              disabled={isSavingGeneral || isSavedGeneral}
+              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-6 rounded-large shadow transition-all cursor-pointer disabled:opacity-80"
             >
-              <Save size={14} />
-              <span>Save General Settings</span>
+              {isSavingGeneral ? (
+                <>
+                  <RefreshCw className="animate-spin" size={14} />
+                  <span>Saving...</span>
+                </>
+              ) : isSavedGeneral ? (
+                <>
+                  <Check className="text-green-400" size={14} />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save size={14} />
+                  <span>Save General Settings</span>
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -3019,10 +3064,25 @@ function SettingsManager({ triggerToast }) {
           <div className="flex justify-end pt-4 border-t">
             <button
               type="submit"
-              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-6 rounded-large shadow transition-all cursor-pointer"
+              disabled={isSavingAbout || isSavedAbout}
+              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-6 rounded-large shadow transition-all cursor-pointer disabled:opacity-80"
             >
-              <Save size={14} />
-              <span>Save About Settings</span>
+              {isSavingAbout ? (
+                <>
+                  <RefreshCw className="animate-spin" size={14} />
+                  <span>Saving...</span>
+                </>
+              ) : isSavedAbout ? (
+                <>
+                  <Check className="text-green-400" size={14} />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save size={14} />
+                  <span>Save About Settings</span>
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -3089,10 +3149,25 @@ function SettingsManager({ triggerToast }) {
           <div className="flex justify-end pt-4 border-t">
             <button
               type="submit"
-              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-6 rounded-large shadow transition-all cursor-pointer"
+              disabled={isSavingFounder || isSavedFounder}
+              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-6 rounded-large shadow transition-all cursor-pointer disabled:opacity-80"
             >
-              <Save size={14} />
-              <span>Save Founder Profile</span>
+              {isSavingFounder ? (
+                <>
+                  <RefreshCw className="animate-spin" size={14} />
+                  <span>Saving...</span>
+                </>
+              ) : isSavedFounder ? (
+                <>
+                  <Check className="text-green-400" size={14} />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save size={14} />
+                  <span>Save Founder Profile</span>
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -3645,9 +3720,22 @@ function SettingsManager({ triggerToast }) {
           <div className="flex justify-end pt-4 border-t border-gray-100">
             <button
               type="submit"
-              className="bg-primary hover:bg-secondary text-white font-bold text-xs py-2 px-6 rounded-large shadow transition-all cursor-pointer"
+              disabled={isSavingTerms || isSavedTerms}
+              className="flex items-center space-x-1.5 bg-primary hover:bg-secondary text-white font-bold text-xs py-2 px-6 rounded-large shadow transition-all cursor-pointer disabled:opacity-80"
             >
-              Save Terms Configurations
+              {isSavingTerms ? (
+                <>
+                  <RefreshCw className="animate-spin" size={14} />
+                  <span>Saving...</span>
+                </>
+              ) : isSavedTerms ? (
+                <>
+                  <Check className="text-green-400" size={14} />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <span>Save Terms Configurations</span>
+              )}
             </button>
           </div>
         </form>

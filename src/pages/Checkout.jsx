@@ -1,12 +1,14 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, CreditCard, PackageCheck, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CreditCard, PackageCheck, ShieldCheck, RefreshCw, Check } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function Checkout() {
   const { cart, placeOrder, currentUser } = useApp();
   const navigate = useNavigate();
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [isPlacedOrder, setIsPlacedOrder] = useState(false);
   
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: currentUser ? {
@@ -145,11 +147,17 @@ export default function Checkout() {
         total_usd: totalUSD
       };
 
+      setIsPlacingOrder(true);
       const placed = await placeOrder(orderData);
-      navigate(`/order-success/${placed.id}`);
+      setIsPlacedOrder(true);
+      setTimeout(() => {
+        navigate(`/order-success/${placed.id}`);
+      }, 1200);
     } catch (err) {
       console.error(err);
       alert("Failed to place your order. Please try again.");
+    } finally {
+      setIsPlacingOrder(false);
     }
   };
 
@@ -367,10 +375,25 @@ export default function Checkout() {
               {/* Submit button */}
               <button
                 type="submit"
-                className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary-light text-white font-bold text-sm py-3 rounded-large transition-all shadow-md mt-2"
+                disabled={isPlacingOrder || isPlacedOrder}
+                className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary-light text-white font-bold text-sm py-3 rounded-large transition-all shadow-md mt-2 disabled:opacity-75 cursor-pointer"
               >
-                <PackageCheck size={16} />
-                <span>Place Purchase Order</span>
+                {isPlacingOrder ? (
+                  <>
+                    <RefreshCw className="animate-spin" size={16} />
+                    <span>Placing Order...</span>
+                  </>
+                ) : isPlacedOrder ? (
+                  <>
+                    <Check className="text-green-400" size={16} />
+                    <span>Order Placed!</span>
+                  </>
+                ) : (
+                  <>
+                    <PackageCheck size={16} />
+                    <span>Place Purchase Order</span>
+                  </>
+                )}
               </button>
 
               {/* Pay terms description */}
