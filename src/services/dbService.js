@@ -394,16 +394,24 @@ export const dbService = {
 
   // --- WEBSITE SETTINGS ---
   async getWebsiteSettings() {
+    let supabaseSettings = {};
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.from('website_settings').select('*').single();
         if (error) throw error;
-        return data;
+        if (data) {
+          Object.keys(data).forEach(key => {
+            if (data[key] !== null && data[key] !== undefined) {
+              supabaseSettings[key] = data[key];
+            }
+          });
+        }
       } catch (err) {
-        console.warn("Supabase settings query failed, using localStorage:", err);
+        console.warn("Supabase settings query failed:", err);
       }
     }
-    return getLocal('vs_settings') || initialWebsiteSettings;
+    const localSettings = getLocal('vs_settings') || initialWebsiteSettings;
+    return { ...initialWebsiteSettings, ...localSettings, ...supabaseSettings };
   },
 
   async saveWebsiteSettings(settings) {
