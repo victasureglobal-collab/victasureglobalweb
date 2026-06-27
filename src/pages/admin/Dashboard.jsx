@@ -2221,6 +2221,12 @@ function SettingsManager({ triggerToast }) {
   const [editingConsignment, setEditingConsignment] = React.useState(null); 
   const [editingFaq, setEditingFaq] = React.useState(null);
 
+  // Local state for Terms & Conditions Page
+  const [showTermsPage, setShowTermsPage] = React.useState(true);
+  const [termsEffectiveDate, setTermsEffectiveDate] = React.useState('');
+  const [termsNotice, setTermsNotice] = React.useState('');
+  const [termsContent, setTermsContent] = React.useState('');
+
   // Sync settings local state to context data when loaded
   React.useEffect(() => {
     if (settings) {
@@ -2279,6 +2285,11 @@ function SettingsManager({ triggerToast }) {
       setConsignments(settings.consignments || []);
       setFaqs(settings.faqs || []);
 
+      setShowTermsPage(settings.show_terms_page !== false);
+      setTermsEffectiveDate(settings.terms_effective_date || '');
+      setTermsNotice(settings.terms_notice || '');
+      setTermsContent(settings.terms_content || '');
+
       setSocials(settings.socials && settings.socials.length > 0 
         ? settings.socials 
         : [
@@ -2300,6 +2311,25 @@ function SettingsManager({ triggerToast }) {
       setFounderIsVisible(founder.is_visible !== false);
     }
   }, [founder]);
+
+  // Save Terms & Conditions Settings
+  const handleSaveTerms = async (e) => {
+    e.preventDefault();
+    try {
+      const updated = {
+        ...settings,
+        show_terms_page: showTermsPage,
+        terms_effective_date: termsEffectiveDate,
+        terms_notice: termsNotice,
+        terms_content: termsContent
+      };
+      await saveSettings(updated);
+      triggerToast('Terms & Conditions settings updated.');
+    } catch (err) {
+      console.error(err);
+      triggerToast(`Error: ${err.message || err}`);
+    }
+  };
 
   // Save General & Contact Settings
   const handleSaveGeneral = async (e) => {
@@ -2546,7 +2576,8 @@ function SettingsManager({ triggerToast }) {
           { id: 'founder', label: 'Founder Profile' },
           { id: 'testimonials', label: 'Client Reviews' },
           { id: 'consignments', label: 'Shipping Portfolio' },
-          { id: 'faqs', label: 'FAQ Q&As' }
+          { id: 'faqs', label: 'FAQ Q&As' },
+          { id: 'terms', label: 'Terms & Conditions' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -3556,6 +3587,70 @@ function SettingsManager({ triggerToast }) {
             </div>
           )}
         </div>
+      )}
+
+      {subTab === 'terms' && (
+        <form onSubmit={handleSaveTerms} className="bg-white border border-neutral-border p-6 sm:p-8 rounded-xlarge shadow-premium space-y-6">
+          <div className="flex justify-between items-center border-b pb-2">
+            <h3 className="font-sans font-bold text-sm text-primary uppercase tracking-wider">Terms & Conditions of Export Page Config</h3>
+            <label className="flex items-center space-x-2 text-xs font-bold text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showTermsPage}
+                onChange={(e) => setShowTermsPage(e.target.checked)}
+                className="rounded text-primary focus:ring-0"
+              />
+              <span className="text-secondary-dark">Show Terms & Conditions Page on Website</span>
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Effective Date / Trade Terms version</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. June 21, 2026"
+                  value={termsEffectiveDate}
+                  onChange={(e) => setTermsEffectiveDate(e.target.value)}
+                  className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Notice Banner (Optional alert text shown at top)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. All shipping transactions and contract orders are bound by these export conditions."
+                  value={termsNotice}
+                  onChange={(e) => setTermsNotice(e.target.value)}
+                  className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Terms & Conditions Body Content (Supports multi-line text)</label>
+              <textarea
+                rows="15"
+                required
+                placeholder="Write standard Incoterms, payment conditions, claims policies, inspection clauses, etc..."
+                value={termsContent}
+                onChange={(e) => setTermsContent(e.target.value)}
+                className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary font-mono leading-relaxed"
+              ></textarea>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-4 border-t border-gray-100">
+            <button
+              type="submit"
+              className="bg-primary hover:bg-secondary text-white font-bold text-xs py-2 px-6 rounded-large shadow transition-all cursor-pointer"
+            >
+              Save Terms Configurations
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );

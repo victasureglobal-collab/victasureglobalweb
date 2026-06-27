@@ -155,7 +155,9 @@ export default function Footer() {
           <ul className="space-y-2.5 text-xs text-gray-500">
             <li><a href="/about" className="hover:text-primary transition-all">About Us</a></li>
             <li><span className="hover:text-primary transition-all cursor-pointer">Privacy Policy</span></li>
-            <li><Link to="/terms" className="hover:text-primary transition-all">Terms & Conditions</Link></li>
+            {settings?.show_terms_page !== false && (
+              <li><Link to="/terms" className="hover:text-primary transition-all">Terms & Conditions</Link></li>
+            )}
             <li><span className="hover:text-primary transition-all cursor-pointer">Sustainability Report</span></li>
           </ul>
         </div>

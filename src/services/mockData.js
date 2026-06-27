@@ -408,6 +408,22 @@ export const initialWebsiteSettings = {
   show_why_choose_us: true,
   show_founder_section: true,
   show_overview_section: true,
+  show_terms_page: true,
+  terms_effective_date: "June 21, 2026",
+  terms_notice: "All shipping transactions, wholesale purchases, and custom contract manufacturing orders executed with VictaSure Global are bound by the trade terms detailed below. Unless specified in a signed bilateral contract, these terms govern the agreement.",
+  terms_content: `1. Standard Trade & Delivery Terms (Incoterms 2020)
+Unless explicitly agreed otherwise in the sales invoice or proforma contract, all international shipments are conducted under FOB (Free on Board) terms at the port of origin in India (e.g., Port of Chennai or Tuticorin Port). Responsibility for cargo, insurance, and sea freight costs transfers to the buyer once the container successfully crosses the ship rail at the loading port.
+
+2. Product Specifications & Quality Certification
+VictaSure Global guarantees that Areca Leaf dinnerware meets strict biobased and EN 13432 biodegradability requirements. Products are shipped at moisture levels maintained between 10% and 12% to prevent mold formation during ocean transit. The buyer has the right to appoint third-party inspection firms (e.g., SGS, Intertek) to audit the container load at our production units prior to dispatch.
+
+3. Payment Terms
+Standard B2B export payment channels accepted:
+- Telegraphic Transfer (T/T): 30% advanced deposit upon contract sign, and 70% balance paid upon presentation of the scanned Bill of Lading (B/L) copy.
+- Letter of Credit (L/C): 100% Irrevocable Letter of Credit at sight, issued by a prime international bank, confirmed by our corporate banking desk in India.
+
+4. Customs Inspections, Claims & Quarantine
+Phytosanitary and fumigation credentials are provided with every shipment. The importer is responsible for providing all correct documentation needed for customs entry at the port of destination. Any quality claims (such as moisture damage or count discrepancies) must be submitted in writing within fourteen (14) calendar days of cargo discharge at the destination port, supported by official surveyor inspection reports and photos.`,
   contact_whatsapp: "+91 83909 00120",
   contact_email: "export@victasure.com",
   contact_phone: "+91 83909 00120",
