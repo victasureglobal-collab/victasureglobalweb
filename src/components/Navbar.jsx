@@ -149,7 +149,9 @@ export default function Navbar() {
                 <div className="flex items-center space-x-3 border-l pl-4 border-gray-200 font-sans">
                   {currentUser ? (
                     <div className="flex items-center space-x-2.5">
-                      <span className="text-[10px] font-bold text-gray-700">Hello, {currentUser.name.split(' ')[0]}</span>
+                      <Link to="/profile" className="text-[10px] font-bold text-gray-700 hover:text-accent transition-colors hover:underline">
+                        Hello, {currentUser.name.split(' ')[0]}
+                      </Link>
                       <button
                         onClick={logoutUser}
                         className="text-[10px] font-bold text-red-500 hover:underline focus:outline-none cursor-pointer"
@@ -221,7 +223,9 @@ export default function Navbar() {
               <div className="border-t border-gray-100 mt-2 pt-2 space-y-1 font-sans">
                 {currentUser ? (
                   <div className="px-3 py-2 flex items-center justify-between text-sm font-semibold text-gray-700">
-                    <span>Hello, {currentUser.name}</span>
+                    <Link to="/profile" onClick={() => setIsOpen(false)} className="hover:text-accent transition-colors hover:underline">
+                      Hello, {currentUser.name}
+                    </Link>
                     <button
                       onClick={() => { logoutUser(); setIsOpen(false); }}
                       className="text-red-500 font-semibold underline focus:outline-none cursor-pointer"

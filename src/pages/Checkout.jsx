@@ -129,6 +129,7 @@ export default function Checkout() {
       }));
 
       const orderData = {
+        user_id: currentUser?.id || null,
         customer_name: data.name,
         email: data.email,
         phone: data.phone,

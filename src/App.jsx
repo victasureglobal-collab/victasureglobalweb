@@ -25,6 +25,7 @@ import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import UserLogin from './pages/UserLogin';
 import Catalogue from './pages/Catalogue';
+import Profile from './pages/Profile';
 
 export default function App() {
   const { settings } = useApp();
@@ -90,6 +91,7 @@ export default function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-success/:orderId" element={<OrderSuccess />} />
           <Route path="/login" element={<UserLogin />} />
+          <Route path="/profile" element={<Profile />} />
           
           <Route 
             path="/contact" 

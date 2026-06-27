@@ -278,6 +278,27 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('vs_current_user');
   };
 
+  const updateUserProfile = async (updatedData) => {
+    const savedUsers = localStorage.getItem('vs_registered_users');
+    const usersList = savedUsers ? JSON.parse(savedUsers) : [];
+
+    const idx = usersList.findIndex(u => u.id === currentUser?.id);
+    if (idx !== -1) {
+      const updatedUser = {
+        ...usersList[idx],
+        ...updatedData
+      };
+      usersList[idx] = updatedUser;
+      localStorage.setItem('vs_registered_users', JSON.stringify(usersList));
+
+      const { password: _, ...userWithoutPassword } = updatedUser;
+      setCurrentUser(userWithoutPassword);
+      localStorage.setItem('vs_current_user', JSON.stringify(userWithoutPassword));
+      return userWithoutPassword;
+    }
+    throw new Error("User profile not found");
+  };
+
   const loginAdmin = async (email, password) => {
     // For local mock / default admin
     if (email === "admin@victasure.com" && password === "admin123") {
@@ -377,6 +398,7 @@ export const AppProvider = ({ children }) => {
       loginUser,
       signupUser,
       logoutUser,
+      updateUserProfile,
       deleteEnquiry,
       deleteDownload,
       deleteOrder,
