@@ -1145,7 +1145,7 @@ export default function Dashboard() {
                         <span className="text-[10px] block font-medium">{ord.phone}</span>
                         {ord.phone && (
                           <a
-                            href={`https://wa.me/${ord.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${ord.customer_name}, we received your order #${ord.id} on Victa Sure Global. We would like to confirm your delivery to port ${ord.delivery_port}.`)}`}
+                            href={`https://wa.me/${String(ord.phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${ord.customer_name}, we received your order #${ord.id} on Victa Sure Global. We would like to confirm your delivery to port ${ord.delivery_port}.`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="bg-green-500 hover:bg-green-600 text-white rounded-full p-0.5 transition-all flex items-center justify-center"
@@ -1172,8 +1172,8 @@ export default function Dashboard() {
                       </div>
                     </td>
                     <td className="p-3">
-                      <span className="font-extrabold text-accent block">₹{ord.total_inr.toLocaleString()}</span>
-                      <span className="text-[10px] font-bold text-gray-400 block">${ord.total_usd.toLocaleString()}</span>
+                      <span className="font-extrabold text-accent block">₹{Number(ord.total_inr || 0).toLocaleString()}</span>
+                      <span className="text-[10px] font-bold text-gray-400 block">${Number(ord.total_usd || 0).toLocaleString()}</span>
                     </td>
                     <td className="p-3">
                       <select
