@@ -64,6 +64,10 @@ export default function Navbar() {
     { name: 'Contact', href: '/contact' },
   ];
 
+  if (settings?.show_terms_page !== false) {
+    navigation.push({ name: 'Terms & Conditions', href: '/terms' });
+  }
+
   const isActive = (path) => {
     if (path === '/') {
       return location.pathname === '/';
