@@ -133,19 +133,19 @@ export default function OrderSuccess() {
             </div>
             <div className="space-y-2 text-primary">
               <span className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center mx-auto text-xs border-2 border-white shadow font-bold">2</span>
-              <span className="block">Audit</span>
+              <span className="block">Quality Check</span>
             </div>
             <div className="space-y-2 text-gray-600">
               <span className="w-7 h-7 rounded-full bg-gray-100 border border-gray-300 text-gray-700 flex items-center justify-center mx-auto text-xs font-bold">3</span>
-              <span className="block">Fumigation</span>
+              <span className="block">Disinfected</span>
             </div>
             <div className="space-y-2 text-gray-600">
               <span className="w-7 h-7 rounded-full bg-gray-100 border border-gray-300 text-gray-700 flex items-center justify-center mx-auto text-xs font-bold">4</span>
-              <span className="block">Loading</span>
+              <span className="block">Loaded</span>
             </div>
             <div className="space-y-2 text-gray-600">
               <span className="w-7 h-7 rounded-full bg-gray-100 border border-gray-300 text-gray-700 flex items-center justify-center mx-auto text-xs font-bold">5</span>
-              <span className="block">Sailed</span>
+              <span className="block">Shipped</span>
             </div>
           </div>
         </div>
