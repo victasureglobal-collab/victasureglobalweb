@@ -467,7 +467,15 @@ export const dbService = {
         if (error) throw error;
         return data;
       } catch (err) {
-        console.error("Supabase order creation failed, using localStorage:", err);
+        console.error("Supabase order creation with user_id failed, retrying without user_id:", err);
+        try {
+          const { user_id: _, ...newOrderWithoutUserId } = newOrder;
+          const { data, error } = await supabase.from('orders').insert(newOrderWithoutUserId).select().single();
+          if (error) throw error;
+          return data;
+        } catch (retryErr) {
+          console.error("Supabase order creation fallback failed completely:", retryErr);
+        }
       }
     }
     orders.unshift(newOrder);

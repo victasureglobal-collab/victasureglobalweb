@@ -1682,6 +1682,7 @@ CREATE TABLE website_settings (
 -- 9. Orders
 CREATE TABLE orders (
   id TEXT PRIMARY KEY,
+  user_id TEXT,
   customer_name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT,
@@ -1698,6 +1699,8 @@ CREATE TABLE orders (
   status TEXT DEFAULT 'pending',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ALTER TABLE orders ADD COLUMN user_id TEXT;
 
 -- 10. Disable Row Level Security (RLS) on all tables to allow client-side inserts/upserts using anon key
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
