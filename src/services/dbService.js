@@ -116,15 +116,7 @@ export const dbService = {
       product.created_at = timestamp;
     }
     product.updated_at = timestamp;
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('products').upsert(product).select().single();
-        if (error) throw error;
-        return data;
-      } catch (err) {
-        console.error("Supabase product save failed, using localStorage:", err);
-      }
-    }
+
     const products = getLocal('vs_products') || [];
     const idx = products.findIndex(p => p.id === product.id);
     if (idx !== -1) {
@@ -133,6 +125,31 @@ export const dbService = {
       products.push(product);
     }
     setLocal('vs_products', products);
+
+    if (isSupabaseConfigured()) {
+      const trySave = async (payload) => {
+        try {
+          const { data, error } = await supabase.from('products').upsert(payload).select().single();
+          if (error) throw error;
+          return data;
+        } catch (err) {
+          const errMsg = String(err.message || err);
+          const match = errMsg.match(/column "(.+?)" of relation/i) || 
+                        errMsg.match(/Could not find the '(.+?)' column/i) ||
+                        errMsg.match(/column "(.+?)" does not exist/i) ||
+                        errMsg.match(/column (.+?) does not exist/i);
+          if (match && match[1]) {
+            const missingColumn = match[1].replace(/["']/g, '');
+            console.warn(`Column '${missingColumn}' missing in Supabase products table. Retrying save without it...`);
+            const { [missingColumn]: value, ...remainingPayload } = payload;
+            return trySave(remainingPayload);
+          }
+          console.error("Supabase product save failed completely, using local storage:", err);
+          return product;
+        }
+      };
+      return trySave(product);
+    }
     return product;
   },
 

@@ -682,6 +682,17 @@ export default function Dashboard() {
                   </div>
                 </div>
 
+                <div className="pt-2">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Product Video URL (YouTube, MP4 link, etc.)</label>
+                  <input
+                    type="url"
+                    placeholder="e.g. https://www.youtube.com/watch?v=... or direct MP4 video link"
+                    value={editingItem.video_url || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, video_url: e.target.value })}
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Price (INR - ₹)</label>
@@ -1579,9 +1590,12 @@ CREATE TABLE products (
   status TEXT DEFAULT 'published',
   is_featured BOOLEAN DEFAULT false,
   images JSONB DEFAULT '[]'::jsonb,
+  video_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ALTER TABLE products ADD COLUMN video_url TEXT;
 
 -- 3. Enquiries
 CREATE TABLE enquiries (

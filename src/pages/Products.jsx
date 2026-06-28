@@ -136,6 +136,44 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
       .slice(0, 4);
   };
 
+  const renderVideoPlayer = (url) => {
+    if (!url) return null;
+    const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+    if (ytMatch && ytMatch[1]) {
+      const embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
+      return (
+        <div className="space-y-2 mt-4 border-t pt-4">
+          <span className="block text-[11px] font-bold uppercase tracking-wider text-primary">Product Video Walkthrough</span>
+          <div className="aspect-video w-full rounded-xlarge overflow-hidden border shadow-sm bg-black">
+            <iframe
+              src={embedUrl}
+              title="Product Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="space-y-2 mt-4 border-t pt-4">
+        <span className="block text-[11px] font-bold uppercase tracking-wider text-primary">Product Video Walkthrough</span>
+        <div className="aspect-video w-full rounded-xlarge overflow-hidden border shadow-sm bg-black">
+          <video 
+            src={url} 
+            controls 
+            preload="metadata"
+            className="w-full h-full object-contain"
+          >
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8 bg-neutral-lightBg">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -337,6 +375,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                       ))}
                     </div>
                   )}
+                  {selectedProduct.video_url && renderVideoPlayer(selectedProduct.video_url)}
                 </div>
 
                 {/* Info details */}
