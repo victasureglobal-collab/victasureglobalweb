@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Box, FolderTree, FileSpreadsheet, Newspaper, Award, Settings, LogOut, 
   TrendingUp, Download, Mail, Users, Plus, Edit2, Trash2, Check, Eye, EyeOff, Save, CheckCircle,
-  ShoppingCart, Database, Upload, Globe, RefreshCw
+  ShoppingCart, Database, Upload, Globe, RefreshCw, Menu, X
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { useApp } from '../../context/AppContext';
@@ -21,6 +21,7 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('analytics');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [dateRange, setDateRange] = useState('7days');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
@@ -1998,34 +1999,63 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
   return (
     <div className="flex-grow md:h-screen md:overflow-hidden bg-neutral-lightBg flex flex-col md:flex-row">
       
+      {/* Mobile Header Bar */}
+      <div className="flex md:hidden items-center justify-between p-4 bg-primary text-white border-b border-primary-light flex-shrink-0 w-full z-30 shadow-md">
+        <div className="relative">
+          <img src={logoImg} alt="VictaSure Logo" className="h-8 w-auto object-contain max-w-[130px]" />
+          <span className="absolute -top-1 -right-3 text-[6px] font-extrabold text-[#8CE48C] select-none font-sans">TM</span>
+        </div>
+        <button
+          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          className="p-2 text-white hover:text-accent focus:outline-none cursor-pointer"
+          aria-label="Toggle navigation menu"
+        >
+          {isMobileSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Mobile Overlay Background */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/65 md:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 md:h-screen bg-primary text-gray-300 flex flex-col justify-between border-r border-primary-light flex-shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 h-full bg-primary text-gray-300 flex flex-col justify-between border-r border-primary-light flex-shrink-0 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-grow">
           
-          {/* Header Brand */}
-          <div className="flex flex-col space-y-3 border-b border-primary-light pb-4">
-            <div className="flex items-center space-x-2">
-              <div className="relative">
-                <img src={logoImg} alt="VictaSure Logo" className="h-8 w-auto object-contain" />
-                <span className="absolute -top-1 -right-2 text-[5px] font-extrabold text-white select-none font-sans">TM</span>
-              </div>
-              <span className="text-white font-bold text-sm tracking-wide">VictaSure Admin</span>
-            </div>
-            <a 
-              href="/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center justify-center space-x-1.5 bg-primary-light hover:bg-secondary text-white font-bold text-[10px] py-1.5 px-3 rounded-large border border-primary-light hover:border-secondary transition-all w-full cursor-pointer shadow-sm"
-            >
-              <Globe size={12} className="text-accent" />
-              <span>Visit Live Website</span>
-            </a>
+          {/* Sidebar Close Button for Mobile */}
+          <div className="flex justify-end md:hidden">
+            <button onClick={() => setIsMobileSidebarOpen(false)} className="text-gray-400 hover:text-white p-1 cursor-pointer">
+              <X size={18} />
+            </button>
           </div>
+
+          {/* Header Brand */}
+          <div className="flex flex-col items-center text-center space-y-2 border-b border-primary-light pb-4">
+            <div className="relative inline-block">
+              <img src={logoImg} alt="VictaSure Logo" className="h-9 w-auto object-contain max-w-[150px]" />
+              <span className="absolute -top-1 -right-3 text-[7px] font-extrabold text-[#8CE48C] select-none font-sans">TM</span>
+            </div>
+            <span className="text-[#8CE48C] font-bold text-[10px] uppercase tracking-widest mt-1">Admin Portal</span>
+          </div>
+
+          <a 
+            href="/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center justify-center space-x-1.5 bg-primary-light hover:bg-secondary text-white font-bold text-[10px] py-1.5 px-3 rounded-large border border-primary-light hover:border-secondary transition-all w-full cursor-pointer shadow-sm mt-3"
+          >
+            <Globe size={12} className="text-accent" />
+            <span>Visit Live Website</span>
+          </a>
 
           {/* Nav List */}
           <nav className="space-y-1">
             <button
-              onClick={() => { setActiveTab('analytics'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('analytics'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'analytics' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
@@ -2035,7 +2065,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
-              onClick={() => { setActiveTab('products'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('products'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'products' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
@@ -2045,7 +2075,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
-              onClick={() => { setActiveTab('categories'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('categories'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'categories' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
@@ -2055,7 +2085,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
-              onClick={() => { setActiveTab('leads'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('leads'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'leads' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
@@ -2065,7 +2095,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
-              onClick={() => { setActiveTab('orders'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('orders'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'orders' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
@@ -2075,7 +2105,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
-              onClick={() => { setActiveTab('blogs'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('blogs'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'blogs' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
@@ -2085,7 +2115,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
-              onClick={() => { setActiveTab('certificates'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('certificates'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'certificates' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
@@ -2095,7 +2125,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
-              onClick={() => { setActiveTab('settings'); setEditingItem(null); }}
+              onClick={() => { setActiveTab('settings'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'settings' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
               }`}
