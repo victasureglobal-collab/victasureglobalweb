@@ -37,36 +37,7 @@ export default function About() {
         </p>
       </section>
 
-      {/* 2. Core Grid Info */}
-      <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        {/* Overview */}
-        <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
-          <span className="text-xs uppercase text-accent font-extrabold tracking-wider block">Corporate Overview</span>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            {settings.about_overview}
-          </p>
-        </div>
-
-        {/* Mission */}
-        <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
-          <span className="text-xs uppercase text-secondary font-extrabold tracking-wider block">Our Mission</span>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            {settings.about_mission}
-          </p>
-        </div>
-
-        {/* Vision */}
-        <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
-          <span className="text-xs uppercase text-primary font-extrabold tracking-wider block">Our Vision</span>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            {settings.about_vision}
-          </p>
-        </div>
-
-      </section>
-
-      {/* 3. Founder Details (Conditional) */}
+      {/* 2. Founder Details (Conditional) */}
       {settings.show_founder_section && founder && founder.is_visible && (
         <section className="bg-primary py-16 text-white">
           <div className="max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10 items-center">
@@ -99,6 +70,35 @@ export default function About() {
           </div>
         </section>
       )}
+
+      {/* 3. Core Grid Info */}
+      <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        {/* Overview */}
+        <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
+          <span className="text-xs uppercase text-accent font-extrabold tracking-wider block">Corporate Overview</span>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            {settings.about_overview}
+          </p>
+        </div>
+
+        {/* Mission */}
+        <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
+          <span className="text-xs uppercase text-secondary font-extrabold tracking-wider block">Our Mission</span>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            {settings.about_mission}
+          </p>
+        </div>
+
+        {/* Vision */}
+        <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
+          <span className="text-xs uppercase text-primary font-extrabold tracking-wider block">Our Vision</span>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            {settings.about_vision}
+          </p>
+        </div>
+
+      </section>
 
       {/* 4. Core Values & Quality Statement */}
       <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12">
