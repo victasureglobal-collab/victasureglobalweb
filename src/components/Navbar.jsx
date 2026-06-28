@@ -8,7 +8,7 @@ import logoImg from '../assets/logo/VictaSure_Final.png';
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { settings, isAdminAuthenticated, logoutAdmin, currentUser, logoutUser, cart } = useApp();
+  const { settings, isAdminAuthenticated, logoutAdmin, currentUser, logoutUser, cart, loading } = useApp();
 
   useEffect(() => {
     const initTranslateElement = () => {
@@ -25,12 +25,11 @@ export default function Navbar() {
             'google_translate_element'
           );
         } catch (e) {
-          console.warn("Google Translate initialization delayed or failed:", e);
+          console.error("Failed to initialize Google Translate:", e);
         }
       }
     };
 
-    window.googleTranslateElementInit = initTranslateElement;
 
     // Check if script is already present and initialized
     if (window.google && window.google.translate) {
@@ -80,10 +79,16 @@ export default function Navbar() {
       {/* Top Bar for contact details and Google Translate */}
       <div className="bg-primary text-white text-[10px] sm:text-[11px] py-2 px-4 sm:px-6 lg:px-8 border-b border-primary-light">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3 text-gray-300">
-            <span>{settings?.contact_email || "export@victasure.com"}</span>
-            <span className="hidden sm:inline">|</span>
-            <span className="hidden sm:inline">{settings?.contact_phone || "+91 83909 00120"}</span>
+          <div className="flex items-center space-x-3 text-gray-300 min-h-[16px]">
+            {!loading && settings?.contact_email ? (
+              <>
+                <span>{settings.contact_email}</span>
+                <span className="hidden sm:inline">|</span>
+                <span className="hidden sm:inline">{settings.contact_phone}</span>
+              </>
+            ) : (
+              <span className="animate-pulse bg-primary-light/50 h-3 w-40 rounded inline-block"></span>
+            )}
           </div>
           <div className="flex items-center space-x-3 ml-auto">
             <div className="flex items-center space-x-1.5">

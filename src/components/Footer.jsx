@@ -72,12 +72,12 @@ const SocialIconMap = {
 };
 
 export default function Footer() {
-  const { settings } = useApp();
+  const { settings, loading } = useApp();
 
-  const companyName = settings?.company_name || "VictaSure Global";
-  const email = settings?.contact_email || "export@victasure.com";
-  const phone = settings?.contact_phone || "+91 83909 00120";
-  const address = settings?.contact_address || "123 Global Trade Centre, Bangalore, India 560001";
+  const companyName = settings?.company_name || (!loading ? "" : "VictaSure Global");
+  const email = settings?.contact_email || (!loading ? "" : "export@victasure.com");
+  const phone = settings?.contact_phone || (!loading ? "" : "+91 83909 00120");
+  const address = settings?.contact_address || (!loading ? "" : "123 Global Trade Centre, Bangalore, India 560001");
 
   return (
     <footer className="bg-[#F9FAFB] border-t border-gray-200 text-gray-600 py-12 px-4 sm:px-6 lg:px-8">
