@@ -2724,6 +2724,7 @@ function SettingsManager({ triggerToast }) {
                     setHeroBannerUrls(next);
                   }}
                   aspect="16:9"
+                  disableCrop={true}
                 />
               ))}
             </div>
@@ -3791,7 +3792,7 @@ function SettingsManager({ triggerToast }) {
   );
 }
 
-function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = false }) {
+function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = false, disableCrop = false }) {
   const [preview, setPreview] = React.useState(value || '');
   const [rawImage, setRawImage] = React.useState(null);
   const [showCropper, setShowCropper] = React.useState(false);
@@ -3804,15 +3805,20 @@ function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = fal
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert("File is too large! Please choose an image smaller than 2MB.");
+    const maxLimit = disableCrop ? 8 * 1024 * 1024 : 2 * 1024 * 1024;
+    if (file.size > maxLimit) {
+      alert(`File is too large! Please choose an image smaller than ${disableCrop ? '8MB' : '2MB'}.`);
       return;
     }
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setRawImage(reader.result);
-      setShowCropper(true);
+      if (disableCrop) {
+        onChange(reader.result);
+      } else {
+        setRawImage(reader.result);
+        setShowCropper(true);
+      }
     };
     reader.readAsDataURL(file);
   };
