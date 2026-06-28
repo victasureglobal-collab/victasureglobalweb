@@ -109,7 +109,7 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
 
   // Handle WhatsApp click
   const handleWhatsApp = (productName = "") => {
-    const whatsapp = settings.contact_whatsapp || "+919876543210";
+    const whatsapp = settings.contact_whatsapp || "+918390900120";
     const msg = productName 
       ? `Hi VictaSure Global, I am interested in placing an order for "${productName}". Please share FOB quotes.`
       : "Hello VictaSure Global, I want to enquire about importing sustainable products.";

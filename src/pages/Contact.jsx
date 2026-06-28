@@ -103,7 +103,7 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
   };
 
   const handleWhatsApp = () => {
-    const whatsapp = settings.contact_whatsapp || "+919876543210";
+    const whatsapp = settings.contact_whatsapp || "+918390900120";
     const text = encodeURIComponent("Hello VictaSure Global Trade Desk, I have submitted an enquiry and want to follow up regarding bulk pricing.");
     window.open(`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
   };

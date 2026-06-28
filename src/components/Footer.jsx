@@ -76,7 +76,7 @@ export default function Footer() {
 
   const companyName = settings?.company_name || "VictaSure Global";
   const email = settings?.contact_email || "export@victasure.com";
-  const phone = settings?.contact_phone || "+91 98765 43210";
+  const phone = settings?.contact_phone || "+91 83909 00120";
   const address = settings?.contact_address || "123 Global Trade Centre, Bangalore, India 560001";
 
   return (

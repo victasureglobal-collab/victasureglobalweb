@@ -83,7 +83,7 @@ export default function Navbar() {
           <div className="flex items-center space-x-3 text-gray-300">
             <span>{settings?.contact_email || "export@victasure.com"}</span>
             <span className="hidden sm:inline">|</span>
-            <span className="hidden sm:inline">{settings?.contact_phone || "+91 98765 43210"}</span>
+            <span className="hidden sm:inline">{settings?.contact_phone || "+91 83909 00120"}</span>
           </div>
           <div className="flex items-center space-x-1.5 ml-auto">
             <Globe size={11} className="text-accent" />
