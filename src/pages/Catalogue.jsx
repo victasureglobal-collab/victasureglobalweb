@@ -167,9 +167,14 @@ export default function Catalogue({ onOpenDownloadModal }) {
 
                 {/* Info Text */}
                 <div className="p-6 space-y-3.5 flex-grow">
-                  <h3 className="font-extrabold text-sm text-primary tracking-wide leading-tight group-hover:text-secondary transition-colors font-sans">
-                    {p.name}
-                  </h3>
+                  <div className="flex flex-col">
+                    <h3 className="font-extrabold text-sm text-primary tracking-wide leading-tight group-hover:text-secondary transition-colors font-sans">
+                      {p.name}
+                    </h3>
+                    {p.product_code && (
+                      <span className="text-[9px] text-gray-400 font-semibold uppercase mt-0.5">{p.product_code}</span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
                     {p.short_description}
                   </p>
@@ -188,9 +193,13 @@ export default function Catalogue({ onOpenDownloadModal }) {
                   <div className="bg-slate-50 border border-gray-100 p-3 rounded-xlarge flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none">FOB Rate</span>
-                      <span className="text-sm font-extrabold text-secondary-dark mt-1 leading-none">
-                        ₹{p.price_inr} <span className="text-[10px] text-gray-400 font-semibold">/ ${p.price_usd}</span>
-                      </span>
+                      {p.show_price !== false ? (
+                        <span className="text-sm font-extrabold text-secondary-dark mt-1 leading-none">
+                          ₹{p.price_inr} <span className="text-[10px] text-gray-400 font-semibold">/ ${p.price_usd}</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-extrabold text-accent mt-1 uppercase leading-none bg-accent/10 px-1.5 py-0.5 rounded select-none">Inquire</span>
+                      )}
                     </div>
                     <button
                       onClick={onOpenDownloadModal}

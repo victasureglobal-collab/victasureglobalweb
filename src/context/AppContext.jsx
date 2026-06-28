@@ -114,6 +114,13 @@ export const AppProvider = ({ children }) => {
 
   // Form Submissions
   const submitEnquiry = async (enquiry) => {
+    // Automatically find and attach product code to enquiry if matching product is found
+    if (products && enquiry.product_interested && !enquiry.product_code) {
+      const prod = products.find(p => p.name === enquiry.product_interested);
+      if (prod && prod.product_code) {
+        enquiry.product_code = prod.product_code;
+      }
+    }
     const newEnq = await dbService.createEnquiry(enquiry);
     setEnquiries(prev => [newEnq, ...prev]);
     return newEnq;

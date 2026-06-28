@@ -64,13 +64,24 @@ export default function ProductCard({ product, onViewDetails, onRequestQuote }) 
       <div className="p-5 flex-grow flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-start mb-1">
-            <h3 className="font-sans font-bold text-primary text-sm sm:text-base group-hover:text-secondary transition-colors line-clamp-1 pr-2">
-              {product.name}
-            </h3>
-            <div className="text-right flex-shrink-0 flex flex-col items-end leading-none mt-0.5">
-              <span className="text-xs font-extrabold text-accent">₹{product.price_inr || 400}</span>
-              <span className="text-[9px] font-bold text-gray-400 mt-1">${product.price_usd || 5}</span>
+            <div className="flex flex-col">
+              <h3 className="font-sans font-bold text-primary text-sm sm:text-base group-hover:text-secondary transition-colors line-clamp-1 pr-2">
+                {product.name}
+              </h3>
+              {product.product_code && (
+                <span className="text-[10px] text-gray-400 font-semibold uppercase mt-0.5">{product.product_code}</span>
+              )}
             </div>
+            {product.show_price !== false ? (
+              <div className="text-right flex-shrink-0 flex flex-col items-end leading-none mt-0.5">
+                <span className="text-xs font-extrabold text-accent">₹{product.price_inr || 400}</span>
+                <span className="text-[9px] font-bold text-gray-400 mt-1">${product.price_usd || 5}</span>
+              </div>
+            ) : (
+              <div className="text-right flex-shrink-0 flex flex-col items-end mt-0.5">
+                <span className="text-[9px] font-extrabold text-accent uppercase bg-accent/10 px-1.5 py-0.5 rounded select-none">Inquire</span>
+              </div>
+            )}
           </div>
           
           {/* Specifications short list */}

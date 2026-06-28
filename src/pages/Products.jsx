@@ -385,13 +385,24 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                       {categories.find(c => c.id === selectedProduct.category_id)?.name || "Exporter Product"}
                     </span>
                     <div className="flex justify-between items-start mt-2">
-                      <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">
-                        {selectedProduct.name}
-                      </h2>
-                      <div className="text-right">
-                        <span className="text-lg font-bold text-accent block">₹{selectedProduct.price_inr || 400}</span>
-                        <span className="text-xs font-semibold text-gray-400 block">${selectedProduct.price_usd || 5} USD</span>
+                      <div className="flex flex-col">
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">
+                          {selectedProduct.name}
+                        </h2>
+                        {selectedProduct.product_code && (
+                          <span className="text-xs text-gray-400 font-bold uppercase mt-1">Product Code: {selectedProduct.product_code}</span>
+                        )}
                       </div>
+                      {selectedProduct.show_price !== false ? (
+                        <div className="text-right">
+                          <span className="text-lg font-bold text-accent block font-sans">₹{selectedProduct.price_inr || 400}</span>
+                          <span className="text-xs font-semibold text-gray-400 block font-sans">${selectedProduct.price_usd || 5} USD</span>
+                        </div>
+                      ) : (
+                        <div className="text-right">
+                          <span className="text-xs font-bold text-accent block uppercase bg-accent/10 px-2.5 py-1 rounded select-none">Pricing: Inquire</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

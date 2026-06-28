@@ -461,7 +461,8 @@ export default function Dashboard() {
       setEditingItem(prod || {
         name: "", category_id: categories[0]?.id || "", short_description: "", detailed_description: "",
         dimensions: "", material: "", moq: "", price_inr: 0, price_usd: 0, country_availability: ["USA", "Germany"], status: "published",
-        is_featured: false, images: ["https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&q=80&w=800"], specifications: {}
+        is_featured: false, images: ["https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&q=80&w=800"], specifications: {},
+        product_code: "", show_price: true
       });
     };
 
@@ -561,7 +562,7 @@ export default function Dashboard() {
                   {editingItem.id ? "Edit Product Details" : "Add New Product"}
                 </h3>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Product Title</label>
                     <input
@@ -569,6 +570,16 @@ export default function Dashboard() {
                       required
                       value={editingItem.name}
                       onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Product Code (e.g. VS-101)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. VS-101"
+                      value={editingItem.product_code || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, product_code: e.target.value })}
                       className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
@@ -740,9 +751,8 @@ export default function Dashboard() {
                     className="w-full text-xs px-3 py-2 rounded border"
                   />
                 </div>
-
                 <div className="flex items-center space-x-6 border-t pt-4">
-                  <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700">
+                  <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editingItem.is_featured}
@@ -750,6 +760,16 @@ export default function Dashboard() {
                       className="rounded text-primary focus:ring-0"
                     />
                     <span>Featured Product (Display on Home page)</span>
+                  </label>
+
+                  <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingItem.show_price !== false}
+                      onChange={(e) => setEditingItem({ ...editingItem, show_price: e.target.checked })}
+                      className="rounded text-primary focus:ring-0"
+                    />
+                    <span>Show Price on Website</span>
                   </label>
 
                   <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700">
@@ -987,6 +1007,9 @@ export default function Dashboard() {
                     </td>
                     <td className="p-3 space-y-1">
                       <span className="block font-semibold text-secondary-dark leading-tight">{enq.product_interested}</span>
+                      {enq.product_code && (
+                        <span className="inline-block bg-primary/10 text-primary font-sans font-extrabold text-[9px] uppercase px-1.5 py-0.5 rounded mt-0.5">Code: {enq.product_code}</span>
+                      )}
                       <div className="flex items-center space-x-2">
                         <select
                           value={enq.status}
@@ -1579,6 +1602,8 @@ CREATE TABLE products (
   id TEXT PRIMARY KEY,
   category_id TEXT REFERENCES categories(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
+  product_code TEXT,
+  show_price BOOLEAN DEFAULT true,
   short_description TEXT,
   detailed_description TEXT,
   specifications JSONB DEFAULT '{}'::jsonb,
@@ -1597,6 +1622,8 @@ CREATE TABLE products (
 );
 
 -- ALTER TABLE products ADD COLUMN video_url TEXT;
+-- ALTER TABLE products ADD COLUMN product_code TEXT;
+-- ALTER TABLE products ADD COLUMN show_price BOOLEAN DEFAULT true;
 
 -- 3. Enquiries
 CREATE TABLE enquiries (
@@ -1608,10 +1635,13 @@ CREATE TABLE enquiries (
   state TEXT,
   pincode TEXT,
   product_interested TEXT,
+  product_code TEXT,
   message TEXT,
   status TEXT DEFAULT 'new',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ALTER TABLE enquiries ADD COLUMN product_code TEXT;
 
 -- 4. Catalogue Downloads
 CREATE TABLE catalogue_downloads (

@@ -386,13 +386,24 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
                   <div className="p-4 space-y-4 flex-grow flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start">
-                        <h3 className="font-bold text-sm text-primary font-sans truncate pr-2">
-                          {product.name}
-                        </h3>
-                        <div className="text-right flex-shrink-0 flex flex-col items-end leading-none mt-0.5">
-                          <span className="text-xs font-extrabold text-accent">₹{product.price_inr || 400}</span>
-                          <span className="text-[9px] font-bold text-gray-400 mt-1">${product.price_usd || 5}</span>
+                        <div className="flex flex-col">
+                          <h3 className="font-bold text-sm text-primary font-sans truncate pr-2">
+                            {product.name}
+                          </h3>
+                          {product.product_code && (
+                            <span className="text-[10px] text-gray-400 font-semibold uppercase mt-0.5">{product.product_code}</span>
+                          )}
                         </div>
+                        {product.show_price !== false ? (
+                          <div className="text-right flex-shrink-0 flex flex-col items-end leading-none mt-0.5">
+                            <span className="text-xs font-extrabold text-accent font-sans">₹{product.price_inr || 400}</span>
+                            <span className="text-[9px] font-bold text-gray-400 mt-1 font-sans">${product.price_usd || 5}</span>
+                          </div>
+                        ) : (
+                          <div className="text-right flex-shrink-0 flex flex-col items-end mt-0.5">
+                            <span className="text-[9px] font-extrabold text-accent uppercase bg-accent/10 px-1.5 py-0.5 rounded select-none">Inquire</span>
+                          </div>
+                        )}
                       </div>
                       <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed line-clamp-3">
                         {product.short_description}
