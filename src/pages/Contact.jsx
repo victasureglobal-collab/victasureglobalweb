@@ -194,8 +194,11 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
           </div>
 
           {/* Form Card */}
-          <div className="bg-white border border-neutral-border p-6 sm:p-8 rounded-xlarge shadow-premium lg:col-span-2 space-y-6">
-            <h3 className="font-bold text-xl text-primary">Submit Trade Request</h3>
+          <div className="bg-white border border-neutral-border/80 p-6 sm:p-10 rounded-xlarge shadow-premium lg:col-span-2 space-y-6">
+            <div className="space-y-1.5 pb-4 border-b border-gray-100">
+              <h3 className="font-bold text-2xl text-primary tracking-tight font-sans">Submit Trade Request</h3>
+              <p className="text-[11px] text-gray-400 font-sans">Provide your packaging, volume, and target port specifications to receive quotations.</p>
+            </div>
             
             {success && (
               <div className="bg-secondary/10 border border-secondary text-secondary p-4 rounded-large flex items-start space-x-3">
@@ -214,18 +217,18 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Name */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Company Contact Name *</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Company Contact Name *</label>
                   <input
                     type="text"
                     placeholder="Enter your name"
-                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
-                      errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
-                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white ${
+                      errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
                     {...register("name", { required: "Name is required", minLength: { value: 3, message: "Min 3 characters" } })}
                   />
                   {errors.name && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.name.message}</span>}
@@ -233,13 +236,13 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Work Email Address *</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Work Email Address *</label>
                   <input
                     type="email"
                     placeholder="name@company.com"
-                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
-                      errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
-                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white ${
+                      errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
                     {...register("email", { 
                       required: "Email is required", 
                       pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email format" }
@@ -249,19 +252,19 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {/* Country */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Country *</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Country *</label>
                   <select
-                    className={`w-full text-xs px-4 py-2.5 rounded-large border bg-white ${
-                      errors.country ? 'border-red-500' : 'border-gray-300'
-                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white cursor-pointer ${
+                      errors.country ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
                     {...register("country", { required: "Country is required" })}
                   >
-                    <option value="">Select country...</option>
+                    <option value="" className="text-gray-400">Select country...</option>
                     {["Australia", "Austria", "Bahrain", "Bangladesh", "Belgium", "Brazil", "Canada", "Denmark", "Egypt", "France", "Germany", "India", "Indonesia", "Ireland", "Italy", "Japan", "Kuwait", "Malaysia", "Mexico", "Netherlands", "New Zealand", "Oman", "Philippines", "Poland", "Qatar", "Saudi Arabia", "Singapore", "South Africa", "South Korea", "Spain", "Sweden", "Switzerland", "Thailand", "Turkey", "United Arab Emirates", "United Kingdom", "United States", "Vietnam", "Other"].map(c => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c} className="text-primary">{c}</option>
                     ))}
                   </select>
                   {errors.country && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.country.message}</span>}
@@ -269,13 +272,13 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
 
                 {/* State */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">State / Province *</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">State / Province *</label>
                   <input
                     type="text"
                     placeholder="e.g. California"
-                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
-                      errors.state ? 'border-red-500' : 'border-gray-300'
-                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white ${
+                      errors.state ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
                     {...register("state", { required: "State is required" })}
                   />
                   {errors.state && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.state.message}</span>}
@@ -283,13 +286,13 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
 
                 {/* Pincode */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">ZIP / Postal Code</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">ZIP / Postal Code</label>
                   <input
                     type="text"
                     placeholder="e.g. 90210"
-                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
-                      errors.pincode ? 'border-red-500' : 'border-gray-300'
-                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white ${
+                      errors.pincode ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
                     {...register("pincode", { 
                       pattern: { value: /^[0-9]+$/, message: "Numbers only" } 
                     })}
@@ -298,16 +301,16 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Phone */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Contact Phone Number *</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Contact Phone Number *</label>
                   <input
                     type="tel"
                     placeholder="Enter phone with country code"
-                    className={`w-full text-xs px-4 py-2.5 rounded-large border ${
-                      errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
-                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white ${
+                      errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
                     {...register("phone", { 
                       required: "Phone is required", 
                       minLength: { value: 8, message: "Min 8 digits required" } 
@@ -318,18 +321,18 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
 
                 {/* Interested Product */}
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Product Interested *</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Product Interested *</label>
                   <select
-                    className={`w-full text-xs px-4 py-2.5 rounded-large bg-white border ${
-                      errors.product_interested ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
-                    } focus:outline-none focus:ring-2 focus:border-primary`}
+                    className={`w-full text-xs px-4 py-3 rounded-large bg-neutral-lightBg/20 border cursor-pointer font-sans font-medium transition-all duration-300 focus:bg-white ${
+                      errors.product_interested ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
                     {...register("product_interested", { required: "Please select an interested product" })}
                   >
-                    <option value="">Select a product...</option>
+                    <option value="" className="text-gray-400">Select a product...</option>
                     {products.map(p => (
-                      <option key={p.id} value={p.name}>{p.name}</option>
+                      <option key={p.id} value={p.name} className="text-primary">{p.name}</option>
                     ))}
-                    <option value="General Enquiry">General Export Query</option>
+                    <option value="General Enquiry" className="text-primary">General Export Query</option>
                   </select>
                   {errors.product_interested && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interested.message}</span>}
                 </div>
@@ -337,13 +340,13 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
 
               {/* Message */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Requirement Description *</label>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Requirement Description *</label>
                 <textarea
                   rows="4"
                   placeholder="Detail your requirements, volume (annual or target container load count), preferred packaging and shipping ports..."
-                  className={`w-full text-xs px-4 py-2.5 rounded-large border ${
-                    errors.message ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
-                  } focus:outline-none focus:ring-2 focus:border-primary`}
+                  className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white resize-y ${
+                    errors.message ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                  } focus:outline-none focus:ring-2`}
                   {...register("message", { 
                     required: "Message description is required", 
                     maxLength: { value: 1000, message: "Max 1000 characters allowed" } 
@@ -355,9 +358,9 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-secondary text-white font-bold text-xs py-3 rounded-large shadow transition-all duration-300 mt-6"
+                className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-3.5 px-6 rounded-large shadow-premium hover:shadow-premium-hover transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer mt-6 font-sans"
               >
-                <Send size={14} className="text-accent" />
+                <Send size={13} className="text-accent" />
                 <span>Submit Trade Enquiry</span>
               </button>
 
