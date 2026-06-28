@@ -426,7 +426,7 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
         {/* Map Location Section */}
         <div className="bg-white border border-neutral-border p-4 rounded-xlarge shadow-premium overflow-hidden">
           <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.9734918237937!2d77.59253457591666!3d12.973564114777553!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1672c3d52677%3A0x6bde1e88e22709e3!2sBangalore+Trade+Centre!5e0!3m2!1sen!2sin!4v1718999999999!5m2!1sen!2sin" 
+            src="https://maps.google.com/maps?q=Vasai-Virar,%20Maharashtra&t=&z=13&ie=UTF8&iwloc=&output=embed" 
             width="100%" 
             height="320" 
             style={{ border: 0, borderRadius: '8px' }} 
