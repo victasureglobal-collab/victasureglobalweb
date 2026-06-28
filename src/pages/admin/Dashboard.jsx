@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [seedResult, setSeedResult] = useState(null);
   const [usdRate, setUsdRate] = useState(83.5);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchExchangeRate = async () => {
       try {
         const res = await fetch("https://open.er-api.com/v6/latest/USD");
