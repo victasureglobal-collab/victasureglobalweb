@@ -177,7 +177,14 @@ export default function LeadModal({ isOpen, onClose }) {
 
   const onSubmit = async (data) => {
     try {
-      await submitDownload(data);
+      const interest = data.product_interest || "";
+      const qtyUnit = interest.includes("Cutlery") ? "Packs" : "Pieces";
+      const submissionData = {
+        ...data,
+        quantity: Number(data.quantity),
+        qty_unit: qtyUnit
+      };
+      await submitDownload(submissionData);
       triggerCatalogDownload();
       reset();
       onClose();
@@ -316,6 +323,27 @@ export default function LeadModal({ isOpen, onClose }) {
                 <option value="All Categories">All Export Categories</option>
               </select>
               {errors.product_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interest.message}</span>}
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Quantity (in {watch("product_interest") ? (watch("product_interest").includes("Cutlery") ? "Packs" : "Pieces") : "Pieces"}) *
+              </label>
+              <input
+                type="number"
+                min="1"
+                placeholder="1000"
+                className={`w-full text-sm px-4 py-2.5 rounded-large border ${
+                  errors.quantity ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                } focus:outline-none focus:ring-2 focus:border-primary`}
+                {...register("quantity", { 
+                  required: "Quantity is required", 
+                  min: { value: 1, message: "Quantity must be greater than 0" },
+                  valueAsNumber: true
+                })}
+              />
+              {errors.quantity && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.quantity.message}</span>}
             </div>
 
             {/* Submit Button */}

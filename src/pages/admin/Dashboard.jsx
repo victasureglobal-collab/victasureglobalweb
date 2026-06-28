@@ -37,6 +37,24 @@ export default function Dashboard() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedError, setSeedError] = useState("");
   const [seedResult, setSeedResult] = useState(null);
+  const [usdRate, setUsdRate] = useState(83.5);
+
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        const res = await fetch("https://open.er-api.com/v6/latest/USD");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.rates && data.rates.INR) {
+            setUsdRate(Number(data.rates.INR) || 83.5);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch USD exchange rate, using fallback 83.5", err);
+      }
+    };
+    fetchExchangeRate();
+  }, []);
 
   const runSchemaCheck = async () => {
     setIsCheckingSchema(true);
@@ -769,7 +787,7 @@ export default function Dashboard() {
                           });
                         } else {
                           const val = parseFloat(valStr) || 0;
-                          const usdVal = parseFloat((val / 83).toFixed(2)) || 0;
+                          const usdVal = parseFloat((val / usdRate).toFixed(2)) || 0;
                           setEditingItem({
                             ...editingItem,
                             price_inr: valStr,
@@ -799,7 +817,7 @@ export default function Dashboard() {
                           });
                         } else {
                           const val = parseFloat(valStr) || 0;
-                          const inrVal = parseFloat((val * 83).toFixed(2)) || 0;
+                          const inrVal = parseFloat((val * usdRate).toFixed(2)) || 0;
                           setEditingItem({
                             ...editingItem,
                             price_usd: valStr,
@@ -812,6 +830,10 @@ export default function Dashboard() {
                   </div>
                 </div>
 
+                <div className="text-[10px] text-gray-400 font-semibold px-1">
+                  Live Rate Indicator: 1 USD = {usdRate.toFixed(2)} INR
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Country Availability (Comma separated list)</label>
                   <input
@@ -819,6 +841,18 @@ export default function Dashboard() {
                     value={Array.isArray(editingItem.country_availability) ? editingItem.country_availability.join(", ") : editingItem.country_availability}
                     onChange={(e) => setEditingItem({ ...editingItem, country_availability: e.target.value })}
                     className="w-full text-xs px-3 py-2 rounded border"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Display Sorting Position (lower values show first)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 0"
+                    value={editingItem.display_order !== undefined ? editingItem.display_order : 0}
+                    onChange={(e) => setEditingItem({ ...editingItem, display_order: parseInt(e.target.value, 10) || 0 })}
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div className="flex items-center space-x-6 border-t pt-4">
@@ -1330,6 +1364,7 @@ export default function Dashboard() {
                   <th className="p-3">Country</th>
                   <th className="p-3">Date & Day</th>
                   <th className="p-3">Product Interest</th>
+                  <th className="p-3">Req. Quantity</th>
                   <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
@@ -1343,6 +1378,9 @@ export default function Dashboard() {
                     <td className="p-3 font-semibold text-accent-dark">{dl.country}</td>
                     <td className="p-3 text-[10px] font-bold text-gray-500">{formatDateAndDay(dl.created_at)}</td>
                     <td className="p-3 font-bold text-secondary-dark">{dl.product_interest}</td>
+                    <td className="p-3 font-bold text-primary">
+                      {dl.quantity ? `${dl.quantity} ${dl.qty_unit || 'Pieces'}` : 'N/A'}
+                    </td>
                     <td className="p-3 text-center">
                       <button
                         onClick={async () => {
@@ -1880,6 +1918,7 @@ CREATE TABLE products (
   name TEXT NOT NULL,
   product_code TEXT,
   show_price BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
   short_description TEXT,
   detailed_description TEXT,
   specifications JSONB DEFAULT '{}'::jsonb,
@@ -1900,6 +1939,7 @@ CREATE TABLE products (
 -- ALTER TABLE products ADD COLUMN video_url TEXT;
 -- ALTER TABLE products ADD COLUMN product_code TEXT;
 -- ALTER TABLE products ADD COLUMN show_price BOOLEAN DEFAULT true;
+-- ALTER TABLE products ADD COLUMN display_order INTEGER DEFAULT 0;
 
 -- 3. Enquiries
 CREATE TABLE enquiries (
@@ -1928,8 +1968,13 @@ CREATE TABLE catalogue_downloads (
   phone TEXT,
   state TEXT,
   product_interest TEXT,
+  quantity NUMERIC,
+  qty_unit TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ALTER TABLE catalogue_downloads ADD COLUMN quantity NUMERIC;
+-- ALTER TABLE catalogue_downloads ADD COLUMN qty_unit TEXT;
 
 -- 5. Certificates
 CREATE TABLE certificates (
@@ -1992,6 +2037,8 @@ CREATE TABLE website_settings (
   faqs JSONB DEFAULT '[]'::jsonb,
   socials JSONB DEFAULT '[]'::jsonb,
   show_certificates_page BOOLEAN DEFAULT true,
+  enable_cart BOOLEAN DEFAULT false,
+  enable_client_login BOOLEAN DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -2001,6 +2048,8 @@ CREATE TABLE website_settings (
 -- ALTER TABLE website_settings ADD COLUMN consignments JSONB DEFAULT '[]'::jsonb;
 -- ALTER TABLE website_settings ADD COLUMN faqs JSONB DEFAULT '[]'::jsonb;
 -- ALTER TABLE website_settings ADD COLUMN socials JSONB DEFAULT '[]'::jsonb;
+-- ALTER TABLE website_settings ADD COLUMN enable_cart BOOLEAN DEFAULT false;
+-- ALTER TABLE website_settings ADD COLUMN enable_client_login BOOLEAN DEFAULT false;
 
 -- 9. Orders
 CREATE TABLE orders (
@@ -2529,6 +2578,8 @@ function SettingsManager({ triggerToast }) {
   const [heroBannerUrls, setHeroBannerUrls] = React.useState(['', '', '', '', '', '', '', '']);
   const [logoUrl, setLogoUrl] = React.useState('');
   const [heroSlideDelay, setHeroSlideDelay] = React.useState('5');
+  const [enableCart, setEnableCart] = React.useState(false);
+  const [enableClientLogin, setEnableClientLogin] = React.useState(false);
   const [contactWhatsapp, setContactWhatsapp] = React.useState('');
   const [contactEmail, setContactEmail] = React.useState('');
   const [contactPhone, setContactPhone] = React.useState('');
@@ -2637,6 +2688,8 @@ function SettingsManager({ triggerToast }) {
       setContactPhone(settings.contact_phone || '');
       setContactAddress(settings.contact_address || '');
       setCataloguePdf(settings.catalogue_pdf || '');
+      setEnableCart(settings.enable_cart === true);
+      setEnableClientLogin(settings.enable_client_login === true);
       
       setShowHero(settings.show_hero_section !== false);
       setShowFeatured(settings.show_featured_section !== false);
@@ -2736,6 +2789,8 @@ function SettingsManager({ triggerToast }) {
         contact_phone: contactPhone,
         contact_address: contactAddress,
         catalogue_pdf: cataloguePdf,
+        enable_cart: enableCart,
+        enable_client_login: enableClientLogin,
         show_hero_section: showHero,
         show_featured_section: showFeatured,
         show_why_choose_us: showWhyChooseUs,
@@ -3047,17 +3102,15 @@ function SettingsManager({ triggerToast }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Slideshow Speed / Switch Delay (in seconds)</label>
-              <select
+              <label className="block text-xs font-bold text-gray-700 mb-1">Slideshow delay (in seconds)</label>
+              <input
+                type="number"
+                min="1"
+                required
                 value={heroSlideDelay}
                 onChange={(e) => setHeroSlideDelay(e.target.value)}
-                className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="3">3 seconds (Fast)</option>
-                <option value="5">5 seconds (Standard)</option>
-                <option value="7">7 seconds (Relaxed)</option>
-                <option value="10">10 seconds (Slow)</option>
-              </select>
+                className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+              />
             </div>
           </div>
 
@@ -3363,6 +3416,30 @@ function SettingsManager({ triggerToast }) {
                   className="rounded text-primary focus:ring-0"
                 />
                 <span>Certificates Pg</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="border-t pt-4 space-y-3">
+            <span className="block text-xs font-bold text-primary uppercase tracking-wider">Feature Toggles</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={enableCart}
+                  onChange={(e) => setEnableCart(e.target.checked)}
+                  className="rounded text-primary focus:ring-0"
+                />
+                <span>Enable Shopping Cart & Checkout</span>
+              </label>
+              <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={enableClientLogin}
+                  onChange={(e) => setEnableClientLogin(e.target.checked)}
+                  className="rounded text-primary focus:ring-0"
+                />
+                <span>Enable Client Login & Customer Profiles</span>
               </label>
             </div>
           </div>

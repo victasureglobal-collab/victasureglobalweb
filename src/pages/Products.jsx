@@ -15,7 +15,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCatSlug, setSelectedCatSlug] = useState("all");
-  const [sortBy, setSortBy] = useState("latest");
+  const [sortBy, setSortBy] = useState("recommended");
   const [currentPage, setCurrentPage] = useState(1);
   const [copied, setCopied] = useState(false);
   const [activeImgIdx, setActiveImgIdx] = useState(0);
@@ -67,7 +67,12 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
       }
     })
     .sort((a, b) => {
-      if (sortBy === "latest") {
+      if (sortBy === "recommended") {
+        const orderA = Number(a.display_order) || 0;
+        const orderB = Number(b.display_order) || 0;
+        if (orderA !== orderB) return orderA - orderB;
+        return a.name.localeCompare(b.name);
+      } else if (sortBy === "latest") {
         return new Date(b.created_at) - new Date(a.created_at);
       } else if (sortBy === "alphabetical") {
         return a.name.localeCompare(b.name);
@@ -217,6 +222,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full bg-transparent focus:outline-none text-gray-700 font-semibold"
               >
+                <option value="recommended">Sort: Recommended</option>
                 <option value="latest">Sort: Latest</option>
                 <option value="alphabetical">Sort: Alphabetical</option>
               </select>
@@ -433,6 +439,40 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                       </span>
                     </div>
                   </div>
+
+                  {/* Cart Actions */}
+                  {settings?.enable_cart && (
+                    <div className="bg-gray-50 border p-4 rounded-large space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-gray-500">Order Quantity:</span>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => setModalQuantity(q => Math.max(1, q - 1))}
+                            className="p-1 border bg-white rounded-large hover:bg-gray-100"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="text-sm font-bold w-8 text-center">{modalQuantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => setModalQuantity(q => q + 1)}
+                            className="p-1 border bg-white rounded-large hover:bg-gray-100"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={handleModalAddToCart}
+                        className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2.5 px-6 rounded-large shadow-sm transition-all"
+                      >
+                        {modalAdded ? <Check size={14} /> : <ShoppingBag size={14} />}
+                        <span>{modalAdded ? 'Added to Cart!' : 'Add to Shopping Cart'}</span>
+                      </button>
+                    </div>
+                  )}
 
                   {/* Quote Actions */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowRight, Download, Globe, Leaf, Award, Share2, PhoneCall, 
   MessageSquare, Compass, ShieldCheck, Check, BookOpen,
-  Target, Eye, Heart, Activity, Sparkles, TrendingUp, Users
+  Target, Eye, Heart, Activity, Sparkles, TrendingUp, Users, ShoppingBag
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -35,7 +35,14 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
       const cat = categories.find(c => c.id === p.category_id);
       if (cat && cat.is_visible === false) return false;
       return true;
+    })
+    .sort((a, b) => {
+      const orderA = Number(a.display_order) || 0;
+      const orderB = Number(b.display_order) || 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.name.localeCompare(b.name);
     });
+
     const featured = activeProducts.filter(p => p.is_featured === true);
     return featured.length > 0 ? featured.slice(0, 4) : activeProducts.slice(0, 4);
   }, [products, categories]);
@@ -425,7 +432,7 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
                     </div>
 
                     {/* Bottom buttons */}
-                    <div className="w-full pt-2">
+                    <div className="w-full pt-2 flex flex-col gap-1.5">
                       <button
                         onClick={() => {
                           setSelectedProduct(product);
@@ -435,6 +442,15 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
                       >
                         Enquire / Request Quote
                       </button>
+                      {settings?.enable_cart && (
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          className="w-full bg-secondary hover:bg-secondary-light text-white font-bold text-[10px] py-2 px-3 rounded-large transition-colors flex items-center justify-center space-x-1.5"
+                        >
+                          {addedProdId === product.id ? <Check size={12} /> : <ShoppingBag size={12} />}
+                          <span>{addedProdId === product.id ? 'Added!' : 'Add to Cart'}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 

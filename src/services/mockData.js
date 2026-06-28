@@ -551,7 +551,9 @@ Phytosanitary and fumigation credentials are provided with every shipment. The i
       description: "Supplied heavy-duty biodegradable areca leaf serving platters for an eco-conscious festival consortium in New South Wales. Consignment successfully cleared Australian biosecurity screening on arrival.",
       is_visible: true
     }
-  ]
+  ],
+  enable_cart: false,
+  enable_client_login: false
 };
 
 export const initialOrders = [

@@ -15,6 +15,12 @@ export default function Catalogue({ onOpenDownloadModal }) {
     if (cat && cat.is_visible === false) return false;
     if (selectedCat === "all") return true;
     return p.category_id === selectedCat;
+  })
+  .sort((a, b) => {
+    const orderA = Number(a.display_order) || 0;
+    const orderB = Number(b.display_order) || 0;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.name.localeCompare(b.name);
   });
 
   return (

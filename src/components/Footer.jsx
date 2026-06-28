@@ -149,6 +149,13 @@ export default function Footer() {
                 Quality Assurance
               </a>
             </li>
+            {settings?.enable_cart && (
+              <li>
+                <Link to="/cart" className="hover:text-primary hover:font-semibold transition-all">
+                  Shopping Cart
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
 
@@ -160,6 +167,9 @@ export default function Footer() {
             <li><span className="hover:text-primary transition-all cursor-pointer">Privacy Policy</span></li>
             {settings?.show_terms_page !== false && (
               <li><Link to="/terms" className="hover:text-primary transition-all">Terms & Conditions</Link></li>
+            )}
+            {settings?.enable_client_login && (
+              <li><Link to="/login" className="hover:text-primary transition-all">Client Login / Profile</Link></li>
             )}
             <li><span className="hover:text-primary transition-all cursor-pointer">Sustainability Report</span></li>
           </ul>

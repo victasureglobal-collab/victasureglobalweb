@@ -106,7 +106,7 @@ export default function ProductCard({ product, onViewDetails, onRequestQuote }) 
             <span>View Product Details</span>
           </button>
 
-          <div className="w-full">
+          <div className={settings?.enable_cart ? "grid grid-cols-2 gap-2" : "w-full"}>
             <button
               onClick={() => onRequestQuote(product)}
               className="w-full flex items-center justify-center space-x-1.5 bg-primary hover:bg-primary-light text-white font-semibold text-xs py-2 px-3 rounded-large transition-all"
@@ -114,6 +114,15 @@ export default function ProductCard({ product, onViewDetails, onRequestQuote }) 
               <Send size={14} />
               <span>Request Quote</span>
             </button>
+            {settings?.enable_cart && (
+              <button
+                onClick={handleAddToCart}
+                className="w-full flex items-center justify-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-semibold text-xs py-2 px-3 rounded-large transition-all"
+              >
+                {added ? <Check size={14} /> : <ShoppingBag size={14} />}
+                <span>{added ? 'Added!' : 'Add to Cart'}</span>
+              </button>
+            )}
           </div>
 
         </div>

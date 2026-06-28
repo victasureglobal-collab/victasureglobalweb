@@ -744,7 +744,8 @@ export const dbService = {
         country_availability: p.country_availability,
         status: p.status,
         is_featured: p.is_featured,
-        images: p.images
+        images: p.images,
+        display_order: p.display_order || 0
       };
     });
     const { error: prodErr } = await supabase.from('products').upsert(cleanProducts);
@@ -793,7 +794,9 @@ export const dbService = {
       testimonials: initialWebsiteSettings.testimonials || [],
       consignments: initialWebsiteSettings.consignments || [],
       faqs: initialWebsiteSettings.faqs || [],
-      socials: initialWebsiteSettings.socials || []
+      socials: initialWebsiteSettings.socials || [],
+      enable_cart: initialWebsiteSettings.enable_cart || false,
+      enable_client_login: initialWebsiteSettings.enable_client_login || false
     };
     const { error: settingsErr } = await supabase.from('website_settings').upsert(cleanSettings);
     if (settingsErr) throw new Error(`Website settings seeding failed: ${settingsErr.message}`);

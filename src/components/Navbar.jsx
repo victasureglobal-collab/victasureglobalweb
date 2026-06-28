@@ -144,21 +144,50 @@ export default function Navbar() {
           {/* Actions Toolbar - Shared on desktop & mobile */}
           <div className="flex items-center space-x-3 sm:space-x-4">
 
-            {/* Cart Link with Badge - HIDDEN IN PHASE 2 */}
-            {/* 
-            <Link
-              to="/cart"
-              className="relative p-2 text-gray-500 hover:text-primary transition-colors flex items-center"
-              title="Shopping Cart"
-            >
-              <ShoppingCart size={19} />
-              {cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </Link>
-            */}
+            {settings?.enable_cart && (
+              <Link
+                to="/cart"
+                className="relative p-2 text-gray-500 hover:text-primary transition-colors flex items-center"
+                title="Shopping Cart"
+              >
+                <ShoppingCart size={19} />
+                {cartItemCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
+            )}
+
+            {settings?.enable_client_login && (
+              <div className="flex items-center space-x-3">
+                {currentUser ? (
+                  <div className="flex items-center space-x-2 border-l pl-4 border-gray-200">
+                    <Link
+                      to="/profile"
+                      className="text-xs font-bold text-primary hover:text-accent flex items-center space-x-1"
+                    >
+                      <span>Profile</span>
+                    </Link>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      onClick={logoutUser}
+                      className="text-red-500 text-[10px] hover:underline focus:outline-none cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="text-xs font-bold text-gray-600 hover:text-primary flex items-center space-x-1"
+                  >
+                    <LogIn size={14} />
+                    <span>Login</span>
+                  </Link>
+                )}
+              </div>
+            )}
 
             {/* Desktop Admin Login desk */}
             <div className="hidden md:flex items-center space-x-3">
@@ -215,6 +244,37 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
+
+             {settings?.enable_client_login && (
+              <div className="px-3 py-2.5 flex items-center justify-between border-t border-gray-100 mt-2">
+                {currentUser ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsOpen(false)}
+                      className="text-primary font-semibold text-xs flex items-center space-x-1"
+                    >
+                      <span>Profile ({currentUser.name})</span>
+                    </Link>
+                    <button
+                      onClick={() => { logoutUser(); setIsOpen(false); }}
+                      className="text-red-500 font-semibold text-xs flex items-center space-x-1 focus:outline-none cursor-pointer"
+                    >
+                      <span>Logout</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="text-gray-600 font-semibold text-xs flex items-center space-x-1"
+                  >
+                    <LogIn size={14} />
+                    <span>Client Login</span>
+                  </Link>
+                )}
+              </div>
+            )}
 
             {/* Mobile Actions Drawer (Only Admin panel shown if authenticated) */}
             {isAdminAuthenticated && (
