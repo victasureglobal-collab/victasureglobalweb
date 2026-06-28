@@ -2005,7 +2005,10 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
           {/* Header Brand */}
           <div className="flex flex-col space-y-3 border-b border-primary-light pb-4">
             <div className="flex items-center space-x-2">
-              <img src={logoImg} alt="VictaSure Logo" className="h-8 w-auto object-contain" />
+              <div className="relative">
+                <img src={logoImg} alt="VictaSure Logo" className="h-8 w-auto object-contain" />
+                <span className="absolute -top-1 -right-2 text-[5px] font-extrabold text-white select-none font-sans">TM</span>
+              </div>
               <span className="text-white font-bold text-sm tracking-wide">VictaSure Admin</span>
             </div>
             <a 

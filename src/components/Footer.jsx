@@ -86,7 +86,10 @@ export default function Footer() {
         {/* Left Column: Brand description & Socials */}
         <div className="space-y-4">
           <div className="flex items-center">
-            <img src={logoImg} alt={companyName} className="h-8 w-auto object-contain max-w-[150px]" />
+            <div className="relative">
+              <img src={logoImg} alt={companyName} className="h-8 w-auto object-contain max-w-[150px]" />
+              <span className="absolute -top-1 -right-3 text-[6px] font-extrabold text-primary select-none font-sans">TM</span>
+            </div>
           </div>
           <p className="text-xs leading-relaxed text-gray-500 max-w-xs">
             Connecting premium eco-friendly manufacturers with international retailers through excellence.

@@ -98,7 +98,10 @@ export default function Navbar() {
           {/* Logo Brand */}
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center group">
-              <img src={logoImg} alt={companyName} className="h-10 w-auto object-contain max-w-[180px]" />
+              <div className="relative">
+                <img src={logoImg} alt={companyName} className="h-10 w-auto object-contain max-w-[180px]" />
+                <span className="absolute -top-1 -right-3 text-[7px] font-extrabold text-primary select-none font-sans">TM</span>
+              </div>
             </Link>
           </div>
 
