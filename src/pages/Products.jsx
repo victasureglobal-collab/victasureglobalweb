@@ -3,9 +3,10 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, Send, Share2, Check, ArrowRight, ShoppingBag, Plus, Minus, Box } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
+import { TabsSkeleton, ProductGridSkeleton } from '../components/Skeletons';
 
 export default function Products({ selectedProduct, setSelectedProduct, setEnquiryProduct }) {
-  const { products, categories, settings, addToCart } = useApp();
+  const { products, categories, settings, addToCart, loading } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -41,13 +42,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
     }
   }, [searchParams, products]);
 
-  if (!settings) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-      </div>
-    );
-  }
+  const isLoading = loading || !settings;
 
   // Filter and sort items
   const filteredProducts = products
@@ -232,34 +227,42 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
 
           {/* Categories Tab Filters */}
           <div className="border-t border-gray-100 pt-4 flex flex-wrap gap-2">
-            <button
-              onClick={() => handleCategorySelect("all")}
-              className={`px-4 py-2 text-xs font-bold rounded-large transition-all ${
-                selectedCatSlug === "all"
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              All Categories
-            </button>
-            {categories.filter(cat => cat.is_visible !== false).map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategorySelect(cat.slug)}
-                className={`px-4 py-2 text-xs font-bold rounded-large transition-all ${
-                  selectedCatSlug === cat.slug
-                    ? "bg-primary text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
+            {isLoading ? (
+              <TabsSkeleton />
+            ) : (
+              <>
+                <button
+                  onClick={() => handleCategorySelect("all")}
+                  className={`px-4 py-2 text-xs font-bold rounded-large transition-all ${
+                    selectedCatSlug === "all"
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  All Categories
+                </button>
+                {categories.filter(cat => cat.is_visible !== false).map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategorySelect(cat.slug)}
+                    className={`px-4 py-2 text-xs font-bold rounded-large transition-all ${
+                      selectedCatSlug === cat.slug
+                        ? "bg-primary text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         </div>
 
         {/* Product Cards Grid */}
-        {paginatedProducts.length > 0 ? (
+        {isLoading ? (
+          <ProductGridSkeleton count={8} />
+        ) : paginatedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {paginatedProducts.map((product) => (
               <div key={product.id}>

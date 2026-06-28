@@ -6,6 +6,7 @@ import {
   Target, Eye, Heart, Activity, Sparkles, TrendingUp, Users, ShoppingBag
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { SlideshowSkeleton, ProductGridSkeleton } from '../components/Skeletons';
 
 const IconMap = {
   ShieldCheck,
@@ -23,7 +24,7 @@ const IconMap = {
 };
 
 export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
-  const { products, categories, settings, addToCart } = useApp();
+  const { products, categories, settings, addToCart, loading } = useApp();
   const navigate = useNavigate();
   const [addedProdId, setAddedProdId] = useState(null);
   const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
@@ -120,10 +121,21 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
         }
       ];
 
-  if (!settings) {
+  if (loading || !settings) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+      <div className="flex-grow">
+        <SlideshowSkeleton />
+        <section className="bg-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <div className="flex justify-between items-end border-b border-gray-100 pb-4">
+              <div className="space-y-2 w-full">
+                <div className="h-3 bg-gray-200 rounded w-24"></div>
+                <div className="h-6 bg-gray-200 rounded w-48"></div>
+              </div>
+            </div>
+            <ProductGridSkeleton count={4} />
+          </div>
+        </section>
       </div>
     );
   }

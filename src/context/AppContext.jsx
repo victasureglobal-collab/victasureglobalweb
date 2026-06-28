@@ -42,43 +42,56 @@ export const AppProvider = ({ children }) => {
   const refreshData = async () => {
     try {
       setLoading(true);
-      const [cats, subcats, prods, enqs, dls, certs, blgs, fndr, stgs, ords, views] = await Promise.all([
+      const [cats, subcats, prods, certs, blgs, fndr, stgs] = await Promise.all([
         dbService.getCategories(),
         dbService.getSubcategories(),
         dbService.getProducts(),
-        dbService.getEnquiries(),
-        dbService.getDownloads(),
         dbService.getCertificates(),
         dbService.getBlogs(),
         dbService.getFounderDetails(),
         dbService.getWebsiteSettings(),
-        dbService.getOrders(),
-        dbService.getTrafficViews(),
       ]);
 
       setCategories(cats);
       setSubcategories(subcats || []);
       setProducts(prods);
-      setEnquiries(enqs);
-      setDownloads(dls);
       setCertificates(certs);
       setBlogs(blgs);
       setFounder(fndr);
       setSettings(stgs);
-      setOrders(ords);
-      setTrafficViews(views || []);
 
-      // Derive trafficStats from views array
-      const totalViews = (views || []).length;
-      const countryViews = {};
-      (views || []).forEach(v => {
-        const c = v.country || 'Unknown';
-        countryViews[c] = (countryViews[c] || 0) + 1;
-      });
-      setTrafficStats({ totalViews, countryViews });
+      setLoading(false);
+
+      // Fetch admin data in the background
+      (async () => {
+        try {
+          const [enqs, dls, ords, views] = await Promise.all([
+            dbService.getEnquiries(),
+            dbService.getDownloads(),
+            dbService.getOrders(),
+            dbService.getTrafficViews(),
+          ]);
+
+          setEnquiries(enqs);
+          setDownloads(dls);
+          setOrders(ords);
+          setTrafficViews(views || []);
+
+          // Derive trafficStats from views array
+          const totalViews = (views || []).length;
+          const countryViews = {};
+          (views || []).forEach(v => {
+            const c = v.country || 'Unknown';
+            countryViews[c] = (countryViews[c] || 0) + 1;
+          });
+          setTrafficStats({ totalViews, countryViews });
+        } catch (adminErr) {
+          console.error("Failed to load admin background data", adminErr);
+        }
+      })();
+
     } catch (err) {
       console.error("Failed to refresh application data", err);
-    } finally {
       setLoading(false);
     }
   };
