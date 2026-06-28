@@ -64,8 +64,8 @@ export default function Navbar() {
     { name: 'Contact', href: '/contact' },
   ];
 
-  if (settings?.show_terms_page !== false) {
-    navigation.splice(navigation.length - 1, 0, { name: 'Terms & Conditions', href: '/terms' });
+  if (settings?.show_certificates_page !== false) {
+    navigation.splice(navigation.length - 1, 0, { name: 'Certificates', href: '/certificates' });
   }
 
   const isActive = (path) => {

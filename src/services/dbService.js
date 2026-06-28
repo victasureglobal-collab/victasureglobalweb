@@ -721,6 +721,8 @@ export const dbService = {
       show_why_choose_us: initialWebsiteSettings.show_why_choose_us,
       show_founder_section: initialWebsiteSettings.show_founder_section,
       show_overview_section: initialWebsiteSettings.show_overview_section,
+      show_terms_page: initialWebsiteSettings.show_terms_page,
+      show_certificates_page: initialWebsiteSettings.show_certificates_page,
       contact_whatsapp: initialWebsiteSettings.contact_whatsapp,
       contact_email: initialWebsiteSettings.contact_email,
       contact_phone: initialWebsiteSettings.contact_phone,

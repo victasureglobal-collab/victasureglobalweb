@@ -409,6 +409,7 @@ export const initialWebsiteSettings = {
   show_founder_section: true,
   show_overview_section: true,
   show_terms_page: true,
+  show_certificates_page: true,
   terms_effective_date: "June 21, 2026",
   terms_notice: "All shipping transactions, wholesale purchases, and custom contract manufacturing orders executed with VictaSure Global are bound by the trade terms detailed below. Unless specified in a signed bilateral contract, these terms govern the agreement.",
   terms_content: `1. Standard Trade & Delivery Terms (Incoterms 2020)

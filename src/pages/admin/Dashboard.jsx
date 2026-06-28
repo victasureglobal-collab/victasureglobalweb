@@ -1685,10 +1685,12 @@ CREATE TABLE website_settings (
   consignments JSONB DEFAULT '[]'::jsonb,
   faqs JSONB DEFAULT '[]'::jsonb,
   socials JSONB DEFAULT '[]'::jsonb,
+  show_certificates_page BOOLEAN DEFAULT true,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- IF YOU ALREADY CREATED TABLES, RUN THIS TO ADD THE NEW COLUMNS:
+-- ALTER TABLE website_settings ADD COLUMN show_certificates_page BOOLEAN DEFAULT true;
 -- ALTER TABLE website_settings ADD COLUMN testimonials JSONB DEFAULT '[]'::jsonb;
 -- ALTER TABLE website_settings ADD COLUMN consignments JSONB DEFAULT '[]'::jsonb;
 -- ALTER TABLE website_settings ADD COLUMN faqs JSONB DEFAULT '[]'::jsonb;
@@ -2229,6 +2231,7 @@ function SettingsManager({ triggerToast }) {
   const [showWhyChooseUs, setShowWhyChooseUs] = React.useState(true);
   const [showFounder, setShowFounder] = React.useState(true);
   const [showOverview, setShowOverview] = React.useState(true);
+  const [showCertificatesPage, setShowCertificatesPage] = React.useState(true);
 
   // Local state for About Page
   const [aboutOverview, setAboutOverview] = React.useState('');
@@ -2319,6 +2322,7 @@ function SettingsManager({ triggerToast }) {
       setShowWhyChooseUs(settings.show_why_choose_us !== false);
       setShowFounder(settings.show_founder_section !== false);
       setShowOverview(settings.show_overview_section !== false);
+      setShowCertificatesPage(settings.show_certificates_page !== false);
 
       setAboutOverview(settings.about_overview || '');
       setAboutMission(settings.about_mission || '');
@@ -2414,6 +2418,7 @@ function SettingsManager({ triggerToast }) {
         show_why_choose_us: showWhyChooseUs,
         show_founder_section: showFounder,
         show_overview_section: showOverview,
+        show_certificates_page: showCertificatesPage,
         why_choose_us_items: whyChooseUsItems,
         socials: socials
       };
@@ -2947,7 +2952,7 @@ function SettingsManager({ triggerToast }) {
 
           <div className="border-t pt-4 space-y-3">
             <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Frontend Sections Visibility Toggles</span>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
                 <input
                   type="checkbox"
@@ -2992,6 +2997,15 @@ function SettingsManager({ triggerToast }) {
                   className="rounded text-primary focus:ring-0"
                 />
                 <span>Founder Quote</span>
+              </label>
+              <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showCertificatesPage}
+                  onChange={(e) => setShowCertificatesPage(e.target.checked)}
+                  className="rounded text-primary focus:ring-0"
+                />
+                <span>Certificates Pg</span>
               </label>
             </div>
           </div>

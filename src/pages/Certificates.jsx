@@ -3,7 +3,21 @@ import { Download, Award, ShieldCheck, CheckCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function Certificates() {
-  const { certificates } = useApp();
+  const { certificates, settings } = useApp();
+
+  if (settings && settings.show_certificates_page === false) {
+    return (
+      <div className="flex-grow py-24 px-4 bg-neutral-lightBg flex flex-col items-center justify-center text-center">
+        <div className="max-w-md bg-white border border-neutral-border p-8 rounded-xlarge shadow-premium space-y-4">
+          <Award size={48} className="mx-auto text-gray-300 stroke-[1.5]" />
+          <h2 className="text-xl font-bold text-primary">Certificates Page Offline</h2>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            The certifications and compliance credentials page is temporarily offline or being updated by the trade team. Please check back later.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleDownload = (cert) => {
     // Dynamically download a text audit document as mock
