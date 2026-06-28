@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 import {
   initialCategories,
+  initialSubcategories,
   initialProducts,
   initialEnquiries,
   initialDownloads,
@@ -13,8 +14,9 @@ import {
 
 // Initialize localStorage if not already set
 const initializeLocalStorage = () => {
-  if (!localStorage.getItem('vs_initialized_v8')) {
+  if (!localStorage.getItem('vs_initialized_v9')) {
     localStorage.setItem('vs_categories', JSON.stringify(initialCategories));
+    localStorage.setItem('vs_subcategories', JSON.stringify(initialSubcategories));
     localStorage.setItem('vs_products', JSON.stringify(initialProducts));
     localStorage.setItem('vs_enquiries', JSON.stringify(initialEnquiries));
     localStorage.setItem('vs_downloads', JSON.stringify(initialDownloads));
@@ -23,7 +25,7 @@ const initializeLocalStorage = () => {
     localStorage.setItem('vs_founder', JSON.stringify(initialFounderDetails));
     localStorage.setItem('vs_settings', JSON.stringify(initialWebsiteSettings));
     localStorage.setItem('vs_orders', JSON.stringify(initialOrders));
-    localStorage.setItem('vs_initialized_v8', 'true');
+    localStorage.setItem('vs_initialized_v9', 'true');
   }
 };
 
@@ -92,6 +94,60 @@ export const dbService = {
     const updatedProducts = products.map(p => p.category_id === id ? { ...p, category_id: "" } : p);
     setLocal('vs_products', updatedProducts);
     
+    return true;
+  },
+
+  // --- SUBCATEGORIES ---
+  async getSubcategories() {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('subcategories').select('*').order('name');
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        console.warn("Supabase subcategories query failed, using localStorage:", err);
+      }
+    }
+    return getLocal('vs_subcategories') || [];
+  },
+
+  async saveSubcategory(subcategory) {
+    if (!subcategory.id) {
+      subcategory.id = 'sub-' + Math.random().toString(36).substr(2, 9);
+    }
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('subcategories').upsert(subcategory).select().single();
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        console.error("Supabase subcategory save failed, using localStorage:", err);
+      }
+    }
+    const subcategories = getLocal('vs_subcategories') || [];
+    const idx = subcategories.findIndex(s => s.id === subcategory.id);
+    if (idx !== -1) {
+      subcategories[idx] = { ...subcategories[idx], ...subcategory };
+    } else {
+      subcategories.push(subcategory);
+    }
+    setLocal('vs_subcategories', subcategories);
+    return subcategory;
+  },
+
+  async deleteSubcategory(id) {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('subcategories').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+      } catch (err) {
+        console.error("Supabase subcategory delete failed, using localStorage:", err);
+      }
+    }
+    const subcategories = getLocal('vs_subcategories') || [];
+    const filtered = subcategories.filter(s => s.id !== id);
+    setLocal('vs_subcategories', filtered);
     return true;
   },
 
@@ -619,6 +675,7 @@ export const dbService = {
 
     const tablesToCheck = [
       'categories',
+      'subcategories',
       'products',
       'enquiries',
       'catalogue_downloads',
@@ -652,6 +709,7 @@ export const dbService = {
 
     const results = {
       categories: 0,
+      subcategories: 0,
       products: 0,
       founder_details: 0,
       website_settings: 0,
@@ -663,6 +721,11 @@ export const dbService = {
     const { error: catErr } = await supabase.from('categories').upsert(initialCategories);
     if (catErr) throw new Error(`Categories seeding failed: ${catErr.message}`);
     results.categories = initialCategories.length;
+
+    // 1.5 Seed subcategories
+    const { error: subcatErr } = await supabase.from('subcategories').upsert(initialSubcategories);
+    if (subcatErr) throw new Error(`Subcategories seeding failed: ${subcatErr.message}`);
+    results.subcategories = initialSubcategories.length;
 
     // 2. Seed products
     const cleanProducts = initialProducts.map(p => {

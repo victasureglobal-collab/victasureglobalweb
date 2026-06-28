@@ -123,6 +123,9 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
   const [openFaqIdx, setOpenFaqIdx] = useState(null);
 
   const selectedCountry = watch("country");
+  const selectedProduct = watch("product_interested");
+  const matchingProduct = products?.find(p => p.name === selectedProduct);
+  const qtyUnit = matchingProduct?.qty_unit || "";
 
   React.useEffect(() => {
     if (selectedCountry) {
@@ -354,7 +357,7 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {/* Phone */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Contact Phone Number *</label>
@@ -388,6 +391,29 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                     <option value="General Enquiry" className="text-primary">General Export Query</option>
                   </select>
                   {errors.product_interested && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interested.message}</span>}
+                </div>
+
+                {/* Quantity */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">
+                    Quantity {qtyUnit ? `(in ${qtyUnit})` : ""} *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="e.g. 1000"
+                    className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white ${
+                      errors.quantity ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
+                    } focus:outline-none focus:ring-2`}
+                    {...register("quantity", { 
+                      required: "Quantity is required",
+                      min: { value: 1, message: "Quantity must be greater than 0" },
+                      pattern: { value: /^[0-9]+$/, message: "Quantity must be a positive integer" },
+                      valueAsNumber: true
+                    })}
+                  />
+                  {errors.quantity && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.quantity.message}</span>}
                 </div>
               </div>
 

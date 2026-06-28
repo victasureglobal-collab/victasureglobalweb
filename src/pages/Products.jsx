@@ -53,6 +53,9 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
   const filteredProducts = products
     .filter(p => p.status === 'published')
     .filter(p => {
+      const cat = categories.find(c => c.id === p.category_id);
+      if (cat && cat.is_visible === false) return false;
+
       const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.short_description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           p.material.toLowerCase().includes(searchQuery.toLowerCase());
@@ -60,7 +63,6 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
       if (selectedCatSlug === "all") {
         return matchSearch;
       } else {
-        const cat = categories.find(c => c.slug === selectedCatSlug);
         return matchSearch && p.category_id === cat?.id;
       }
     })
@@ -234,7 +236,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
             >
               All Categories
             </button>
-            {categories.map((cat) => (
+            {categories.filter(cat => cat.is_visible !== false).map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => handleCategorySelect(cat.slug)}
@@ -432,30 +434,6 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                     </div>
                   </div>
 
-                  {/* Quantity Selector */}
-                  <div className="flex items-center space-x-3 pt-2">
-                    <span className="text-xs font-bold text-gray-500">Select Quantity:</span>
-                    <div className="flex items-center border border-gray-200 rounded-large overflow-hidden bg-gray-50">
-                      <button
-                        type="button"
-                        onClick={() => setModalQuantity(prev => Math.max(1, prev - 1))}
-                        className="p-2 text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors focus:outline-none"
-                      >
-                        <Minus size={12} />
-                      </button>
-                      <span className="px-4 text-xs font-bold text-primary w-10 text-center select-none">
-                        {modalQuantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setModalQuantity(prev => prev + 1)}
-                        className="p-2 text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors focus:outline-none"
-                      >
-                        <Plus size={12} />
-                      </button>
-                    </div>
-                  </div>
-
                   {/* Quote Actions */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     
@@ -465,23 +443,6 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                     >
                       <Send size={14} />
                       <span>Request FOB Quotation</span>
-                    </button>
-
-                    <button
-                      onClick={handleModalAddToCart}
-                      className={`flex-grow flex items-center justify-center space-x-2 ${modalAdded ? 'bg-green-600 hover:bg-green-700' : 'bg-secondary hover:bg-secondary-light'} text-white font-bold text-xs py-3 px-6 rounded-large shadow-md transition-colors`}
-                    >
-                      {modalAdded ? (
-                        <>
-                          <Check size={14} />
-                          <span>Added to Cart ✓</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag size={14} />
-                          <span>Add to Cart</span>
-                        </>
-                      )}
                     </button>
 
                     <button

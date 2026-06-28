@@ -12,8 +12,8 @@ import logoImg from '../../assets/logo/VictaSure_Final.png';
 
 export default function Dashboard() {
   const {
-    products, categories, enquiries, downloads, certificates, blogs, founder, settings,
-    saveProduct, deleteProduct, saveCategory, deleteCategory, updateEnquiryStatus,
+    products, categories, subcategories, enquiries, downloads, certificates, blogs, founder, settings,
+    saveProduct, deleteProduct, saveCategory, deleteCategory, saveSubcategory, deleteSubcategory, updateEnquiryStatus,
     saveCertificate, deleteCertificate, saveBlog, deleteBlog, saveFounder, saveSettings, logoutAdmin,
     orders, changeOrderStatus, checkSupabaseSchema, seedDatabase, refreshData, trafficStats,
     deleteEnquiry, deleteDownload, deleteOrder, trafficViews, loading
@@ -21,6 +21,7 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('analytics');
+  const [catSubTab, setCatSubTab] = useState('categories'); // 'categories' | 'subcategories'
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [dateRange, setDateRange] = useState('7days');
   const [customStartDate, setCustomStartDate] = useState('');
@@ -459,7 +460,7 @@ export default function Dashboard() {
     const handleEditProductClick = (prod) => {
       setItemType("product");
       setEditingItem(prod || {
-        name: "", category_id: categories[0]?.id || "", short_description: "", detailed_description: "",
+        name: "", category_id: "", subcategory_id: "", short_description: "", detailed_description: "",
         dimensions: "", material: "", moq: "", price_inr: 0, price_usd: 0, country_availability: ["USA", "Germany"], status: "published",
         is_featured: false, images: ["https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&q=80&w=800"], specifications: {},
         product_code: "", show_price: true
@@ -514,7 +515,14 @@ export default function Dashboard() {
                       <img src={p.images?.[0]} alt="" className="w-12 h-8 object-cover rounded border" />
                     </td>
                     <td className="p-4 font-bold text-primary">{p.name}</td>
-                    <td className="p-4 font-semibold">{catName}</td>
+                    <td className="p-4 space-y-1">
+                      <span className="font-semibold block">{catName}</span>
+                      {p.subcategory_id && (
+                        <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+                          {subcategories?.find(s => s.id === p.subcategory_id)?.name || "N/A"}
+                        </span>
+                      )}
+                    </td>
                     <td className="p-4">{p.moq}</td>
                     <td className="p-4">
                       {p.is_featured ? (
@@ -562,37 +570,60 @@ export default function Dashboard() {
                   {editingItem.id ? "Edit Product Details" : "Add New Product"}
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Product Title</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Product Title *</label>
                     <input
                       type="text"
                       required
-                      value={editingItem.name}
+                      value={editingItem.name || ""}
                       onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
                       className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Product Code (e.g. VS-101)</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Product Code (e.g. VS-101) *</label>
                     <input
                       type="text"
+                      required
                       placeholder="e.g. VS-101"
                       value={editingItem.product_code || ""}
                       onChange={(e) => setEditingItem({ ...editingItem, product_code: e.target.value })}
                       className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Category</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Category *</label>
                     <select
-                      value={editingItem.category_id}
-                      onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
+                      required
+                      value={editingItem.category_id || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value, subcategory_id: "" })}
                       className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1"
                     >
+                      <option value="">Select Category...</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Subcategory *</label>
+                    <select
+                      required
+                      value={editingItem.subcategory_id || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, subcategory_id: e.target.value })}
+                      className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1"
+                    >
+                      <option value="">Select Subcategory...</option>
+                      {(subcategories || [])
+                        .filter(s => s.category_id === editingItem.category_id)
+                        .map(s => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))
+                      }
                     </select>
                   </div>
                 </div>
@@ -649,7 +680,20 @@ export default function Dashboard() {
                       className="w-full text-xs px-3 py-2 rounded border"
                     />
                   </div>
-                  <div></div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Quantity Unit</label>
+                    <select
+                      value={editingItem.qty_unit || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, qty_unit: e.target.value })}
+                      className="w-full text-xs px-3 py-2 rounded border bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                      <option value="">Select Unit (None)</option>
+                      <option value="Pieces">Pieces</option>
+                      <option value="KGs">KGs</option>
+                      <option value="MT">MT</option>
+                      <option value="Cartons">Cartons</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-1">
@@ -714,15 +758,24 @@ export default function Dashboard() {
                       min="0"
                       step="any"
                       placeholder="e.g. 400"
-                      value={editingItem.price_inr || ""}
+                      value={editingItem.price_inr !== undefined ? editingItem.price_inr : ""}
                       onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        const usdVal = parseFloat((val / 83).toFixed(2)) || 0;
-                        setEditingItem({
-                          ...editingItem,
-                          price_inr: val,
-                          price_usd: usdVal
-                        });
+                        const valStr = e.target.value;
+                        if (valStr === "") {
+                          setEditingItem({
+                            ...editingItem,
+                            price_inr: "",
+                            price_usd: ""
+                          });
+                        } else {
+                          const val = parseFloat(valStr) || 0;
+                          const usdVal = parseFloat((val / 83).toFixed(2)) || 0;
+                          setEditingItem({
+                            ...editingItem,
+                            price_inr: valStr,
+                            price_usd: usdVal
+                          });
+                        }
                       }}
                       className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
                     />
@@ -735,8 +788,25 @@ export default function Dashboard() {
                       min="0"
                       step="any"
                       placeholder="e.g. 5"
-                      value={editingItem.price_usd || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, price_usd: parseFloat(e.target.value) || 0 })}
+                      value={editingItem.price_usd !== undefined ? editingItem.price_usd : ""}
+                      onChange={(e) => {
+                        const valStr = e.target.value;
+                        if (valStr === "") {
+                          setEditingItem({
+                            ...editingItem,
+                            price_usd: "",
+                            price_inr: ""
+                          });
+                        } else {
+                          const val = parseFloat(valStr) || 0;
+                          const inrVal = parseFloat((val * 83).toFixed(2)) || 0;
+                          setEditingItem({
+                            ...editingItem,
+                            price_usd: valStr,
+                            price_inr: inrVal
+                          });
+                        }
+                      }}
                       className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
@@ -809,11 +879,11 @@ export default function Dashboard() {
     );
   };
 
-  // 3. CATEGORIES CRUD VIEW
+  // 3. CATEGORIES & SUBCATEGORIES CRUD VIEW
   const renderCategories = () => {
     const handleEditCategory = (cat) => {
       setItemType("category");
-      setEditingItem(cat || { name: "", slug: "", description: "" });
+      setEditingItem(cat || { name: "", slug: "", description: "", is_visible: true });
     };
 
     const handleSaveCategory = async (e) => {
@@ -827,107 +897,295 @@ export default function Dashboard() {
       triggerToast("Category configurations saved.");
     };
 
+    const handleEditSubcategory = (sub) => {
+      setItemType("subcategory");
+      setEditingItem(sub || { name: "", slug: "", category_id: "" });
+    };
+
+    const handleSaveSubcategory = async (e) => {
+      e.preventDefault();
+      if (!editingItem.category_id) {
+        alert("Please select a parent category.");
+        return;
+      }
+      if (!editingItem.slug) {
+        editingItem.slug = editingItem.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      }
+      await saveSubcategory(editingItem);
+      setEditingItem(null);
+      triggerToast("Subcategory saved successfully.");
+    };
+
     return (
       <div className="space-y-6">
         
-        <div className="flex justify-between items-center">
-          <h2 className="text-base font-bold text-primary">Product Categories</h2>
+        {/* Sub-tab navigation */}
+        <div className="flex border-b border-gray-200">
           <button
-            onClick={() => handleEditCategory(null)}
-            className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
+            onClick={() => { setCatSubTab('categories'); setEditingItem(null); }}
+            className={`py-2.5 px-6 font-bold text-xs border-b-2 transition-all ${
+              catSubTab === 'categories'
+                ? 'border-secondary text-secondary'
+                : 'border-transparent text-gray-400 hover:text-primary'
+            }`}
           >
-            <Plus size={16} />
-            <span>Add Category</span>
+            Main Categories
+          </button>
+          <button
+            onClick={() => { setCatSubTab('subcategories'); setEditingItem(null); }}
+            className={`py-2.5 px-6 font-bold text-xs border-b-2 transition-all ${
+              catSubTab === 'subcategories'
+                ? 'border-secondary text-secondary'
+                : 'border-transparent text-gray-400 hover:text-primary'
+            }`}
+          >
+            Subcategories Management
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
-                  <th className="p-4">Category Name</th>
-                  <th className="p-4">Slug</th>
-                  <th className="p-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 text-gray-600">
-                {categories.map((c) => (
-                  <tr key={c.id}>
-                    <td className="p-4 font-bold text-primary">{c.name}</td>
-                    <td className="p-4"><code>{c.slug}</code></td>
-                    <td className="p-4 flex items-center space-x-3">
-                      <button onClick={() => handleEditCategory(c)} className="text-primary hover:text-accent">
-                        <Edit2 size={14} />
+        {catSubTab === 'categories' ? (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-base font-bold text-primary">Product Categories</h2>
+              <button
+                onClick={() => handleEditCategory(null)}
+                className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
+              >
+                <Plus size={16} />
+                <span>Add Category</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
+                      <th className="p-4">Category Name</th>
+                      <th className="p-4">Slug</th>
+                      <th className="p-4">Visibility</th>
+                      <th className="p-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 text-gray-600">
+                    {categories.map((c) => (
+                      <tr key={c.id}>
+                        <td className="p-4 font-bold text-primary">{c.name}</td>
+                        <td className="p-4"><code>{c.slug}</code></td>
+                        <td className="p-4">
+                          {c.is_visible !== false ? (
+                            <span className="text-green-600 font-bold">Visible</span>
+                          ) : (
+                            <span className="text-gray-400 font-semibold">Hidden</span>
+                          )}
+                        </td>
+                        <td className="p-4 flex items-center space-x-3">
+                          <button onClick={() => handleEditCategory(c)} className="text-primary hover:text-accent">
+                            <Edit2 size={14} />
+                          </button>
+                          <button onClick={() => { if(confirm("Delete category? This will unlink products in it.")) deleteCategory(c.id); }} className="text-red-500 hover:text-red-700">
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {editingItem && itemType === "category" ? (
+                <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
+                  <form onSubmit={handleSaveCategory} className="space-y-4">
+                    <h3 className="font-bold text-sm text-primary border-b pb-2">
+                      {editingItem.id ? "Edit Category Details" : "Create Category"}
+                    </h3>
+                    
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Category Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={editingItem.name}
+                        onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Slug (leave empty for auto)</label>
+                      <input
+                        type="text"
+                        placeholder="areca-leaf-plates"
+                        value={editingItem.slug}
+                        onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
+                      <textarea
+                        rows="2"
+                        value={editingItem.description}
+                        onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex items-center space-x-2 pt-2">
+                      <input
+                        type="checkbox"
+                        id="is_visible"
+                        checked={editingItem.is_visible !== false}
+                        onChange={(e) => setEditingItem({ ...editingItem, is_visible: e.target.checked })}
+                        className="rounded text-primary focus:ring-0"
+                      />
+                      <label htmlFor="is_visible" className="text-xs font-semibold text-gray-700">Display Category publicly on site</label>
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-2">
+                      <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
+                        Cancel
                       </button>
-                      <button onClick={() => { if(confirm("Delete category? This will unlink products in it.")) deleteCategory(c.id); }} className="text-red-500 hover:text-red-700">
-                        <Trash2 size={14} />
+                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
+                        Save Category
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
+                  <FolderTree size={36} className="mx-auto text-gray-300 mb-2" />
+                  <span className="text-xs font-semibold">Select edit icon or create category to start editing parameters.</span>
+                </div>
+              )}
+
+            </div>
           </div>
-
-          {editingItem && itemType === "category" ? (
-            <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
-              <form onSubmit={handleSaveCategory} className="space-y-4">
-                <h3 className="font-bold text-sm text-primary border-b pb-2">
-                  {editingItem.id ? "Edit Category Details" : "Create Category"}
-                </h3>
-                
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Category Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingItem.name}
-                    onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
-                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Slug (leave empty for auto)</label>
-                  <input
-                    type="text"
-                    placeholder="areca-leaf-plates"
-                    value={editingItem.slug}
-                    onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
-                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
-                  <textarea
-                    rows="2"
-                    value={editingItem.description}
-                    onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-end space-x-2 pt-2">
-                  <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
-                    Cancel
-                  </button>
-                  <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                    Save Category
-                  </button>
-                </div>
-              </form>
+        ) : (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-base font-bold text-primary">Subcategories Management</h2>
+              <button
+                onClick={() => handleEditSubcategory(null)}
+                className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
+              >
+                <Plus size={16} />
+                <span>Add Subcategory</span>
+              </button>
             </div>
-          ) : (
-            <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
-              <FolderTree size={36} className="mx-auto text-gray-300 mb-2" />
-              <span className="text-xs font-semibold">Select edit icon or create category to start editing parameters.</span>
-            </div>
-          )}
 
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
+                      <th className="p-4">Subcategory Name</th>
+                      <th className="p-4">Parent Category</th>
+                      <th className="p-4">Slug</th>
+                      <th className="p-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 text-gray-600">
+                    {(subcategories || []).map((s) => {
+                      const parentCat = categories.find(c => c.id === s.category_id);
+                      return (
+                        <tr key={s.id}>
+                          <td className="p-4 font-bold text-primary">{s.name}</td>
+                          <td className="p-4">
+                            <span className="bg-primary/5 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10">
+                              {parentCat ? parentCat.name : 'Unlinked Category'}
+                            </span>
+                          </td>
+                          <td className="p-4"><code>{s.slug}</code></td>
+                          <td className="p-4 flex items-center space-x-3">
+                            <button onClick={() => handleEditSubcategory(s)} className="text-primary hover:text-accent">
+                              <Edit2 size={14} />
+                            </button>
+                            <button onClick={() => { if(confirm("Delete subcategory?")) deleteSubcategory(s.id); }} className="text-red-500 hover:text-red-700">
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {(!subcategories || subcategories.length === 0) && (
+                      <tr>
+                        <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold italic">
+                          No subcategories created yet. Click Add Subcategory.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {editingItem && itemType === "subcategory" ? (
+                <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
+                  <form onSubmit={handleSaveSubcategory} className="space-y-4">
+                    <h3 className="font-bold text-sm text-primary border-b pb-2">
+                      {editingItem.id ? "Edit Subcategory Details" : "Create Subcategory"}
+                    </h3>
+                    
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Subcategory Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={editingItem.name || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Parent Category (Mandatory) *</label>
+                      <select
+                        required
+                        value={editingItem.category_id || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">Select Category...</option>
+                        {categories.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Slug (leave empty for auto)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. square-plates"
+                        value={editingItem.slug || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-2">
+                      <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
+                        Cancel
+                      </button>
+                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
+                        Save Subcategory
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
+                  <FolderTree size={36} className="mx-auto text-gray-300 mb-2" />
+                  <span className="text-xs font-semibold">Select edit icon or create subcategory to start editing parameters.</span>
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
 
       </div>
     );
@@ -946,9 +1204,12 @@ export default function Dashboard() {
       const day = String(d.getDate()).padStart(2, '0');
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const year = d.getFullYear();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const timeStr = `${hours}:${minutes}`;
       const dayOptions = { weekday: 'long' };
       const weekdayStr = d.toLocaleDateString(undefined, dayOptions);
-      return `${day}/${month}/${year} (${weekdayStr})`;
+      return `${day}/${month}/${year} ${timeStr} (${weekdayStr})`;
     };
 
     return (
@@ -1007,6 +1268,9 @@ export default function Dashboard() {
                     </td>
                     <td className="p-3 space-y-1">
                       <span className="block font-semibold text-secondary-dark leading-tight">{enq.product_interested}</span>
+                      {enq.quantity && (
+                        <span className="block font-bold text-accent-dark text-[10px] mt-0.5">Qty: {enq.quantity} {products?.find(p => p.name === enq.product_interested)?.qty_unit || ""}</span>
+                      )}
                       {enq.product_code && (
                         <span className="inline-block bg-primary/10 text-primary font-sans font-extrabold text-[9px] uppercase px-1.5 py-0.5 rounded mt-0.5">Code: {enq.product_code}</span>
                       )}
@@ -1594,7 +1858,19 @@ CREATE TABLE categories (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
-  description TEXT
+  description TEXT,
+  is_visible BOOLEAN DEFAULT true
+);
+
+-- ALTER TABLE categories ADD COLUMN is_visible BOOLEAN DEFAULT true;
+
+-- 1.5 Subcategories
+CREATE TABLE subcategories (
+  id TEXT PRIMARY KEY,
+  category_id TEXT REFERENCES categories(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  is_visible BOOLEAN DEFAULT true
 );
 
 -- 2. Products
@@ -1751,6 +2027,7 @@ CREATE TABLE orders (
 
 -- 10. Disable Row Level Security (RLS) on all tables to allow client-side inserts/upserts using anon key
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE subcategories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE enquiries DISABLE ROW LEVEL SECURITY;
 ALTER TABLE catalogue_downloads DISABLE ROW LEVEL SECURITY;
@@ -1758,6 +2035,7 @@ ALTER TABLE certificates DISABLE ROW LEVEL SECURITY;
 ALTER TABLE blogs DISABLE ROW LEVEL SECURITY;
 ALTER TABLE founder_details DISABLE ROW LEVEL SECURITY;
 ALTER TABLE website_settings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
 ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
 `;
 
@@ -2248,7 +2526,9 @@ function SettingsManager({ triggerToast }) {
   const [companyName, setCompanyName] = React.useState('');
   const [heroTitle, setHeroTitle] = React.useState('');
   const [heroSubtitle, setHeroSubtitle] = React.useState('');
-  const [heroBannerUrls, setHeroBannerUrls] = React.useState(['', '', '']);
+  const [heroBannerUrls, setHeroBannerUrls] = React.useState(['', '', '', '', '', '', '', '']);
+  const [logoUrl, setLogoUrl] = React.useState('');
+  const [heroSlideDelay, setHeroSlideDelay] = React.useState('5');
   const [contactWhatsapp, setContactWhatsapp] = React.useState('');
   const [contactEmail, setContactEmail] = React.useState('');
   const [contactPhone, setContactPhone] = React.useState('');
@@ -2323,21 +2603,32 @@ function SettingsManager({ triggerToast }) {
       setCompanyName(settings.company_name || '');
       setHeroTitle(settings.hero_title || '');
       setHeroSubtitle(settings.hero_subtitle || '');
+      setLogoUrl(settings.logo_url || '');
+      setHeroSlideDelay(settings.hero_slide_delay || '5');
       
       const val = settings.hero_banner_url || '';
-      let urls = ['', '', ''];
+      let urls = ['', '', '', '', '', '', '', ''];
       if (val.startsWith('[') && val.endsWith(']')) {
         try {
           const parsed = JSON.parse(val);
           if (Array.isArray(parsed)) {
-            urls = [parsed[0] || '', parsed[1] || '', parsed[2] || ''];
+            urls = [
+              parsed[0] || '',
+              parsed[1] || '',
+              parsed[2] || '',
+              parsed[3] || '',
+              parsed[4] || '',
+              parsed[5] || '',
+              parsed[6] || '',
+              parsed[7] || ''
+            ];
           }
         } catch (e) {
           console.error("Failed to parse hero_banner_url", e);
-          urls = [val, '', ''];
+          urls = [val, '', '', '', '', '', '', ''];
         }
       } else {
-        urls = [val, '', ''];
+        urls = [val, '', '', '', '', '', '', ''];
       }
       setHeroBannerUrls(urls);
 
@@ -2438,6 +2729,8 @@ function SettingsManager({ triggerToast }) {
         hero_title: heroTitle,
         hero_subtitle: heroSubtitle,
         hero_banner_url: JSON.stringify(heroBannerUrls),
+        logo_url: logoUrl,
+        hero_slide_delay: heroSlideDelay,
         contact_whatsapp: contactWhatsapp,
         contact_email: contactEmail,
         contact_phone: contactPhone,
@@ -2586,7 +2879,8 @@ function SettingsManager({ triggerToast }) {
       transitTime: editingConsignment.transitTime,
       inspection: editingConsignment.inspection,
       image: editingConsignment.image,
-      description: editingConsignment.description
+      description: editingConsignment.description,
+      is_visible: editingConsignment.is_visible !== false
     };
 
     if (editingConsignment.idx !== undefined) {
@@ -2734,6 +3028,39 @@ function SettingsManager({ triggerToast }) {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Website Logo Image URL</label>
+              <input
+                type="text"
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                placeholder="https://..."
+                className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary mb-2"
+              />
+              <ImageUploader
+                label="Or Upload Website Logo"
+                value={logoUrl}
+                onChange={(val) => setLogoUrl(val)}
+                aspect="free"
+                disableCrop={true}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Slideshow Speed / Switch Delay (in seconds)</label>
+              <select
+                value={heroSlideDelay}
+                onChange={(e) => setHeroSlideDelay(e.target.value)}
+                className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="3">3 seconds (Fast)</option>
+                <option value="5">5 seconds (Standard)</option>
+                <option value="7">7 seconds (Relaxed)</option>
+                <option value="10">10 seconds (Slow)</option>
+              </select>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1">Hero Subtitle Paragraph</label>
             <textarea
@@ -2746,9 +3073,9 @@ function SettingsManager({ triggerToast }) {
           </div>
 
           <div className="space-y-4">
-            <label className="block text-xs font-bold text-gray-700">Hero Banner Images (Slideshow - up to 3)</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[0, 1, 2].map((idx) => (
+            <label className="block text-xs font-bold text-gray-700">Hero Banner Images (Slideshow - up to 8)</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((idx) => (
                 <ImageUploader
                   key={idx}
                   label={`Hero Slide Image ${idx + 1}`}
@@ -3468,7 +3795,7 @@ function SettingsManager({ triggerToast }) {
             {!editingConsignment && (
               <button
                 type="button"
-                onClick={() => setEditingConsignment({ title: '', cargo: '', destination: '', transitTime: '', inspection: '', image: '', description: '' })}
+                onClick={() => setEditingConsignment({ title: '', cargo: '', destination: '', transitTime: '', inspection: '', image: '', description: '', is_visible: true })}
                 className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow cursor-pointer"
               >
                 <Plus size={14} />
@@ -3558,6 +3885,17 @@ function SettingsManager({ triggerToast }) {
                 />
               </div>
 
+              <div className="flex items-center space-x-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="is_visible"
+                  checked={editingConsignment.is_visible !== false}
+                  onChange={(e) => setEditingConsignment({ ...editingConsignment, is_visible: e.target.checked })}
+                  className="rounded text-primary focus:ring-0"
+                />
+                <label htmlFor="is_visible" className="text-xs font-semibold text-gray-700">Display Consignment publicly on site</label>
+              </div>
+
               <div className="flex justify-end space-x-2 pt-2">
                 <button
                   type="button"
@@ -3583,6 +3921,7 @@ function SettingsManager({ triggerToast }) {
                     <th className="p-4">Cargo & Port</th>
                     <th className="p-4">Transit & Audits</th>
                     <th className="p-4">Description</th>
+                    <th className="p-4">Visibility</th>
                     <th className="p-4">Actions</th>
                   </tr>
                 </thead>
@@ -3601,6 +3940,13 @@ function SettingsManager({ triggerToast }) {
                         <span className="text-[10px] text-gray-400 block max-w-xs truncate" title={c.inspection}>{c.inspection}</span>
                       </td>
                       <td className="p-4 max-w-xs truncate" title={c.description}>{c.description}</td>
+                      <td className="p-4">
+                        {c.is_visible !== false ? (
+                          <span className="text-green-600 font-bold">Public</span>
+                        ) : (
+                          <span className="text-gray-400 font-semibold">Hidden</span>
+                        )}
+                      </td>
                       <td className="p-4 flex items-center space-x-3 mt-1.5">
                         <button
                           type="button"
@@ -3613,7 +3959,8 @@ function SettingsManager({ triggerToast }) {
                             transitTime: c.transitTime || '',
                             inspection: c.inspection || '',
                             image: c.image || '',
-                            description: c.description || ''
+                            description: c.description || '',
+                            is_visible: c.is_visible !== false
                           })}
                           className="text-primary hover:text-accent"
                           title="Edit consignment"

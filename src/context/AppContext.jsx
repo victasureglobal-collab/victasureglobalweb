@@ -6,6 +6,7 @@ const AppContext = createContext(null);
 export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [enquiries, setEnquiries] = useState([]);
   const [downloads, setDownloads] = useState([]);
@@ -41,8 +42,9 @@ export const AppProvider = ({ children }) => {
   const refreshData = async () => {
     try {
       setLoading(true);
-      const [cats, prods, enqs, dls, certs, blgs, fndr, stgs, ords, views] = await Promise.all([
+      const [cats, subcats, prods, enqs, dls, certs, blgs, fndr, stgs, ords, views] = await Promise.all([
         dbService.getCategories(),
+        dbService.getSubcategories(),
         dbService.getProducts(),
         dbService.getEnquiries(),
         dbService.getDownloads(),
@@ -55,6 +57,7 @@ export const AppProvider = ({ children }) => {
       ]);
 
       setCategories(cats);
+      setSubcategories(subcats || []);
       setProducts(prods);
       setEnquiries(enqs);
       setDownloads(dls);
@@ -191,6 +194,24 @@ export const AppProvider = ({ children }) => {
     // Refresh products since cascade deletions or category reset may occur
     const prods = await dbService.getProducts();
     setProducts(prods);
+  };
+
+  const saveSubcategory = async (subcategory) => {
+    const saved = await dbService.saveSubcategory(subcategory);
+    setSubcategories(prev => {
+      const exists = prev.some(s => s.id === saved.id);
+      if (exists) {
+        return prev.map(s => s.id === saved.id ? saved : s);
+      } else {
+        return [...prev, saved];
+      }
+    });
+    return saved;
+  };
+
+  const deleteSubcategory = async (id) => {
+    await dbService.deleteSubcategory(id);
+    setSubcategories(prev => prev.filter(s => s.id !== id));
   };
 
   const saveCertificate = async (cert) => {
@@ -368,6 +389,7 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider value={{
       loading,
       categories,
+      subcategories,
       products,
       enquiries,
       downloads,
@@ -394,6 +416,8 @@ export const AppProvider = ({ children }) => {
       deleteProduct,
       saveCategory,
       deleteCategory,
+      saveSubcategory,
+      deleteSubcategory,
       saveCertificate,
       deleteCertificate,
       saveBlog,

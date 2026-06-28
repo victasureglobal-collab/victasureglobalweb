@@ -106,30 +106,13 @@ export default function ProductCard({ product, onViewDetails, onRequestQuote }) 
             <span>View Product Details</span>
           </button>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="w-full">
             <button
               onClick={() => onRequestQuote(product)}
-              className="w-full flex items-center justify-center space-x-1 bg-primary hover:bg-primary-light text-white font-semibold text-[11px] py-2 px-2.5 rounded-large transition-all"
+              className="w-full flex items-center justify-center space-x-1.5 bg-primary hover:bg-primary-light text-white font-semibold text-xs py-2 px-3 rounded-large transition-all"
             >
-              <Send size={12} />
+              <Send size={14} />
               <span>Request Quote</span>
-            </button>
-
-            <button
-              onClick={handleAddToCart}
-              className={`w-full flex items-center justify-center space-x-1 ${added ? 'bg-green-600 hover:bg-green-700' : 'bg-secondary hover:bg-secondary-light'} text-white font-semibold text-[11px] py-2 px-2.5 rounded-large transition-all`}
-            >
-              {added ? (
-                <>
-                  <Check size={12} />
-                  <span>Added ✓</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag size={12} />
-                  <span>Add to Cart</span>
-                </>
-              )}
             </button>
           </div>
 

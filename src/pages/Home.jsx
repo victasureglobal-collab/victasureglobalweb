@@ -23,16 +23,22 @@ const IconMap = {
 };
 
 export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
-  const { products, settings, addToCart } = useApp();
+  const { products, categories, settings, addToCart } = useApp();
   const navigate = useNavigate();
   const [addedProdId, setAddedProdId] = useState(null);
   const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
 
   // Filter products by is_featured and fallback if none marked
   const featuredProducts = React.useMemo(() => {
-    const featured = products.filter(p => p.is_featured === true && p.status === 'published');
-    return featured.length > 0 ? featured.slice(0, 4) : products.filter(p => p.status === 'published').slice(0, 4);
-  }, [products]);
+    const activeProducts = products.filter(p => {
+      if (p.status !== 'published') return false;
+      const cat = categories.find(c => c.id === p.category_id);
+      if (cat && cat.is_visible === false) return false;
+      return true;
+    });
+    const featured = activeProducts.filter(p => p.is_featured === true);
+    return featured.length > 0 ? featured.slice(0, 4) : activeProducts.slice(0, 4);
+  }, [products, categories]);
 
   // Parse hero banner images
   const heroImages = React.useMemo(() => {
@@ -52,13 +58,21 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
   }, [settings?.hero_banner_url]);
 
   // Slideshow interval
+  const slideDelayMs = React.useMemo(() => {
+    if (!settings?.hero_slide_delay) return 5000;
+    const numeric = parseInt(settings.hero_slide_delay, 10);
+    if (isNaN(numeric)) return 5000;
+    if (numeric < 100) return numeric * 1000;
+    return numeric;
+  }, [settings?.hero_slide_delay]);
+
   React.useEffect(() => {
     if (heroImages.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentSlideIdx(prev => (prev + 1) % heroImages.length);
-    }, 5000);
+    }, slideDelayMs);
     return () => clearInterval(interval);
-  }, [heroImages]);
+  }, [heroImages, slideDelayMs]);
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
@@ -411,21 +425,15 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
                     </div>
 
                     {/* Bottom buttons */}
-                    <div className="grid grid-cols-2 gap-2 pt-2">
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        className={`${addedProdId === product.id ? 'bg-green-600' : 'bg-primary hover:bg-primary-dark'} text-white font-bold text-[10px] py-2 px-3 rounded-large transition-colors text-center flex items-center justify-center`}
-                      >
-                        {addedProdId === product.id ? 'Added ✓' : 'Add to Cart'}
-                      </button>
+                    <div className="w-full pt-2">
                       <button
                         onClick={() => {
                           setSelectedProduct(product);
                           navigate(`/products?id=${product.id}`);
                         }}
-                        className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-[10px] py-2 px-3 rounded-large transition-colors text-center"
+                        className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-[10px] py-2 px-3 rounded-large transition-colors text-center block"
                       >
-                        Enquire
+                        Enquire / Request Quote
                       </button>
                     </div>
                   </div>

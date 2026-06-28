@@ -1,8 +1,17 @@
 export const initialCategories = [
-  { id: "cat-1", name: "Areca Leaf Plates", slug: "areca-leaf-plates", description: "Biodegradable heat-pressed plates made from fallen palm leaves." },
-  { id: "cat-2", name: "Areca Leaf Bowls", slug: "areca-leaf-bowls", description: "Chemical-free compostable bowls for soups, desserts, and sides." },
-  { id: "cat-3", name: "Areca Leaf Trays", slug: "areca-leaf-trays", description: "Sturdy organic serving trays, perfect for caterers and events." },
-  { id: "cat-4", name: "Areca Cutlery", slug: "areca-cutlery", description: "100% natural birchwood and palm leaf forks and spoons." }
+  { id: "cat-1", name: "Areca Leaf Plates", slug: "areca-leaf-plates", description: "Biodegradable heat-pressed plates made from fallen palm leaves.", is_visible: true },
+  { id: "cat-2", name: "Areca Leaf Bowls", slug: "areca-leaf-bowls", description: "Chemical-free compostable bowls for soups, desserts, and sides.", is_visible: true },
+  { id: "cat-3", name: "Areca Leaf Trays", slug: "areca-leaf-trays", description: "Sturdy organic serving trays, perfect for caterers and events.", is_visible: true },
+  { id: "cat-4", name: "Areca Cutlery", slug: "areca-cutlery", description: "100% natural birchwood and palm leaf forks and spoons.", is_visible: true }
+];
+
+export const initialSubcategories = [
+  { id: "sub-1", category_id: "cat-1", name: "Round Plates", description: "Standard round shaped dining plates", is_visible: true },
+  { id: "sub-2", category_id: "cat-1", name: "Square Plates", description: "Modern square shaped dining plates", is_visible: true },
+  { id: "sub-3", category_id: "cat-2", name: "Soup Bowls", description: "Deep bowls suitable for hot liquids", is_visible: true },
+  { id: "sub-4", category_id: "cat-2", name: "Dessert Bowls", description: "Small bowls for ice creams and sweets", is_visible: true },
+  { id: "sub-5", category_id: "cat-3", name: "Partition Trays", description: "Multi-compartment food service trays", is_visible: true },
+  { id: "sub-6", category_id: "cat-4", name: "Birchwood Cutlery", description: "Premium wooden forks, knives, and spoons", is_visible: true }
 ];
 
 export const initialProducts = [
@@ -506,7 +515,8 @@ Phytosanitary and fumigation credentials are provided with every shipment. The i
       transitTime: "24 Days (Port-to-Port)",
       inspection: "Phytosanitary & EN 13432 Compostability Audited",
       image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&q=80&w=600",
-      description: "Successfully packed, fumigated, and exported a Full Container Load (FCL) of mixed Areca Leaf tableware for a German catering distributor. Humidity levels were stabilized at 11% to survive ocean temperature swings."
+      description: "Successfully packed, fumigated, and exported a Full Container Load (FCL) of mixed Areca Leaf tableware for a German catering distributor. Humidity levels were stabilized at 11% to survive ocean temperature swings.",
+      is_visible: true
     },
     {
       id: 2,
@@ -516,7 +526,8 @@ Phytosanitary and fumigation credentials are provided with every shipment. The i
       transitTime: "18 Days (Port-to-Port)",
       inspection: "USDA Biobased & Customs Cleared",
       image: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&q=80&w=600",
-      description: "Coordinated a high-volume areca leaf bowl consignment for a premium restaurant chain in Tokyo. Bowls were customized with heat-embossed brand markings, meeting Japanese food safety standards."
+      description: "Coordinated a high-volume areca leaf bowl consignment for a premium restaurant chain in Tokyo. Bowls were customized with heat-embossed brand markings, meeting Japanese food safety standards.",
+      is_visible: true
     },
     {
       id: 3,
@@ -526,7 +537,8 @@ Phytosanitary and fumigation credentials are provided with every shipment. The i
       transitTime: "28 Days",
       inspection: "EN 13432 & FDA Food-Contact Compliant",
       image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=600",
-      description: "Custom white-label sustainable dining packs (containing Areca plates, bowls, and birchwood forks/spoons) prepared for a major US eco-retail brand. Shipped in ocean-worthy moisture-sealed pallets."
+      description: "Custom white-label sustainable dining packs (containing Areca plates, bowls, and birchwood forks/spoons) prepared for a major US eco-retail brand. Shipped in ocean-worthy moisture-sealed pallets.",
+      is_visible: true
     },
     {
       id: 4,
@@ -536,7 +548,8 @@ Phytosanitary and fumigation credentials are provided with every shipment. The i
       transitTime: "16 Days",
       inspection: "AQIS Custom Quarantine Cleared",
       image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=600",
-      description: "Supplied heavy-duty biodegradable areca leaf serving platters for an eco-conscious festival consortium in New South Wales. Consignment successfully cleared Australian biosecurity screening on arrival."
+      description: "Supplied heavy-duty biodegradable areca leaf serving platters for an eco-conscious festival consortium in New South Wales. Consignment successfully cleared Australian biosecurity screening on arrival.",
+      is_visible: true
     }
   ]
 };

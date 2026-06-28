@@ -28,8 +28,8 @@
   --color-neutral-lightBg: #F8F9FA;
   --color-neutral-border: #E5E7EB;
   
-  --font-sans: "Poppins", "Inter", "sans-serif";
-  --font-display: "Eurostile", "Poppins", "Inter", "sans-serif";
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Inter", sans-serif;
   
   --radius-large: 12px;
   --radius-xlarge: 16px;
@@ -120,7 +120,7 @@
   padding: 2px 6px !important;
   background-color: #0D2C54 !important;
   outline: none !important;
-  font-family: "Poppins", sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   cursor: pointer;
   height: 22px !important;
   min-width: 105px !important;

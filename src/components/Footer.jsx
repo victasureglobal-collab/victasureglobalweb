@@ -87,7 +87,7 @@ export default function Footer() {
         <div className="space-y-4">
           <div className="flex items-center">
             <div className="relative">
-              <img src={logoImg} alt={companyName} className="h-8 w-auto object-contain max-w-[150px]" />
+              <img src={settings?.logo_url || logoImg} alt={companyName} className="h-8 w-auto object-contain max-w-[150px]" />
               <span className="absolute -top-1 -right-3 text-[6px] font-extrabold text-primary select-none font-sans">TM</span>
             </div>
           </div>

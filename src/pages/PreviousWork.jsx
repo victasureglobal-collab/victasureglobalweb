@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 export default function PreviousWork() {
   const { settings } = useApp();
 
-  const projects = settings && settings.consignments && settings.consignments.length > 0
+  const projects = (settings && settings.consignments && settings.consignments.length > 0
     ? settings.consignments
     : [
         {
@@ -48,7 +48,7 @@ export default function PreviousWork() {
           image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=600",
           description: "Supplied heavy-duty biodegradable areca leaf serving platters for an eco-conscious festival consortium in New South Wales. Consignment successfully cleared Australian biosecurity screening on arrival."
         }
-      ];
+      ]).filter(c => c.is_visible !== false);
 
   return (
     <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8 bg-neutral-lightBg space-y-12">

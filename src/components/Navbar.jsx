@@ -18,7 +18,7 @@ export default function Navbar() {
           new window.google.translate.TranslateElement(
             {
               pageLanguage: 'en',
-              includedLanguages: 'en,ta,hi,ml,te,kn,mr,gu,bn', // English, Tamil, Hindi, Malayalam, Telugu, etc.
+              includedLanguages: 'en,de,fr,es,pt,ar,ta,hi,ml,te,kn,mr,gu,bn', // Added de, fr, es, pt, ar
               layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
               autoDisplay: false
             },
@@ -85,9 +85,28 @@ export default function Navbar() {
             <span className="hidden sm:inline">|</span>
             <span className="hidden sm:inline">{settings?.contact_phone || "+91 83909 00120"}</span>
           </div>
-          <div className="flex items-center space-x-1.5 ml-auto">
-            <Globe size={11} className="text-accent" />
-            <div id="google_translate_element" className="google-translate-topbar"></div>
+          <div className="flex items-center space-x-3 ml-auto">
+            <div className="flex items-center space-x-1.5">
+              <Globe size={11} className="text-accent" />
+              <select
+                onChange={(e) => {
+                  const lang = e.target.value;
+                  document.cookie = `googtrans=/en/${lang}; path=/;`;
+                  window.location.reload();
+                }}
+                className="bg-primary border border-primary-light text-white text-[10px] sm:text-[11px] rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                defaultValue=""
+              >
+                <option value="" disabled>Language</option>
+                <option value="en">English</option>
+                <option value="de">German</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+                <option value="pt">Portuguese</option>
+                <option value="ar">Arabic</option>
+              </select>
+            </div>
+            <div id="google_translate_element" className="google-translate-topbar hidden sm:block"></div>
           </div>
         </div>
       </div>
@@ -99,7 +118,7 @@ export default function Navbar() {
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center group">
               <div className="relative">
-                <img src={logoImg} alt={companyName} className="h-10 w-auto object-contain max-w-[180px]" />
+                <img src={settings?.logo_url || logoImg} alt={companyName} className="h-10 w-auto object-contain max-w-[180px]" />
                 <span className="absolute -top-1 -right-3 text-[7px] font-extrabold text-primary select-none font-sans">TM</span>
               </div>
             </Link>
@@ -125,7 +144,8 @@ export default function Navbar() {
           {/* Actions Toolbar - Shared on desktop & mobile */}
           <div className="flex items-center space-x-3 sm:space-x-4">
 
-            {/* Cart Link with Badge */}
+            {/* Cart Link with Badge - HIDDEN IN PHASE 2 */}
+            {/* 
             <Link
               to="/cart"
               className="relative p-2 text-gray-500 hover:text-primary transition-colors flex items-center"
@@ -138,10 +158,11 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            */}
 
-            {/* Desktop Admin/Client Login desk */}
+            {/* Desktop Admin Login desk */}
             <div className="hidden md:flex items-center space-x-3">
-              {isAdminAuthenticated ? (
+              {isAdminAuthenticated && (
                 <div className="flex items-center space-x-3 border-l pl-4 border-gray-200 text-[10px] font-bold">
                   <Link to="/admin" className="text-secondary hover:underline flex items-center space-x-1">
                     <Shield size={12} />
@@ -156,29 +177,6 @@ export default function Navbar() {
                     <LogOut size={12} />
                     <span>Logout</span>
                   </button>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-3 border-l pl-4 border-gray-200 font-sans">
-                  {currentUser ? (
-                    <div className="flex items-center space-x-2.5">
-                      <Link to="/profile" className="text-[10px] font-bold text-gray-700 hover:text-accent transition-colors hover:underline">
-                        Hello, {currentUser.name.split(' ')[0]}
-                      </Link>
-                      <button
-                        onClick={logoutUser}
-                        className="text-[10px] font-bold text-red-500 hover:underline focus:outline-none cursor-pointer"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  ) : (
-                    <Link
-                      to="/login"
-                      className="bg-secondary hover:bg-secondary-light text-white text-[10px] font-bold px-3 py-1.5 rounded-large flex items-center space-x-1 transition-all shadow-sm"
-                    >
-                      <span>Client Login</span>
-                    </Link>
-                  )}
                 </div>
               )}
             </div>
@@ -203,8 +201,6 @@ export default function Navbar() {
         <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             
-
-
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -220,8 +216,8 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {/* Mobile Actions Drawer (No Admin login links publicly shown) */}
-            {isAdminAuthenticated ? (
+            {/* Mobile Actions Drawer (Only Admin panel shown if authenticated) */}
+            {isAdminAuthenticated && (
               <div className="px-3 py-2.5 flex items-center justify-between border-t border-gray-100 mt-2">
                 <Link
                   to="/admin"
@@ -238,31 +234,6 @@ export default function Navbar() {
                   <LogOut size={14} />
                   <span>Logout</span>
                 </button>
-              </div>
-            ) : (
-              <div className="border-t border-gray-100 mt-2 pt-2 space-y-1 font-sans">
-                {currentUser ? (
-                  <div className="px-3 py-2 flex items-center justify-between text-sm font-semibold text-gray-700">
-                    <Link to="/profile" onClick={() => setIsOpen(false)} className="hover:text-accent transition-colors hover:underline">
-                      Hello, {currentUser.name}
-                    </Link>
-                    <button
-                      onClick={() => { logoutUser(); setIsOpen(false); }}
-                      className="text-red-500 font-semibold underline focus:outline-none cursor-pointer"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-large text-sm font-semibold text-gray-600 hover:text-primary hover:bg-gray-50"
-                  >
-                    <LogIn size={16} className="text-accent" />
-                    <span>Client Login</span>
-                  </Link>
-                )}
               </div>
             )}
           </div>

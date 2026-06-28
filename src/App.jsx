@@ -83,15 +83,16 @@ export default function App() {
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/previous-work" element={<PreviousWork />} />
           <Route path="/terms" element={<Terms />} />
-          <Route path="/cart" element={<Cart />} />
+          {/* Cart & Checkout disabled in Phase 2 */}
+          {/* <Route path="/cart" element={<Cart />} /> */}
           <Route 
             path="/catalogue" 
             element={<Catalogue onOpenDownloadModal={() => setIsDownloadOpen(true)} />} 
           />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-success/:orderId" element={<OrderSuccess />} />
-          <Route path="/login" element={<UserLogin />} />
-          <Route path="/profile" element={<Profile />} />
+          {/* <Route path="/checkout" element={<Checkout />} /> */}
+          {/* <Route path="/order-success/:orderId" element={<OrderSuccess />} /> */}
+          {/* <Route path="/login" element={<UserLogin />} /> */}
+          {/* <Route path="/profile" element={<Profile />} /> */}
           
           <Route 
             path="/contact" 

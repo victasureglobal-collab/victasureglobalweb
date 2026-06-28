@@ -11,6 +11,8 @@ export default function Catalogue({ onOpenDownloadModal }) {
   // Filter products by selected category
   const filteredProducts = products.filter(p => {
     if (p.status !== 'published') return false;
+    const cat = categories.find(c => c.id === p.category_id);
+    if (cat && cat.is_visible === false) return false;
     if (selectedCat === "all") return true;
     return p.category_id === selectedCat;
   });
@@ -112,9 +114,13 @@ export default function Catalogue({ onOpenDownloadModal }) {
                   : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
             >
-              All Items ({products.filter(p => p.status === 'published').length})
+              All Items ({products.filter(p => {
+                if (p.status !== 'published') return false;
+                const cat = categories.find(c => c.id === p.category_id);
+                return !cat || cat.is_visible !== false;
+              }).length})
             </button>
-            {categories.map((c) => {
+            {categories.filter(c => c.is_visible !== false).map((c) => {
               const count = products.filter(p => p.category_id === c.id && p.status === 'published').length;
               if (count === 0) return null;
               return (
