@@ -142,14 +142,19 @@ export default function Navbar() {
             {/* Desktop Admin/Client Login desk */}
             <div className="hidden md:flex items-center space-x-3">
               {isAdminAuthenticated ? (
-                <div className="flex items-center space-x-3 border-l pl-4 border-gray-200">
+                <div className="flex items-center space-x-3 border-l pl-4 border-gray-200 text-[10px] font-bold">
+                  <Link to="/admin" className="text-secondary hover:underline flex items-center space-x-1">
+                    <Shield size={12} />
+                    <span>Admin Panel</span>
+                  </Link>
+                  <span className="text-gray-300">|</span>
                   <button
                     onClick={logoutAdmin}
-                    className="text-[10px] font-bold text-red-500 hover:underline focus:outline-none cursor-pointer flex items-center space-x-1"
+                    className="text-red-500 hover:underline focus:outline-none cursor-pointer flex items-center space-x-1"
                     title="Logout"
                   >
-                    <LogOut size={13} />
-                    <span>Admin Logout</span>
+                    <LogOut size={12} />
+                    <span>Logout</span>
                   </button>
                 </div>
               ) : (
@@ -218,12 +223,20 @@ export default function Navbar() {
             {/* Mobile Actions Drawer (No Admin login links publicly shown) */}
             {isAdminAuthenticated ? (
               <div className="px-3 py-2.5 flex items-center justify-between border-t border-gray-100 mt-2">
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="text-secondary font-semibold text-xs flex items-center space-x-1"
+                >
+                  <Shield size={14} />
+                  <span>Admin Panel</span>
+                </Link>
                 <button
                   onClick={() => { logoutAdmin(); setIsOpen(false); }}
-                  className="text-red-500 font-semibold text-sm flex items-center space-x-1 focus:outline-none cursor-pointer"
+                  className="text-red-500 font-semibold text-xs flex items-center space-x-1 focus:outline-none cursor-pointer"
                 >
-                  <LogOut size={16} />
-                  <span>Admin Logout</span>
+                  <LogOut size={14} />
+                  <span>Logout</span>
                 </button>
               </div>
             ) : (

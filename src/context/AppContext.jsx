@@ -29,7 +29,7 @@ export const AppProvider = ({ children }) => {
   
   // Admin auth
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
-    return localStorage.getItem('vs_admin_auth') === 'true';
+    return sessionStorage.getItem('vs_admin_auth') === 'true';
   });
 
   // Client/User auth
@@ -303,7 +303,7 @@ export const AppProvider = ({ children }) => {
     // For local mock / default admin
     if (email === "admin@victasure.com" && password === "admin123") {
       setIsAdminAuthenticated(true);
-      localStorage.setItem('vs_admin_auth', 'true');
+      sessionStorage.setItem('vs_admin_auth', 'true');
       return true;
     }
     throw new Error("Invalid username or password");
@@ -311,7 +311,7 @@ export const AppProvider = ({ children }) => {
 
   const logoutAdmin = () => {
     setIsAdminAuthenticated(false);
-    localStorage.removeItem('vs_admin_auth');
+    sessionStorage.removeItem('vs_admin_auth');
   };
 
   // CART OPERATIONS
