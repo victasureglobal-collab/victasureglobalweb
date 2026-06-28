@@ -435,7 +435,7 @@ Standard B2B export payment channels accepted:
 4. Customs Inspections, Claims & Quarantine
 Phytosanitary and fumigation credentials are provided with every shipment. The importer is responsible for providing all correct documentation needed for customs entry at the port of destination. Any quality claims (such as moisture damage or count discrepancies) must be submitted in writing within fourteen (14) calendar days of cargo discharge at the destination port, supported by official surveyor inspection reports and photos.`,
   contact_whatsapp: "+91 83909 00120",
-  contact_email: "export@victasure.com",
+  contact_email: "info@victasure.com",
   contact_phone: "+91 83909 00120",
   contact_address: "Bengaluru, Karnataka, India",
   socials: [

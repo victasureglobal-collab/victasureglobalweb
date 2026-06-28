@@ -79,8 +79,8 @@ export default function Terms() {
         {/* Footer contact */}
         <div className="border-t border-gray-100 pt-6 text-center text-xs text-gray-400">
           For legal inquiries or draft reviews, please contact the Trade Compliance Desk:{' '}
-          <a href={`mailto:${settings.contact_email || 'export@victasure.com'}`} className="text-accent hover:underline font-semibold">
-            {settings.contact_email || 'export@victasure.com'}
+          <a href={`mailto:${settings.contact_email || 'info@victasure.com'}`} className="text-accent hover:underline font-semibold">
+            {settings.contact_email || 'info@victasure.com'}
           </a>
         </div>
 

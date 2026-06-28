@@ -79,16 +79,10 @@ export default function Navbar() {
       {/* Top Bar for contact details and Google Translate */}
       <div className="bg-primary text-white text-[10px] sm:text-[11px] py-2 px-4 sm:px-6 lg:px-8 border-b border-primary-light">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3 text-gray-300 min-h-[16px]">
-            {!loading && settings?.contact_email ? (
-              <>
-                <span>{settings.contact_email}</span>
-                <span className="hidden sm:inline">|</span>
-                <span className="hidden sm:inline">{settings.contact_phone}</span>
-              </>
-            ) : (
-              <span className="animate-pulse bg-primary-light/50 h-3 w-40 rounded inline-block"></span>
-            )}
+          <div className="flex items-center space-x-3 text-gray-300">
+            <span>{settings?.contact_email || "info@victasure.com"}</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="hidden sm:inline">{settings?.contact_phone || "+91 83909 00120"}</span>
           </div>
           <div className="flex items-center space-x-3 ml-auto">
             <div className="flex items-center space-x-1.5">
