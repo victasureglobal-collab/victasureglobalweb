@@ -28,6 +28,12 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
   const [addedProdId, setAddedProdId] = useState(null);
   const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
 
+  // Filter products by is_featured and fallback if none marked
+  const featuredProducts = React.useMemo(() => {
+    const featured = products.filter(p => p.is_featured === true && p.status === 'published');
+    return featured.length > 0 ? featured.slice(0, 4) : products.filter(p => p.status === 'published').slice(0, 4);
+  }, [products]);
+
   // Parse hero banner images
   const heroImages = React.useMemo(() => {
     const val = settings?.hero_banner_url || '';
@@ -353,7 +359,7 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
 
             {/* Collections Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.slice(0, 4).map((product) => (
+              {featuredProducts.map((product) => (
                 <div 
                   key={product.id}
                   className="bg-white rounded-xlarge overflow-hidden border border-gray-200 hover:shadow-premium transition-shadow flex flex-col justify-between"
