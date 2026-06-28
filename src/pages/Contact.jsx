@@ -68,8 +68,50 @@ const SocialIconMap = {
   Globe: Globe
 };
 
+const countryDialCodes = {
+  "Australia": "+61 ",
+  "Austria": "+43 ",
+  "Bahrain": "+973 ",
+  "Bangladesh": "+880 ",
+  "Belgium": "+32 ",
+  "Brazil": "+55 ",
+  "Canada": "+1 ",
+  "Denmark": "+45 ",
+  "Egypt": "+20 ",
+  "France": "+33 ",
+  "Germany": "+49 ",
+  "India": "+91 ",
+  "Indonesia": "+62 ",
+  "Ireland": "+353 ",
+  "Italy": "+39 ",
+  "Japan": "+81 ",
+  "Kuwait": "+965 ",
+  "Malaysia": "+60 ",
+  "Mexico": "+52 ",
+  "Netherlands": "+31 ",
+  "New Zealand": "+64 ",
+  "Oman": "+968 ",
+  "Philippines": "+63 ",
+  "Poland": "+48 ",
+  "Qatar": "+974 ",
+  "Saudi Arabia": "+966 ",
+  "Singapore": "+65 ",
+  "South Africa": "+27 ",
+  "South Korea": "+82 ",
+  "Spain": "+34 ",
+  "Sweden": "+46 ",
+  "Switzerland": "+41 ",
+  "Thailand": "+66 ",
+  "Turkey": "+90 ",
+  "United Arab Emirates": "+971 ",
+  "United Kingdom": "+44 ",
+  "United States": "+1 ",
+  "Vietnam": "+84 ",
+  "Other": "+"
+};
+
 export default function Contact({ enquiryProduct, setEnquiryProduct }) {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
       product_interested: enquiryProduct ? enquiryProduct.name : ""
     }
@@ -79,6 +121,17 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [openFaqIdx, setOpenFaqIdx] = useState(null);
+
+  const selectedCountry = watch("country");
+
+  React.useEffect(() => {
+    if (selectedCountry) {
+      const dialCode = countryDialCodes[selectedCountry] || "";
+      if (dialCode) {
+        setValue("phone", dialCode);
+      }
+    }
+  }, [selectedCountry, setValue]);
 
   if (!settings) {
     return (
