@@ -58,7 +58,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
       if (selectedCatSlug === "all") {
         return matchSearch;
       } else {
-        return matchSearch && p.category_id === cat?.id;
+        return matchSearch && cat?.slug === selectedCatSlug;
       }
     })
     .sort((a, b) => {
