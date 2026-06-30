@@ -17,10 +17,19 @@ jobs:
       - name: Make REST API Request to Supabase
         # Performs a real database read query on the 'categories' table to keep the DB active
         run: |
+          URL="${{ secrets.SUPABASE_PROJECT_URL || secrets.VITE_SUPABASE_URL }}"
+          KEY="${{ secrets.SUPABASE_ANON_KEY || secrets.VITE_SUPABASE_ANON_KEY }}"
+          
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "Error: Supabase URL or Anon Key secret is missing in GitHub repository settings!"
+            echo "Please add SUPABASE_PROJECT_URL (or VITE_SUPABASE_URL) and SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY) under Settings -> Secrets -> Actions."
+            exit 1
+          fi
+
           STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X GET "${{ secrets.SUPABASE_PROJECT_URL }}/rest/v1/categories?select=id&limit=1" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+            -X GET "${URL}/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: ${KEY}" \
+            -H "Authorization: Bearer ${KEY}")
           
           echo "Supabase Response Status Code: $STATUS_CODE"
           
