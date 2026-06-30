@@ -74,7 +74,7 @@ export default function Blogs() {
             </span>
             <span className="flex items-center space-x-1">
               <User size={14} />
-              <span>VictaSure Trade Analyst</span>
+              <span>{blog.author || "VictaSure Trade Analyst"}</span>
             </span>
           </div>
         </div>

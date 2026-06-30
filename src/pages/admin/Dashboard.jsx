@@ -1501,6 +1501,17 @@ export default function Dashboard() {
                 </div>
 
                 <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Author Name</label>
+                  <input
+                    type="text"
+                    value={editingItem.author || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, author: e.target.value })}
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="e.g. VictaSure Trade Analyst"
+                  />
+                </div>
+
+                <div>
                   <ImageUploader
                     label="Featured Image"
                     value={editingItem.featured_image || ""}
@@ -1837,10 +1848,13 @@ CREATE TABLE blogs (
   featured_image TEXT,
   seo_title TEXT,
   seo_description TEXT,
+  author TEXT DEFAULT 'VictaSure Trade Analyst',
   status TEXT DEFAULT 'published',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ALTER TABLE blogs ADD COLUMN author TEXT DEFAULT 'VictaSure Trade Analyst';
 
 -- 7. Founder Details
 CREATE TABLE founder_details (
