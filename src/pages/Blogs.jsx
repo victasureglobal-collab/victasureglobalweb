@@ -13,14 +13,57 @@ export default function Blogs() {
     if (slug && blogs.length > 0) {
       const activeBlog = blogs.find(b => b.slug === slug);
       if (activeBlog) {
-        document.title = activeBlog.seo_title || activeBlog.title;
-        const metaDesc = document.querySelector('meta[name="description"]');
+        // 1. Page Title
+        document.title = `${activeBlog.seo_title || activeBlog.title} | VictaSure Global`;
+
+        // 2. Meta Description
+        let metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
           metaDesc.setAttribute('content', activeBlog.seo_description || activeBlog.title);
+        }
+
+        // 3. Meta Keywords
+        let metaKeys = document.querySelector('meta[name="keywords"]');
+        if (metaKeys) {
+          metaKeys.setAttribute('content', `${activeBlog.title.toLowerCase().replace(/[^a-z0-9\s]+/g, '').split(' ').join(', ')}, VictaSure Global, B2B export`);
+        }
+
+        // 4. Open Graph Tags (Facebook/LinkedIn/WhatsApp)
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute('content', activeBlog.title);
+        
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogDesc) ogDesc.setAttribute('content', activeBlog.seo_description || activeBlog.title);
+
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        if (ogImage && activeBlog.featured_image) ogImage.setAttribute('content', activeBlog.featured_image);
+
+        // 5. Twitter Card Tags
+        const twTitle = document.querySelector('meta[property="twitter:title"]');
+        if (twTitle) twTitle.setAttribute('content', activeBlog.title);
+
+        const twDesc = document.querySelector('meta[property="twitter:description"]');
+        if (twDesc) twDesc.setAttribute('content', activeBlog.seo_description || activeBlog.title);
+
+        const twImage = document.querySelector('meta[property="twitter:image"]');
+        if (twImage && activeBlog.featured_image) twImage.setAttribute('content', activeBlog.featured_image);
+
+        // 6. Canonical link
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+          canonical.setAttribute('href', `https://www.victasure.com/blogs/${activeBlog.slug}`);
         }
       }
     } else {
       document.title = "VictaSure Global | Trade Blogs & Market Insights";
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', "VictaSure Global is a premier export company specializing in high-quality, eco-friendly, and sustainable products including Areca Leaf plates, bowls, trays, and organic items.");
+      }
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) {
+        canonical.setAttribute('href', "https://www.victasure.com/blogs");
+      }
     }
   }, [slug, blogs]);
 
