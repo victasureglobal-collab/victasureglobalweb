@@ -220,12 +220,17 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
       const catName = matchedCat ? matchedCat.name : "Unknown Category";
       
       const interest = data.product_interest || "";
+      const categoryId = data.category_interest;
+
       const matchedProduct = products && products.find(p => p.name === interest);
       const selectedCatg = catalogues && catalogues.find(c => c.name === interest);
+      const categoryCatg = catalogues && catalogues.find(c => c.category_id === categoryId);
       
       const pdfToDownload = (matchedProduct && matchedProduct.pdf_url)
         ? matchedProduct.pdf_url
-        : (selectedCatg ? selectedCatg.pdf_url : null);
+        : (selectedCatg && selectedCatg.pdf_url 
+            ? selectedCatg.pdf_url 
+            : (categoryCatg ? categoryCatg.pdf_url : null));
 
       const qtyUnit = interest.includes("Cutlery") ? "Packs" : "Pieces";
       const submissionData = {
