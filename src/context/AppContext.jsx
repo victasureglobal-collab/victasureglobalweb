@@ -5,6 +5,7 @@ const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
+  const [isAdminLoading, setIsAdminLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -87,6 +88,8 @@ export const AppProvider = ({ children }) => {
           setTrafficStats({ totalViews, countryViews });
         } catch (adminErr) {
           console.error("Failed to load admin background data", adminErr);
+        } finally {
+          setIsAdminLoading(false);
         }
       })();
 
@@ -440,6 +443,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider value={{
       loading,
+      isAdminLoading,
       categories,
       subcategories,
       products,

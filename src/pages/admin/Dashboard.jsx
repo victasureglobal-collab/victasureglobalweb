@@ -16,7 +16,7 @@ export default function Dashboard() {
     saveProduct, deleteProduct, saveCategory, deleteCategory, saveSubcategory, deleteSubcategory, updateEnquiryStatus,
     saveCertificate, deleteCertificate, saveBlog, deleteBlog, saveFounder, saveSettings, logoutAdmin,
     orders, changeOrderStatus, checkSupabaseSchema, seedDatabase, refreshData, trafficStats,
-    deleteEnquiry, deleteDownload, deleteOrder, trafficViews, loading
+    deleteEnquiry, deleteDownload, deleteOrder, trafficViews, loading, isAdminLoading
   } = useApp();
 
   const navigate = useNavigate();
@@ -2217,6 +2217,17 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
       </div>
     );
   };
+
+  if (loading || isAdminLoading) {
+    return (
+      <div className="flex-grow h-screen flex flex-col items-center justify-center bg-[#F8F9FA]">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-sm font-semibold text-slate-600 font-sans">Loading Admin Panel metrics...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-grow md:h-screen md:overflow-hidden bg-neutral-lightBg flex flex-col md:flex-row">
