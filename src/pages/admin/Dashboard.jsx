@@ -753,46 +753,69 @@ export default function Dashboard() {
 
                 <div className="pt-2">
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Product-Specific Catalogue PDF</label>
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (!file) return;
-                      if (file.type !== "application/pdf") {
-                        alert("Please choose a PDF file.");
-                        return;
-                      }
-                      if (file.size > 8 * 1024 * 1024) {
-                        alert("File too large. Max limit is 8MB.");
-                        return;
-                      }
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setEditingItem({ ...editingItem, pdf_url: reader.result });
-                      };
-                      reader.readAsDataURL(file);
-                    }}
-                    className="w-full text-xs"
-                  />
                   {editingItem.pdf_url ? (
-                    <div className="mt-1.5 flex items-center justify-between text-[10px] bg-green-50 border border-green-200 text-green-700 p-2.5 rounded-large">
-                      <div className="flex items-center space-x-1.5">
-                        <span className="font-bold">Attached:</span>
-                        <a href={editingItem.pdf_url} target="_blank" rel="noreferrer" className="underline font-bold hover:text-green-800">
-                          View Uploaded PDF
-                        </a>
+                    <div className="border-2 border-dashed border-emerald-300 bg-emerald-50/50 p-4 rounded-xlarge text-center space-y-3 transition-all">
+                      <div className="flex flex-col items-center justify-center space-y-1">
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <span className="text-xs font-bold text-slate-700">Catalogue PDF Attached</span>
+                        <span className="text-[10px] text-slate-400">PDF file is saved and ready</span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setEditingItem({ ...editingItem, pdf_url: "" })}
-                        className="text-red-500 hover:text-red-700 font-bold uppercase tracking-wider text-[9px] cursor-pointer"
-                      >
-                        Clear
-                      </button>
+                      <div className="flex items-center justify-center space-x-3 text-xs pt-1">
+                        <a
+                          href={editingItem.pdf_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3.5 rounded-large shadow-sm hover:shadow transition-all"
+                        >
+                          View PDF
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => setEditingItem({ ...editingItem, pdf_url: "" })}
+                          className="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-1.5 px-3.5 rounded-large border border-red-200 transition-all cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <span className="text-[10px] text-gray-400 block mt-1">Accepts PDF files up to 8MB.</span>
+                    <div className="relative border-2 border-dashed border-neutral-border hover:border-primary bg-slate-50/50 hover:bg-slate-50 p-6 rounded-xlarge text-center transition-all group cursor-pointer">
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          if (file.type !== "application/pdf") {
+                            alert("Please choose a PDF file.");
+                            return;
+                          }
+                          if (file.size > 8 * 1024 * 1024) {
+                            alert("File too large. Max limit is 8MB.");
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setEditingItem({ ...editingItem, pdf_url: reader.result });
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div className="flex flex-col items-center justify-center space-y-1.5 pointer-events-none">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-primary/10 text-slate-400 group-hover:text-primary flex items-center justify-center transition-colors">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                          </svg>
+                        </div>
+                        <span className="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Click to Upload Catalogue PDF</span>
+                        <span className="text-[10px] text-gray-400">Accepts PDF files up to 8MB</span>
+                      </div>
+                    </div>
                   )}
                 </div>
 
