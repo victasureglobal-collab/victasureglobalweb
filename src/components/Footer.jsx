@@ -197,17 +197,15 @@ export default function Footer() {
 
       </div>
 
-      {/* Bottom Row: Copyright & Badges */}
+      {/* Bottom Row: Copyright & Creva Link */}
       <div className="max-w-7xl mx-auto border-t border-gray-200/80 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
         <p className="text-[11px] text-gray-400">
-          &copy; 2026 {companyName}. All rights reserved. Built for Excellence.
+          &copy; {new Date().getFullYear()} {companyName}. All rights reserved. Built for Excellence.
         </p>
         
-        {/* Mock Certification badges on right */}
-        <div className="flex items-center space-x-2.5 text-gray-300 text-[10px] font-bold">
-          <span className="border border-gray-300 rounded px-1.5 py-0.5 text-gray-400">ISO 9001</span>
-          <span className="border border-gray-300 rounded px-1.5 py-0.5 text-gray-400">USDA ORGANIC</span>
-        </div>
+        <p className="text-[11px] text-gray-400">
+          Developed by <a href="https://crevasolution.in" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors underline font-medium">Creva Solution</a>
+        </p>
       </div>
 
     </footer>
