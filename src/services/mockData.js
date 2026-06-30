@@ -18,6 +18,7 @@ export const initialProducts = [
   {
     id: "prod-1",
     category_id: "cat-1",
+    subcategory_id: "sub-1",
     name: "10 Inch Round Plates",
     short_description: "Large 10-inch round disposable plates made from fallen palm leaves, perfect for main courses.",
     detailed_description: "Crafted from 100% natural fallen Areca palm leaves, these 10-inch round plates offer a chemical-free, biodegradable, and compostable alternative to plastic and paper. Rigid enough to support heavy foods without leaking.",
@@ -43,6 +44,7 @@ export const initialProducts = [
   {
     id: "prod-2",
     category_id: "cat-1",
+    subcategory_id: "sub-2",
     name: "10 Inch Square Plates",
     short_description: "Large 10-inch square dinner plates with raised borders for clean, elegant B2B catering.",
     detailed_description: "These premium square dinner plates add a rustic and modern look to catering operations. Highly rigid, heat resistant, and fully compostable.",
@@ -68,6 +70,7 @@ export const initialProducts = [
   {
     id: "prod-3",
     category_id: "cat-1",
+    subcategory_id: "sub-1",
     name: "8 Inch Round Plates",
     short_description: "Standard 8-inch round plates, ideal for lunches, appetizers, and desserts.",
     detailed_description: "Perfect for serving salads, desserts, and sides at events and parties. Sturdy construction ensures no grease absorption or bending.",
@@ -92,6 +95,7 @@ export const initialProducts = [
   {
     id: "prod-4",
     category_id: "cat-1",
+    subcategory_id: "sub-2",
     name: "8 Inch Square Plates",
     short_description: "Standard 8-inch square plates, perfect for appetizers and lunch portions.",
     detailed_description: "Our 8-inch square plates combine contemporary design with sustainability. Excellent liquid resistance allows serving of hot and cold dishes.",
@@ -115,6 +119,7 @@ export const initialProducts = [
   {
     id: "prod-5",
     category_id: "cat-1",
+    subcategory_id: "sub-1",
     name: "6 Inch Round Plates",
     short_description: "Compact 6-inch round plates for desserts, starters, and small side portions.",
     detailed_description: "Ideal for bakeries, dessert buffets, and small starters. Lightweight yet robust, made from selected sheaths.",
@@ -138,6 +143,7 @@ export const initialProducts = [
   {
     id: "prod-6",
     category_id: "cat-1",
+    subcategory_id: "sub-2",
     name: "6 Inch Square Plates",
     short_description: "Compact 6-inch square plates, perfect for pastries, cakes, and appetizers.",
     detailed_description: "Modern square profile for finger foods, cocktail parties, and catering desserts. Biodegrades back into the earth within months.",
@@ -161,6 +167,7 @@ export const initialProducts = [
   {
     id: "prod-7",
     category_id: "cat-2",
+    subcategory_id: "sub-3",
     name: "4 Inch Square Bowls",
     short_description: "4-inch square deep bowls, perfect for dipping sauces, hot soups, and desserts.",
     detailed_description: "Deep wall square bowls carved for hot soups, side dips, frozen gelatos, and starters. Completely liquid leak-proof.",
@@ -229,6 +236,7 @@ export const initialProducts = [
   {
     id: "prod-10",
     category_id: "cat-4",
+    subcategory_id: "sub-6",
     name: "Areca Leaf Spoon",
     short_description: "100% natural, sterilized disposable spoons made from premium organic materials.",
     detailed_description: "Splinter-free, solid, and sterilized spoons crafted from natural materials. Provides a smooth texture without chemical coatings or glues.",
@@ -252,6 +260,7 @@ export const initialProducts = [
   {
     id: "prod-11",
     category_id: "cat-4",
+    subcategory_id: "sub-6",
     name: "Areca Leaf Fork",
     short_description: "Sturdy, splinter-free natural disposable forks, suitable for catering and events.",
     detailed_description: "High-rigidity forks suitable for hot and cold foods, salads, and fruits. An eco-friendly alternative to disposable plastic forks.",

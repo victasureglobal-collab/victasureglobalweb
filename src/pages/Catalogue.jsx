@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { TabsSkeleton, ProductGridSkeleton } from '../components/Skeletons';
 
 export default function Catalogue({ onOpenDownloadModal }) {
-  const { products, categories, settings, loading } = useApp();
+  const { products, categories, subcategories, settings, loading } = useApp();
   const [selectedCat, setSelectedCat] = useState("all");
 
   const companyName = settings?.company_name || "VictaSure Global";
@@ -24,6 +24,78 @@ export default function Catalogue({ onOpenDownloadModal }) {
     if (orderA !== orderB) return orderA - orderB;
     return a.name.localeCompare(b.name);
   });
+
+  const getGroupedSections = (productList) => {
+    const sections = [];
+    
+    // Group products by category first to handle category-specific subcategory checking
+    const productsByCategory = {};
+    productList.forEach(p => {
+      if (!productsByCategory[p.category_id]) {
+        productsByCategory[p.category_id] = [];
+      }
+      productsByCategory[p.category_id].push(p);
+    });
+
+    Object.keys(productsByCategory).forEach(catId => {
+      const catProducts = productsByCategory[catId];
+      const cat = categories.find(c => c.id === catId);
+      const catName = cat ? cat.name : "General";
+      
+      // Check if this category has any subcategories configured
+      const catSubcategories = (subcategories || []).filter(sub => sub.category_id === catId);
+      const hasSubcategoriesConfigured = catSubcategories.length > 0;
+
+      if (!hasSubcategoriesConfigured) {
+        // List normally if there are no subcategories configured for that category
+        sections.push({
+          type: 'normal',
+          title: null,
+          products: catProducts
+        });
+      } else {
+        // Group by subcategory
+        const subGroups = {}; // subcategory_id -> products[]
+        const fallbackProducts = [];
+
+        catProducts.forEach(p => {
+          if (p.subcategory_id) {
+            const subExists = catSubcategories.some(sub => sub.id === p.subcategory_id);
+            if (subExists) {
+              if (!subGroups[p.subcategory_id]) {
+                subGroups[p.subcategory_id] = [];
+              }
+              subGroups[p.subcategory_id].push(p);
+              return;
+            }
+          }
+          fallbackProducts.push(p);
+        });
+
+        // Add subcategory groups
+        catSubcategories.forEach(sub => {
+          if (subGroups[sub.id] && subGroups[sub.id].length > 0) {
+            sections.push({
+              type: 'subcategory',
+              title: sub.name,
+              products: subGroups[sub.id]
+            });
+          }
+        });
+
+        // Add fallback group if any
+        if (fallbackProducts.length > 0) {
+          sections.push({
+            type: 'fallback',
+            title: `${catName} - General`,
+            products: fallbackProducts
+          });
+        }
+      }
+    });
+
+    return sections;
+  };
 
   return (
     <div className="flex-grow bg-slate-50 py-16 px-4 sm:px-6 lg:px-8 font-sans">
@@ -158,87 +230,101 @@ export default function Catalogue({ onOpenDownloadModal }) {
         {isLoading ? (
           <ProductGridSkeleton count={8} gridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredProducts.map((p) => {
-              const catName = categories.find(c => c.id === p.category_id)?.name || "Tableware";
-              return (
-                <div key={p.id} className="bg-white border border-neutral-border rounded-2xl overflow-hidden shadow-premium hover:shadow-premium-hover transition-all duration-300 flex flex-col justify-between relative group">
-                  
-                  {/* Image Section */}
-                  <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden border-b border-gray-100 flex items-center justify-center">
-                    {p.images && p.images[0] ? (
-                      <img 
-                        src={p.images[0]} 
-                        alt={p.name} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    ) : (
-                      <div className="text-gray-300">
-                        <BookOpen size={32} />
-                      </div>
-                    )}
-                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary text-[8px] font-extrabold uppercase px-2 py-0.5 rounded border border-gray-100 shadow-sm font-sans tracking-wide">
-                      {catName}
-                    </span>
-                    
-                    {/* Small eco pill */}
-                    <span className="absolute bottom-3 right-3 bg-secondary text-white text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center space-x-0.5 shadow-sm">
-                      <Leaf size={8} />
-                      <span>Bio-fallen</span>
-                    </span>
+          <div className="space-y-12">
+            {getGroupedSections(filteredProducts).map((section, secIdx) => (
+              <div key={secIdx} className="space-y-6">
+                {section.title && (
+                  <div className="flex items-center space-x-3 pt-4 pb-1">
+                    <div className="h-6 w-1.5 bg-accent rounded-full"></div>
+                    <h3 className="text-xs font-extrabold text-primary tracking-wider uppercase bg-accent/5 px-3 py-1.5 rounded-large border border-accent/10">
+                      {section.title}
+                    </h3>
                   </div>
-
-                  {/* Info Text */}
-                  <div className="p-6 space-y-3.5 flex-grow">
-                    <div className="flex flex-col">
-                      <h3 className="font-extrabold text-sm text-primary tracking-wide leading-tight group-hover:text-secondary transition-colors font-sans">
-                        {p.name}
-                      </h3>
-                      {p.product_code && (
-                        <span className="text-[9px] text-gray-400 font-semibold uppercase mt-0.5">{p.product_code}</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
-                      {p.short_description}
-                    </p>
-
-                    {/* Specifications details list */}
-                    <div className="pt-3 border-t border-gray-100 grid grid-cols-2 gap-y-2 gap-x-1 text-[10px] text-gray-600 font-sans">
-                      <div>Material: <strong className="text-primary font-bold">{p.material || 'Palm Leaf'}</strong></div>
-                      <div>Dimensions: <strong className="text-primary font-bold">{p.dimensions || 'Custom'}</strong></div>
-                      <div>MOQ: <strong className="text-primary font-bold">{p.moq || '5,000 Pcs'}</strong></div>
-                      <div>Availability: <strong className="text-primary font-bold">Global</strong></div>
-                    </div>
-                  </div>
-
-                  {/* Action CTA Bar */}
-                  <div className="p-6 pt-0 mt-auto">
-                    <div className="bg-slate-50 border border-gray-100 p-3 rounded-xlarge flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none">FOB Rate</span>
-                        {p.show_price !== false ? (
-                          <span className="text-sm font-extrabold text-secondary-dark mt-1 leading-none">
-                            ₹{p.price_inr} <span className="text-[10px] text-gray-400 font-semibold">/ ${p.price_usd}</span>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {section.products.map((p) => {
+                    const catName = categories.find(c => c.id === p.category_id)?.name || "Tableware";
+                    return (
+                      <div key={p.id} className="bg-white border border-neutral-border rounded-2xl overflow-hidden shadow-premium hover:shadow-premium-hover transition-all duration-300 flex flex-col justify-between relative group">
+                        
+                        {/* Image Section */}
+                        <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden border-b border-gray-100 flex items-center justify-center">
+                          {p.images && p.images[0] ? (
+                            <img 
+                              src={p.images[0]} 
+                              alt={p.name} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                            />
+                          ) : (
+                            <div className="text-gray-300">
+                              <BookOpen size={32} />
+                            </div>
+                          )}
+                          <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary text-[8px] font-extrabold uppercase px-2 py-0.5 rounded border border-gray-100 shadow-sm font-sans tracking-wide">
+                            {catName}
                           </span>
-                        ) : (
-                          <span className="text-[10px] font-extrabold text-accent mt-1 uppercase leading-none bg-accent/10 px-1.5 py-0.5 rounded select-none">Inquire</span>
-                        )}
-                      </div>
-                      <button
-                        onClick={onOpenDownloadModal}
-                        className="bg-primary hover:bg-secondary text-white text-[10px] font-extrabold py-2 px-3.5 rounded-large flex items-center space-x-1 cursor-pointer transition-all shadow-sm group-hover:shadow"
-                      >
-                        <span>Inquire Specs</span>
-                        <ChevronRight size={10} />
-                      </button>
-                    </div>
-                  </div>
+                          
+                          {/* Small eco pill */}
+                          <span className="absolute bottom-3 right-3 bg-secondary text-white text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center space-x-0.5 shadow-sm">
+                            <Leaf size={8} />
+                            <span>Bio-fallen</span>
+                          </span>
+                        </div>
 
+                        {/* Info Text */}
+                        <div className="p-6 space-y-3.5 flex-grow">
+                          <div className="flex flex-col">
+                            <h3 className="font-extrabold text-sm text-primary tracking-wide leading-tight group-hover:text-secondary transition-colors font-sans">
+                              {p.name}
+                            </h3>
+                            {p.product_code && (
+                              <span className="text-[9px] text-gray-400 font-semibold uppercase mt-0.5">{p.product_code}</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                            {p.short_description}
+                          </p>
+
+                          {/* Specifications details list */}
+                          <div className="pt-3 border-t border-gray-100 grid grid-cols-2 gap-y-2 gap-x-1 text-[10px] text-gray-600 font-sans">
+                            <div>Material: <strong className="text-primary font-bold">{p.material || 'Palm Leaf'}</strong></div>
+                            <div>Dimensions: <strong className="text-primary font-bold">{p.dimensions || 'Custom'}</strong></div>
+                            <div>MOQ: <strong className="text-primary font-bold">{p.moq || '5,000 Pcs'}</strong></div>
+                            <div>Availability: <strong className="text-primary font-bold">Global</strong></div>
+                          </div>
+                        </div>
+
+                        {/* Action CTA Bar */}
+                        <div className="p-6 pt-0 mt-auto">
+                          <div className="bg-slate-50 border border-gray-100 p-3 rounded-xlarge flex items-center justify-between">
+                            <div className="flex flex-col">
+                              <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none">FOB Rate</span>
+                              {p.show_price !== false ? (
+                                <span className="text-sm font-extrabold text-secondary-dark mt-1 leading-none">
+                                  ₹{p.price_inr} <span className="text-[10px] text-gray-400 font-semibold">/ ${p.price_usd}</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-extrabold text-accent mt-1 uppercase leading-none bg-accent/10 px-1.5 py-0.5 rounded select-none">Inquire</span>
+                              )}
+                            </div>
+                            <button
+                              onClick={onOpenDownloadModal}
+                              className="bg-primary hover:bg-secondary text-white text-[10px] font-extrabold py-2 px-3.5 rounded-large flex items-center space-x-1 cursor-pointer transition-all shadow-sm group-hover:shadow"
+                            >
+                              <span>Inquire Specs</span>
+                              <ChevronRight size={10} />
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
-        )}
+        ) }
 
         {/* Beautiful bottom banner card */}
         <div className="relative overflow-hidden gradient-navy-green text-white rounded-3xl shadow-xl p-8 sm:p-12 text-center border border-white/5 space-y-6">

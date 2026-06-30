@@ -732,6 +732,7 @@ export const dbService = {
       return {
         id: p.id,
         category_id: p.category_id,
+        subcategory_id: p.subcategory_id || null,
         name: p.name,
         short_description: p.short_description,
         detailed_description: p.detailed_description,
