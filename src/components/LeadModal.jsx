@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 
 export default function LeadModal({ isOpen, onClose }) {
   const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm();
-  const { submitDownload, products, settings } = useApp();
+  const { submitDownload, products, settings, categories } = useApp();
 
   const countryDialCodes = {
     "Australia": "+61",
@@ -316,10 +316,9 @@ export default function LeadModal({ isOpen, onClose }) {
                 {...register("product_interest", { required: "Product interest is required" })}
               >
                 <option value="">Select segment...</option>
-                <option value="Areca Leaf Plates">Areca Leaf Plates</option>
-                <option value="Areca Bowls">Areca Bowls</option>
-                <option value="Areca Trays">Areca Trays</option>
-                <option value="Areca Cutlery">Areca Cutlery</option>
+                {categories && categories.map(cat => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))}
                 <option value="All Categories">All Export Categories</option>
               </select>
               {errors.product_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interest.message}</span>}
