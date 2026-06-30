@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [editingItem, setEditingItem] = useState(null); // holds product/cat/blog/cert being added or edited
   const [itemType, setItemType] = useState(""); // 'product' | 'category' | 'blog' | 'certificate'
   const [successToast, setSuccessToast] = useState("");
+  const [previewPdfUrl, setPreviewPdfUrl] = useState(null);
   const [schemaStatus, setSchemaStatus] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCheckingSchema, setIsCheckingSchema] = useState(false);
@@ -765,14 +766,13 @@ export default function Dashboard() {
                         <span className="text-[10px] text-slate-400">PDF file is saved and ready</span>
                       </div>
                       <div className="flex items-center justify-center space-x-3 text-xs pt-1">
-                        <a
-                          href={editingItem.pdf_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3.5 rounded-large shadow-sm hover:shadow transition-all"
+                        <button
+                          type="button"
+                          onClick={() => setPreviewPdfUrl(editingItem.pdf_url)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3.5 rounded-large shadow-sm hover:shadow transition-all cursor-pointer"
                         >
                           View PDF
-                        </a>
+                        </button>
                         <button
                           type="button"
                           onClick={() => setEditingItem({ ...editingItem, pdf_url: "" })}
@@ -1743,14 +1743,12 @@ export default function Dashboard() {
                         <td className="p-4 font-medium text-slate-500">{catName}</td>
                         <td className="p-4">
                           {catg.pdf_url ? (
-                            <a
-                              href={catg.pdf_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-emerald-600 hover:underline font-bold"
+                            <button
+                              onClick={() => setPreviewPdfUrl(catg.pdf_url)}
+                              className="text-emerald-600 hover:underline font-bold cursor-pointer bg-transparent border-0 p-0"
                             >
                               View PDF
-                            </a>
+                            </button>
                           ) : (
                             <span className="text-gray-400">No File</span>
                           )}
@@ -1837,14 +1835,13 @@ export default function Dashboard() {
                 {editingItem.pdf_url && (
                   <div className="bg-green-50 border border-green-200 p-2.5 rounded text-[10px] text-green-700 flex items-center justify-between">
                     <span className="font-semibold">PDF Attached Successfully</span>
-                    <a
-                      href={editingItem.pdf_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline font-bold"
+                    <button
+                      type="button"
+                      onClick={() => setPreviewPdfUrl(editingItem.pdf_url)}
+                      className="underline font-bold bg-transparent border-0 p-0 text-green-700 cursor-pointer"
                     >
                       Check PDF
-                    </a>
+                    </button>
                   </div>
                 )}
 
@@ -2735,6 +2732,30 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
           <div className="bg-secondary text-white p-3 rounded-large shadow-lg flex items-center space-x-2 text-xs font-semibold animate-bounce fixed bottom-5 right-5 z-50">
             <CheckCircle size={16} />
             <span>{successToast}</span>
+          </div>
+        )}
+
+        {previewPdfUrl && (
+          <div className="fixed inset-0 bg-primary/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+            <div className="bg-white rounded-xlarge border border-neutral-border shadow-premium w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden animate-fade-in">
+              <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50 flex-shrink-0">
+                <span className="font-bold text-sm text-primary">PDF Catalogue Preview</span>
+                <button
+                  type="button"
+                  onClick={() => setPreviewPdfUrl(null)}
+                  className="text-gray-400 hover:text-gray-600 font-bold bg-white hover:bg-gray-100 border border-gray-200 w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="flex-grow bg-slate-100 p-2">
+                <iframe
+                  src={previewPdfUrl}
+                  title="PDF Preview"
+                  className="w-full h-full border-0 rounded-large shadow-inner"
+                />
+              </div>
+            </div>
           </div>
         )}
 
