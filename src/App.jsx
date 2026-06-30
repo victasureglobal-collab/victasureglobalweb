@@ -26,6 +26,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import UserLogin from './pages/UserLogin';
 import Catalogue from './pages/Catalogue';
 import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   const { settings } = useApp();
@@ -121,6 +122,7 @@ export default function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
 
