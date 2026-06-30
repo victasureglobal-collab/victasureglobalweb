@@ -244,7 +244,7 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
         link.click();
         document.body.removeChild(link);
       } else {
-        triggerCatalogDownload();
+        alert("Thank you! The catalogue PDF for this selection is currently being updated. We have successfully registered your request and will email the file to you shortly.");
       }
 
       reset();
