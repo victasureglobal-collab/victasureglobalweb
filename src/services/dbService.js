@@ -316,6 +316,59 @@ export const dbService = {
     return newDl;
   },
 
+  // --- CATALOGUES ---
+  async getCatalogues() {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('catalogues').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        console.warn("Supabase catalogues query failed, using localStorage:", err);
+      }
+    }
+    return getLocal('vs_catalogues') || [];
+  },
+
+  async saveCatalogue(catalogue) {
+    if (!catalogue.id) {
+      catalogue.id = 'catg-' + Math.random().toString(36).substr(2, 9);
+      catalogue.created_at = new Date().toISOString();
+    }
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('catalogues').upsert(catalogue).select().single();
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        console.error("Supabase catalogue save failed, using localStorage:", err);
+      }
+    }
+    const list = getLocal('vs_catalogues') || [];
+    const idx = list.findIndex(c => c.id === catalogue.id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...catalogue };
+    } else {
+      list.unshift(catalogue);
+    }
+    setLocal('vs_catalogues', list);
+    return catalogue;
+  },
+
+  async deleteCatalogue(id) {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('catalogues').delete().eq('id', id);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Supabase catalogue delete failed, using localStorage:", err);
+      }
+    }
+    const list = getLocal('vs_catalogues') || [];
+    const filtered = list.filter(c => c.id !== id);
+    setLocal('vs_catalogues', filtered);
+  },
+
   // --- CERTIFICATES ---
   async getCertificates() {
     if (isSupabaseConfigured()) {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Box, FolderTree, FileSpreadsheet, Newspaper, Award, Settings, LogOut, 
   TrendingUp, Download, Mail, Users, Plus, Edit2, Trash2, Check, Eye, EyeOff, Save, CheckCircle,
-  ShoppingCart, Database, Upload, Globe, RefreshCw, Menu, X
+  ShoppingCart, Database, Upload, Globe, RefreshCw, Menu, X, BookOpen
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { useApp } from '../../context/AppContext';
@@ -16,7 +16,8 @@ export default function Dashboard() {
     saveProduct, deleteProduct, saveCategory, deleteCategory, saveSubcategory, deleteSubcategory, updateEnquiryStatus,
     saveCertificate, deleteCertificate, saveBlog, deleteBlog, saveFounder, saveSettings, logoutAdmin,
     orders, changeOrderStatus, checkSupabaseSchema, seedDatabase, refreshData, trafficStats,
-    deleteEnquiry, deleteDownload, deleteOrder, trafficViews, loading, isAdminLoading
+    deleteEnquiry, deleteDownload, deleteOrder, trafficViews, loading, isAdminLoading,
+    catalogues, saveCatalogue, deleteCatalogue
   } = useApp();
 
   const navigate = useNavigate();
@@ -1596,6 +1597,185 @@ export default function Dashboard() {
     );
   };
 
+  // 6b. CATALOGUES VIEW
+  const renderCatalogues = () => {
+    const handleEditCatalogue = (catg) => {
+      setItemType("catalogue");
+      setEditingItem(catg || { name: "", pdf_url: "" });
+    };
+
+    const handleSaveCatalogue = async (e) => {
+      e.preventDefault();
+      await saveCatalogue(editingItem);
+      setEditingItem(null);
+      triggerToast("Catalogue PDF saved successfully.");
+    };
+
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.type !== "application/pdf") {
+        alert("Please choose a PDF file.");
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        alert("File too large. Max limit is 8MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditingItem({ ...editingItem, pdf_url: reader.result });
+      };
+      reader.readAsDataURL(file);
+    };
+
+    return (
+      <div className="space-y-6 font-sans">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-primary">Manage Export Catalogues</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Upload separate PDF catalogue files that users can download from the website.</p>
+          </div>
+          {!editingItem && (
+            <button
+              onClick={() => handleEditCatalogue()}
+              className="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded-large shadow cursor-pointer transition-all"
+            >
+              <Plus size={14} />
+              <span>Add New Catalogue</span>
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white border border-neutral-border rounded-xlarge shadow-premium overflow-hidden h-fit">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <th className="p-4">Catalogue Name</th>
+                  <th className="p-4">File Link</th>
+                  <th className="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 text-xs text-slate-700">
+                {catalogues && catalogues.length > 0 ? (
+                  catalogues.map((catg) => (
+                    <tr key={catg.id} className="hover:bg-gray-50/50">
+                      <td className="p-4 font-semibold text-primary">{catg.name}</td>
+                      <td className="p-4">
+                        {catg.pdf_url ? (
+                          <a
+                            href={catg.pdf_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-emerald-600 hover:underline font-bold"
+                          >
+                            View PDF
+                          </a>
+                        ) : (
+                          <span className="text-gray-400">No File</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleEditCatalogue(catg)}
+                          className="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-primary rounded transition-all"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm("Are you sure you want to delete this catalogue?")) {
+                              deleteCatalogue(catg.id);
+                              triggerToast("Catalogue deleted successfully.");
+                            }
+                          }}
+                          className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded transition-all"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="p-8 text-center text-gray-400 font-semibold">
+                      No catalogues uploaded yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {editingItem && itemType === "catalogue" && (
+            <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium lg:col-span-1 h-fit">
+              <form onSubmit={handleSaveCatalogue} className="space-y-4">
+                <h3 className="font-bold text-sm text-primary border-b pb-2">
+                  {editingItem.id ? "Edit Catalogue" : "Upload Catalogue PDF"}
+                </h3>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Catalogue Display Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Areca Dinnerware Catalog 2026"
+                    value={editingItem.name}
+                    onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Select PDF File *</label>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    required={!editingItem.id}
+                    onChange={handleFileChange}
+                    className="w-full text-xs"
+                  />
+                  <span className="text-[9px] text-gray-400 block mt-1">Accepts PDF files up to 8MB.</span>
+                </div>
+
+                {editingItem.pdf_url && (
+                  <div className="bg-green-50 border border-green-200 p-2.5 rounded text-[10px] text-green-700 flex items-center justify-between">
+                    <span className="font-semibold">PDF Attached Successfully</span>
+                    <a
+                      href={editingItem.pdf_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline font-bold"
+                    >
+                      Check PDF
+                    </a>
+                  </div>
+                )}
+
+                <div className="flex space-x-2 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded shadow transition-all cursor-pointer text-center"
+                  >
+                    Save Catalogue
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem(null)}
+                    className="bg-gray-100 hover:bg-gray-200 text-slate-700 font-semibold text-xs py-2 px-4 rounded transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   // 6. CERTIFICATES VIEW
   const renderCertificates = () => {
     const handleEditCert = (cert) => {
@@ -1937,6 +2117,14 @@ CREATE TABLE traffic_views (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 10b. Catalogues
+CREATE TABLE catalogues (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  pdf_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 11. Disable Row Level Security (RLS) on all tables to allow client-side inserts/upserts using anon key
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE subcategories DISABLE ROW LEVEL SECURITY;
@@ -1949,6 +2137,7 @@ ALTER TABLE founder_details DISABLE ROW LEVEL SECURITY;
 ALTER TABLE website_settings DISABLE ROW LEVEL SECURITY;
 ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
 ALTER TABLE traffic_views DISABLE ROW LEVEL SECURITY;
+ALTER TABLE catalogues DISABLE ROW LEVEL SECURITY;
 `;
 
     const handleCopySQL = () => {
@@ -2358,6 +2547,16 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </button>
 
             <button
+              onClick={() => { setActiveTab('catalogues'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
+              className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
+                activeTab === 'catalogues' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'text-slate-600 hover:bg-blue-50 hover:text-primary'
+              }`}
+            >
+              <BookOpen size={16} className={activeTab === 'catalogues' ? 'text-white' : 'text-emerald-500'} />
+              <span>Manage Catalogues</span>
+            </button>
+
+            <button
               onClick={() => { setActiveTab('settings'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
                 activeTab === 'settings' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'text-slate-600 hover:bg-blue-50 hover:text-primary'
@@ -2395,6 +2594,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
                activeTab === 'orders' ? 'E-Commerce Orders' :
                activeTab === 'blogs' ? 'Editorial Articles' :
                activeTab === 'certificates' ? 'Audit Accreditations' :
+               activeTab === 'catalogues' ? 'Business Catalogues' :
                activeTab === 'database' ? 'Supabase Sync & Setup' : 'CMS Settings Config'}
             </h1>
             <p className="text-xs text-gray-400 flex flex-wrap items-center gap-2 mt-1">
@@ -2423,6 +2623,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
           {activeTab === 'orders' && renderOrders()}
           {activeTab === 'blogs' && renderBlogs()}
           {activeTab === 'certificates' && renderCertificates()}
+          {activeTab === 'catalogues' && renderCatalogues()}
           {activeTab === 'settings' && renderSettings()}
 
         </div>

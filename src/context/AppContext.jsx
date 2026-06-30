@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [enquiries, setEnquiries] = useState([]);
   const [downloads, setDownloads] = useState([]);
+  const [catalogues, setCatalogues] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [blogs, setBlogs] = useState([]);
   const [founder, setFounder] = useState(null);
@@ -44,7 +45,7 @@ export const AppProvider = ({ children }) => {
   const refreshData = async () => {
     try {
       setLoading(true);
-      const [cats, subcats, prods, certs, blgs, fndr, stgs] = await Promise.all([
+      const [cats, subcats, prods, certs, blgs, fndr, stgs, cals] = await Promise.all([
         dbService.getCategories(),
         dbService.getSubcategories(),
         dbService.getProducts(),
@@ -52,6 +53,7 @@ export const AppProvider = ({ children }) => {
         dbService.getBlogs(),
         dbService.getFounderDetails(),
         dbService.getWebsiteSettings(),
+        dbService.getCatalogues(),
       ]);
 
       setCategories(cats);
@@ -61,6 +63,7 @@ export const AppProvider = ({ children }) => {
       setBlogs(blgs);
       setFounder(fndr);
       setSettings(stgs);
+      setCatalogues(cals || []);
 
       setLoading(false);
 
@@ -210,6 +213,24 @@ export const AppProvider = ({ children }) => {
   const deleteOrder = async (id) => {
     await dbService.deleteOrder(id);
     setOrders(prev => prev.filter(o => o.id !== id));
+  };
+
+  const saveCatalogue = async (catalogue) => {
+    const saved = await dbService.saveCatalogue(catalogue);
+    setCatalogues(prev => {
+      const exists = prev.some(c => c.id === saved.id);
+      if (exists) {
+        return prev.map(c => c.id === saved.id ? saved : c);
+      } else {
+        return [saved, ...prev];
+      }
+    });
+    return saved;
+  };
+
+  const deleteCatalogue = async (id) => {
+    await dbService.deleteCatalogue(id);
+    setCatalogues(prev => prev.filter(c => c.id !== id));
   };
 
   // CRUDs
@@ -478,6 +499,7 @@ export const AppProvider = ({ children }) => {
       products,
       enquiries,
       downloads,
+      catalogues,
       certificates,
       blogs,
       founder,
@@ -497,6 +519,8 @@ export const AppProvider = ({ children }) => {
       submitEnquiry,
       updateEnquiryStatus,
       submitDownload,
+      saveCatalogue,
+      deleteCatalogue,
       saveProduct,
       deleteProduct,
       saveCategory,
