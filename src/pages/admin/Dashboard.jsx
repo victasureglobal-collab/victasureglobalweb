@@ -3361,58 +3361,7 @@ function SettingsManager({ triggerToast }) {
             />
           </div>
 
-          <div className="space-y-2 border-t pt-4 border-gray-100 font-sans">
-            <label className="block text-xs font-bold text-gray-700">Company B2B Product Catalogue (PDF)</label>
-            <div className="flex flex-wrap items-center gap-4">
-              <input
-                type="file"
-                accept="application/pdf"
-                id="catalogue-pdf-uploader"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-                  if (file.size > 5 * 1024 * 1024) {
-                    alert("PDF file size must be less than 5MB");
-                    return;
-                  }
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    setCataloguePdf(event.target.result);
-                    triggerToast("B2B Product Catalogue PDF uploaded successfully.");
-                  };
-                  reader.readAsDataURL(file);
-                }}
-              />
-              <label
-                htmlFor="catalogue-pdf-uploader"
-                className="bg-primary hover:bg-secondary text-white text-[10px] font-bold py-2 px-4 rounded-large cursor-pointer flex items-center space-x-1.5 transition-all shadow-sm"
-              >
-                <Upload size={12} className="text-accent" />
-                <span>Upload B2B Catalogue PDF</span>
-              </label>
-              
-              {cataloguePdf ? (
-                <div className="flex items-center space-x-2 text-xs font-semibold text-green-600 bg-green-50 py-1.5 px-3 rounded-large border border-green-200 animate-fade-in">
-                  <CheckCircle size={14} />
-                  <span>Catalogue PDF Configured</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCataloguePdf('');
-                      triggerToast("Catalogue PDF removed.");
-                    }}
-                    className="text-red-500 hover:text-red-700 font-bold ml-2 focus:outline-none"
-                    title="Remove PDF"
-                  >
-                    ×
-                  </button>
-                </div>
-              ) : (
-                <span className="text-[10px] text-gray-400 font-medium italic">No PDF uploaded. Fallback printable catalogue will be active.</span>
-              )}
-            </div>
-          </div>
+
 
           <div className="border-t pt-4 space-y-4">
             <span className="block text-xs font-bold text-primary uppercase tracking-wider">Why Choose Us Differentiators (4 Grid Cards)</span>
