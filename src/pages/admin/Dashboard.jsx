@@ -4143,6 +4143,23 @@ function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = fal
     setPreview(value || '');
   }, [value]);
 
+  const convertToWebP = (base64Str) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        // Export to WebP format at 1.0 (lossless/max) quality
+        const webpData = canvas.toDataURL('image/webp', 1.0);
+        resolve(webpData);
+      };
+      img.src = base64Str;
+    });
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -4154,12 +4171,24 @@ function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = fal
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      if (disableCrop) {
-        onChange(reader.result);
-      } else {
-        setRawImage(reader.result);
-        setShowCropper(true);
+    reader.onloadend = async () => {
+      try {
+        const webpResult = await convertToWebP(reader.result);
+        if (disableCrop) {
+          onChange(webpResult);
+        } else {
+          setRawImage(webpResult);
+          setShowCropper(true);
+        }
+      } catch (err) {
+        console.error("WebP conversion failed:", err);
+        // Fallback to original read if conversion fails
+        if (disableCrop) {
+          onChange(reader.result);
+        } else {
+          setRawImage(reader.result);
+          setShowCropper(true);
+        }
       }
     };
     reader.readAsDataURL(file);
@@ -4362,8 +4391,9 @@ function ImageCropperModal({ src, aspect, onCrop, onClose }) {
     const sourceWidth = cropWidth * (naturalSize.width / renderedWidth);
     const sourceHeight = cropHeight * (naturalSize.height / renderedHeight);
 
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
+    // Set canvas dimensions to match the original high-resolution size
+    canvas.width = sourceWidth;
+    canvas.height = sourceHeight;
 
     try {
       ctx.drawImage(
@@ -4374,11 +4404,12 @@ function ImageCropperModal({ src, aspect, onCrop, onClose }) {
         sourceHeight,
         0,
         0,
-        cropWidth,
-        cropHeight
+        sourceWidth,
+        sourceHeight
       );
       
-      const croppedBase64 = canvas.toDataURL('image/jpeg', 0.95);
+      // Convert to WebP format at maximum (1.0) quality to prevent compression loss
+      const croppedBase64 = canvas.toDataURL('image/webp', 1.0);
       onCrop(croppedBase64);
     } catch (err) {
       console.error("Cropping failed:", err);
