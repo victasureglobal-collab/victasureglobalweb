@@ -1204,7 +1204,8 @@ export default function Dashboard() {
                   <th className="p-3">Address / State</th>
                   <th className="p-3">Country</th>
                   <th className="p-3">Date & Day</th>
-                  <th className="p-3">Product Interest</th>
+                  <th className="p-3">Interest Category</th>
+                  <th className="p-3">Catalogue Interest</th>
                   <th className="p-3">Req. Quantity</th>
                   <th className="p-3 text-center">Actions</th>
                 </tr>
@@ -1218,6 +1219,7 @@ export default function Dashboard() {
                     <td className="p-3 font-medium text-gray-500">{dl.state || 'N/A'}</td>
                     <td className="p-3 font-semibold text-accent-dark">{dl.country}</td>
                     <td className="p-3 text-[10px] font-bold text-gray-500">{formatDateAndDay(dl.created_at)}</td>
+                    <td className="p-3 font-semibold text-slate-500">{dl.category_interest || 'N/A'}</td>
                     <td className="p-3 font-bold text-secondary-dark">{dl.product_interest}</td>
                     <td className="p-3 font-bold text-primary">
                       {dl.quantity ? `${dl.quantity} ${dl.qty_unit || 'Pieces'}` : 'N/A'}
@@ -1601,7 +1603,7 @@ export default function Dashboard() {
   const renderCatalogues = () => {
     const handleEditCatalogue = (catg) => {
       setItemType("catalogue");
-      setEditingItem(catg || { name: "", pdf_url: "" });
+      setEditingItem(catg || { name: "", category_id: "", pdf_url: "" });
     };
 
     const handleSaveCatalogue = async (e) => {
@@ -1634,7 +1636,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h2 className="text-lg font-bold text-primary">Manage Export Catalogues</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Upload separate PDF catalogue files that users can download from the website.</p>
+            <p className="text-xs text-gray-400 mt-0.5">Upload separate PDF catalogue files tagged by product category.</p>
           </div>
           {!editingItem && (
             <button
@@ -1653,53 +1655,59 @@ export default function Dashboard() {
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   <th className="p-4">Catalogue Name</th>
+                  <th className="p-4">Product Category</th>
                   <th className="p-4">File Link</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 text-xs text-slate-700">
                 {catalogues && catalogues.length > 0 ? (
-                  catalogues.map((catg) => (
-                    <tr key={catg.id} className="hover:bg-gray-50/50">
-                      <td className="p-4 font-semibold text-primary">{catg.name}</td>
-                      <td className="p-4">
-                        {catg.pdf_url ? (
-                          <a
-                            href={catg.pdf_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-emerald-600 hover:underline font-bold"
+                  catalogues.map((catg) => {
+                    const matchedCat = categories && categories.find(c => c.id === catg.category_id);
+                    const catName = matchedCat ? matchedCat.name : "Uncategorized";
+                    return (
+                      <tr key={catg.id} className="hover:bg-gray-50/50">
+                        <td className="p-4 font-semibold text-primary">{catg.name}</td>
+                        <td className="p-4 font-medium text-slate-500">{catName}</td>
+                        <td className="p-4">
+                          {catg.pdf_url ? (
+                            <a
+                              href={catg.pdf_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-emerald-600 hover:underline font-bold"
+                            >
+                              View PDF
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">No File</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-right space-x-2">
+                          <button
+                            onClick={() => handleEditCatalogue(catg)}
+                            className="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-primary rounded transition-all"
                           >
-                            View PDF
-                          </a>
-                        ) : (
-                          <span className="text-gray-400">No File</span>
-                        )}
-                      </td>
-                      <td className="p-4 text-right space-x-2">
-                        <button
-                          onClick={() => handleEditCatalogue(catg)}
-                          className="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-primary rounded transition-all"
-                        >
-                          <Edit2 size={14} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (window.confirm("Are you sure you want to delete this catalogue?")) {
-                              deleteCatalogue(catg.id);
-                              triggerToast("Catalogue deleted successfully.");
-                            }
-                          }}
-                          className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded transition-all"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                            <Edit2 size={14} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm("Are you sure you want to delete this catalogue?")) {
+                                deleteCatalogue(catg.id);
+                                triggerToast("Catalogue deleted successfully.");
+                              }
+                            }}
+                            className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded transition-all"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan="3" className="p-8 text-center text-gray-400 font-semibold">
+                    <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold">
                       No catalogues uploaded yet.
                     </td>
                   </tr>
@@ -1716,11 +1724,26 @@ export default function Dashboard() {
                 </h3>
 
                 <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Product Category *</label>
+                  <select
+                    required
+                    value={editingItem.category_id || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-emerald-600 bg-white"
+                  >
+                    <option value="">Select Category...</option>
+                    {categories && categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Catalogue Display Name *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Areca Dinnerware Catalog 2026"
+                    placeholder="e.g. Dehydrated Onion Powder"
                     value={editingItem.name}
                     onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
                     className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-emerald-600"
@@ -2001,6 +2024,7 @@ CREATE TABLE catalogue_downloads (
   phone TEXT,
   state TEXT,
   product_interest TEXT,
+  category_interest TEXT,
   quantity NUMERIC,
   qty_unit TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -2008,6 +2032,7 @@ CREATE TABLE catalogue_downloads (
 
 -- ALTER TABLE catalogue_downloads ADD COLUMN quantity NUMERIC;
 -- ALTER TABLE catalogue_downloads ADD COLUMN qty_unit TEXT;
+-- ALTER TABLE catalogue_downloads ADD COLUMN category_interest TEXT;
 
 -- 5. Certificates
 CREATE TABLE certificates (
@@ -2121,9 +2146,12 @@ CREATE TABLE traffic_views (
 CREATE TABLE catalogues (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
+  category_id TEXT,
   pdf_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ALTER TABLE catalogues ADD COLUMN category_id TEXT;
 
 -- 11. Disable Row Level Security (RLS) on all tables to allow client-side inserts/upserts using anon key
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;

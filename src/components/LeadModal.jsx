@@ -7,6 +7,11 @@ export default function LeadModal({ isOpen, onClose }) {
   const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm();
   const { submitDownload, products, settings, categories, catalogues } = useApp();
 
+  const selectedCategoryId = watch("category_interest");
+  const filteredCatalogues = catalogues && selectedCategoryId 
+    ? catalogues.filter(c => c.category_id === selectedCategoryId)
+    : [];
+
   const countryDialCodes = {
     "Australia": "+61",
     "Austria": "+43",
@@ -177,13 +182,17 @@ export default function LeadModal({ isOpen, onClose }) {
 
   const onSubmit = async (data) => {
     try {
+      const matchedCat = categories && categories.find(c => c.id === data.category_interest);
+      const catName = matchedCat ? matchedCat.name : "Unknown Category";
+      
       const interest = data.product_interest || "";
       const selectedCatg = catalogues && catalogues.find(c => c.name === interest);
-      const pdfToDownload = selectedCatg ? selectedCatg.pdf_url : settings?.catalogue_pdf;
+      const pdfToDownload = selectedCatg ? selectedCatg.pdf_url : null;
 
       const qtyUnit = interest.includes("Cutlery") ? "Packs" : "Pieces";
       const submissionData = {
         ...data,
+        category_interest: catName,
         quantity: Number(data.quantity),
         qty_unit: qtyUnit
       };
@@ -320,32 +329,39 @@ export default function LeadModal({ isOpen, onClose }) {
               {errors.phone && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.phone.message}</span>}
             </div>
 
+            {/* Product Category Selection */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Product Category *</label>
+              <select
+                className={`w-full text-sm px-4 py-2.5 rounded-large bg-white border ${
+                  errors.category_interest ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                } focus:outline-none focus:ring-2 focus:border-primary`}
+                {...register("category_interest", { required: "Please select a category" })}
+              >
+                <option value="">Select category...</option>
+                {categories && categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              {errors.category_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.category_interest.message}</span>}
+            </div>
+
             {/* Catalogue Selection */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                {catalogues && catalogues.length > 0 ? "Select Catalogue to Download *" : "Product Segment of Interest *"}
-              </label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Select Catalogue to Download *</label>
               <select
                 className={`w-full text-sm px-4 py-2.5 rounded-large bg-white border ${
                   errors.product_interest ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
                 } focus:outline-none focus:ring-2 focus:border-primary`}
-                {...register("product_interest", { required: "Please select an option" })}
+                {...register("product_interest", { required: "Please select a catalogue" })}
+                disabled={!selectedCategoryId}
               >
                 <option value="">
-                  {catalogues && catalogues.length > 0 ? "Select catalogue..." : "Select segment..."}
+                  {!selectedCategoryId ? "Please select a category first..." : "Select catalogue..."}
                 </option>
-                {catalogues && catalogues.length > 0 ? (
-                  catalogues.map(c => (
-                    <option key={c.id} value={c.name}>{c.name}</option>
-                  ))
-                ) : (
-                  <>
-                    {categories && categories.map(cat => (
-                      <option key={cat.id} value={cat.name}>{cat.name}</option>
-                    ))}
-                    <option value="All Categories">All Export Categories</option>
-                  </>
-                )}
+                {filteredCatalogues.map(c => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
               </select>
               {errors.product_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interest.message}</span>}
             </div>
