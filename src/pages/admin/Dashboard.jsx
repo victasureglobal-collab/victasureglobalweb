@@ -482,7 +482,7 @@ export default function Dashboard() {
         name: "", category_id: "", subcategory_id: "", short_description: "", detailed_description: "",
         dimensions: "", material: "", moq: "", price_inr: 0, price_usd: 0, country_availability: ["USA", "Germany"], status: "published",
         is_featured: false, images: ["https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&q=80&w=800"], specifications: {},
-        product_code: "", show_price: true
+        product_code: "", show_price: true, pdf_url: ""
       });
     };
 
@@ -775,11 +775,24 @@ export default function Dashboard() {
                     }}
                     className="w-full text-xs"
                   />
-                  {editingItem.pdf_url && (
-                    <div className="mt-1 flex items-center justify-between text-[10px] bg-green-50 border border-green-200 text-green-700 p-2 rounded">
-                      <span className="font-semibold">Catalogue PDF Attached Successfully</span>
-                      <a href={editingItem.pdf_url} target="_blank" rel="noreferrer" className="underline font-bold">View PDF</a>
+                  {editingItem.pdf_url ? (
+                    <div className="mt-1.5 flex items-center justify-between text-[10px] bg-green-50 border border-green-200 text-green-700 p-2.5 rounded-large">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="font-bold">Attached:</span>
+                        <a href={editingItem.pdf_url} target="_blank" rel="noreferrer" className="underline font-bold hover:text-green-800">
+                          View Uploaded PDF
+                        </a>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditingItem({ ...editingItem, pdf_url: "" })}
+                        className="text-red-500 hover:text-red-700 font-bold uppercase tracking-wider text-[9px] cursor-pointer"
+                      >
+                        Clear
+                      </button>
                     </div>
+                  ) : (
+                    <span className="text-[10px] text-gray-400 block mt-1">Accepts PDF files up to 8MB.</span>
                   )}
                 </div>
 
