@@ -1676,9 +1676,13 @@ export default function Dashboard() {
 
     const handleSaveCatalogue = async (e) => {
       e.preventDefault();
-      await saveCatalogue(editingItem);
-      setEditingItem(null);
-      triggerToast("Catalogue PDF saved successfully.");
+      try {
+        await saveCatalogue(editingItem);
+        setEditingItem(null);
+        triggerToast("Catalogue PDF saved successfully.");
+      } catch (err) {
+        alert("Failed to save to Supabase: " + (err.message || err));
+      }
     };
 
     const handleFileChange = (e) => {

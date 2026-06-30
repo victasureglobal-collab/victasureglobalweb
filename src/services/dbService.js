@@ -342,6 +342,7 @@ export const dbService = {
         return data;
       } catch (err) {
         console.error("Supabase catalogue save failed, using localStorage:", err);
+        throw err;
       }
     }
     const list = getLocal('vs_catalogues') || [];
