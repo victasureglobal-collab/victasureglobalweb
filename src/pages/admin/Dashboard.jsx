@@ -2201,7 +2201,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
     <div className="flex-grow md:h-screen md:overflow-hidden bg-neutral-lightBg flex flex-col md:flex-row">
       
       {/* Mobile Header Bar */}
-      <div className="flex md:hidden items-center justify-between p-4 bg-primary text-white border-b border-primary-light flex-shrink-0 w-full z-30 shadow-md">
+      <div className="flex md:hidden items-center justify-between p-4 bg-slate-900 text-white border-b border-slate-800 flex-shrink-0 w-full z-30 shadow-md">
         <div className="relative">
           <img src={logoImg} alt="VictaSure Logo" className="h-8 w-auto object-contain max-w-[130px]" />
           <span className="absolute -top-1 -right-3 text-[6px] font-extrabold text-[#8CE48C] select-none font-sans">TM</span>
@@ -2224,7 +2224,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 h-full bg-primary text-gray-300 flex flex-col justify-between border-r border-primary-light flex-shrink-0 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 h-full bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 flex-shrink-0 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-grow">
           
           {/* Sidebar Close Button for Mobile */}
@@ -2235,7 +2235,7 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
           </div>
 
           {/* Header Brand */}
-          <div className="flex flex-col items-center text-center space-y-2 border-b border-primary-light pb-4">
+          <div className="flex flex-col items-center text-center space-y-2 border-b border-slate-800/80 pb-4">
             <div className="relative inline-block">
               <img src={logoImg} alt="VictaSure Logo" className="h-9 w-auto object-contain max-w-[150px]" />
               <span className="absolute -top-1 -right-3 text-[7px] font-extrabold text-[#8CE48C] select-none font-sans">TM</span>
@@ -2247,9 +2247,9 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             href="/" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="flex items-center justify-center space-x-1.5 bg-primary-light hover:bg-secondary text-white font-bold text-[10px] py-1.5 px-3 rounded-large border border-primary-light hover:border-secondary transition-all w-full cursor-pointer shadow-sm mt-3"
+            className="flex items-center justify-center space-x-1.5 bg-slate-800 hover:bg-emerald-600 text-slate-100 hover:text-white font-bold text-[10px] py-1.5 px-3 rounded-large border border-slate-700 hover:border-emerald-600 transition-all w-full cursor-pointer shadow-sm mt-3"
           >
-            <Globe size={12} className="text-accent" />
+            <Globe size={12} className="text-emerald-400" />
             <span>Visit Live Website</span>
           </a>
 
@@ -2258,87 +2258,87 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             <button
               onClick={() => { setActiveTab('analytics'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'analytics' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'analytics' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <BarChart3 size={16} className="text-accent" />
+              <BarChart3 size={16} className={activeTab === 'analytics' ? 'text-white' : 'text-emerald-400'} />
               <span>Analytics Metrics</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('products'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'products' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'products' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <Box size={16} className="text-accent" />
+              <Box size={16} className={activeTab === 'products' ? 'text-white' : 'text-emerald-400'} />
               <span>Export Products</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('categories'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'categories' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'categories' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <FolderTree size={16} className="text-accent" />
+              <FolderTree size={16} className={activeTab === 'categories' ? 'text-white' : 'text-emerald-400'} />
               <span>Product Categories</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('leads'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'leads' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'leads' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <FileSpreadsheet size={16} className="text-accent" />
+              <FileSpreadsheet size={16} className={activeTab === 'leads' ? 'text-white' : 'text-emerald-400'} />
               <span>Lead Database</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('orders'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'orders' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'orders' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <ShoppingCart size={16} className="text-accent" />
+              <ShoppingCart size={16} className={activeTab === 'orders' ? 'text-white' : 'text-emerald-400'} />
               <span>Orders Database</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('blogs'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'blogs' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'blogs' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <Newspaper size={16} className="text-accent" />
+              <Newspaper size={16} className={activeTab === 'blogs' ? 'text-white' : 'text-emerald-400'} />
               <span>Trade Blogs</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('certificates'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'certificates' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'certificates' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <Award size={16} className="text-accent" />
+              <Award size={16} className={activeTab === 'certificates' ? 'text-white' : 'text-emerald-400'} />
               <span>Certificates</span>
             </button>
 
             <button
               onClick={() => { setActiveTab('settings'); setEditingItem(null); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-large text-xs font-semibold transition-all ${
-                activeTab === 'settings' ? 'bg-secondary text-white font-bold shadow' : 'hover:bg-primary-light hover:text-white'
+                activeTab === 'settings' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/20' : 'hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <Settings size={16} className="text-accent" />
+              <Settings size={16} className={activeTab === 'settings' ? 'text-white' : 'text-emerald-400'} />
               <span>CMS Page Content</span>
             </button>
           </nav>
         </div>
 
         {/* Footer Logout */}
-        <div className="p-6 border-t border-primary-light flex-shrink-0">
+        <div className="p-6 border-t border-slate-800/80 flex-shrink-0">
           <button
             onClick={handleLogout}
             className="w-full flex items-center space-x-3 text-xs font-bold text-red-400 hover:text-red-300 py-2 px-3 rounded hover:bg-red-500/10 transition-colors"
