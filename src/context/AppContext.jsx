@@ -101,10 +101,10 @@ export const AppProvider = ({ children }) => {
 
     // Record page view analytics with visitor country tracking
     const logPageView = async () => {
-      // Check if session view has already been counted to prevent refresh double counting
-      const sessionLogged = sessionStorage.getItem('vs_session_view_logged');
-      
-      if (sessionLogged) {
+      // Prevent double counting within a 10-minute window
+      const lastLogged = localStorage.getItem('vs_last_view_logged');
+      const now = Date.now();
+      if (lastLogged && (now - parseInt(lastLogged)) < 10 * 60 * 1000) {
         return;
       }
 
@@ -156,7 +156,7 @@ export const AppProvider = ({ children }) => {
       try {
         const newView = await dbService.logTrafficView(country);
         setTrafficViews(prev => [newView, ...prev]);
-        sessionStorage.setItem('vs_session_view_logged', 'true');
+        localStorage.setItem('vs_last_view_logged', Date.now().toString());
       } catch (err) {
         console.error("Failed to log page view analytics", err);
       }
