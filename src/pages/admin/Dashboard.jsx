@@ -751,6 +751,38 @@ export default function Dashboard() {
                   />
                 </div>
 
+                <div className="pt-2">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Product-Specific Catalogue PDF</label>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      if (file.type !== "application/pdf") {
+                        alert("Please choose a PDF file.");
+                        return;
+                      }
+                      if (file.size > 8 * 1024 * 1024) {
+                        alert("File too large. Max limit is 8MB.");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setEditingItem({ ...editingItem, pdf_url: reader.result });
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                    className="w-full text-xs"
+                  />
+                  {editingItem.pdf_url && (
+                    <div className="mt-1 flex items-center justify-between text-[10px] bg-green-50 border border-green-200 text-green-700 p-2 rounded">
+                      <span className="font-semibold">Catalogue PDF Attached Successfully</span>
+                      <a href={editingItem.pdf_url} target="_blank" rel="noreferrer" className="underline font-bold">View PDF</a>
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Price (INR - ₹)</label>
@@ -1988,6 +2020,7 @@ CREATE TABLE products (
   is_featured BOOLEAN DEFAULT false,
   images JSONB DEFAULT '[]'::jsonb,
   video_url TEXT,
+  pdf_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -1996,6 +2029,7 @@ CREATE TABLE products (
 -- ALTER TABLE products ADD COLUMN product_code TEXT;
 -- ALTER TABLE products ADD COLUMN show_price BOOLEAN DEFAULT true;
 -- ALTER TABLE products ADD COLUMN display_order INTEGER DEFAULT 0;
+-- ALTER TABLE products ADD COLUMN pdf_url TEXT;
 
 -- 3. Enquiries
 CREATE TABLE enquiries (

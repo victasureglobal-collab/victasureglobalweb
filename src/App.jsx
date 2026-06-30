@@ -31,6 +31,7 @@ export default function App() {
   const { settings } = useApp();
   const location = useLocation();
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+  const [prefilledProduct, setPrefilledProduct] = useState(null);
   
   // Shared product modal / selection states
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -86,7 +87,14 @@ export default function App() {
           {settings?.enable_cart && <Route path="/cart" element={<Cart />} />}
           <Route 
             path="/catalogue" 
-            element={<Catalogue onOpenDownloadModal={() => setIsDownloadOpen(true)} />} 
+            element={
+              <Catalogue 
+                onOpenDownloadModal={(prod) => {
+                  setPrefilledProduct(prod);
+                  setIsDownloadOpen(true);
+                }} 
+              />
+            } 
           />
           {settings?.enable_cart && <Route path="/checkout" element={<Checkout />} />}
           {settings?.enable_cart && <Route path="/order-success/:orderId" element={<OrderSuccess />} />}
@@ -150,7 +158,14 @@ export default function App() {
       )}
 
       {/* Global Lead capture catalog download modal */}
-      <LeadModal isOpen={isDownloadOpen} onClose={() => setIsDownloadOpen(false)} />
+      <LeadModal 
+        isOpen={isDownloadOpen} 
+        onClose={() => {
+          setIsDownloadOpen(false);
+          setPrefilledProduct(null);
+        }} 
+        prefilledProduct={prefilledProduct}
+      />
 
     </div>
   );

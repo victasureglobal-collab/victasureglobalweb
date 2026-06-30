@@ -3,14 +3,40 @@ import { useForm } from 'react-hook-form';
 import { X, Download, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
-export default function LeadModal({ isOpen, onClose }) {
+export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
   const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm();
   const { submitDownload, products, settings, categories, catalogues } = useApp();
 
   const selectedCategoryId = watch("category_interest");
+  
+  // Get all catalogues and products matching the selected category ID
   const filteredCatalogues = catalogues && selectedCategoryId 
     ? catalogues.filter(c => c.category_id === selectedCategoryId)
     : [];
+
+  const filteredProducts = products && selectedCategoryId
+    ? products.filter(p => p.category_id === selectedCategoryId)
+    : [];
+
+  // Merge and deduplicate by name
+  const catalogueOptions = [];
+  filteredCatalogues.forEach(c => {
+    if (!catalogueOptions.some(o => o.name === c.name)) {
+      catalogueOptions.push({ id: c.id, name: c.name });
+    }
+  });
+  filteredProducts.forEach(p => {
+    if (!catalogueOptions.some(o => o.name === p.name)) {
+      catalogueOptions.push({ id: p.id, name: p.name });
+    }
+  });
+
+  React.useEffect(() => {
+    if (isOpen && prefilledProduct) {
+      setValue("category_interest", prefilledProduct.category_id);
+      setValue("product_interest", prefilledProduct.name);
+    }
+  }, [isOpen, prefilledProduct, setValue]);
 
   const countryDialCodes = {
     "Australia": "+61",
@@ -186,8 +212,12 @@ export default function LeadModal({ isOpen, onClose }) {
       const catName = matchedCat ? matchedCat.name : "Unknown Category";
       
       const interest = data.product_interest || "";
+      const matchedProduct = products && products.find(p => p.name === interest);
       const selectedCatg = catalogues && catalogues.find(c => c.name === interest);
-      const pdfToDownload = selectedCatg ? selectedCatg.pdf_url : null;
+      
+      const pdfToDownload = (matchedProduct && matchedProduct.pdf_url)
+        ? matchedProduct.pdf_url
+        : (selectedCatg ? selectedCatg.pdf_url : null);
 
       const qtyUnit = interest.includes("Cutlery") ? "Packs" : "Pieces";
       const submissionData = {
@@ -359,8 +389,8 @@ export default function LeadModal({ isOpen, onClose }) {
                 <option value="">
                   {!selectedCategoryId ? "Please select a category first..." : "Select catalogue..."}
                 </option>
-                {filteredCatalogues.map(c => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                {catalogueOptions.map(o => (
+                  <option key={o.id} value={o.name}>{o.name}</option>
                 ))}
               </select>
               {errors.product_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interest.message}</span>}

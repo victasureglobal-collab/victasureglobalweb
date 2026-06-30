@@ -266,10 +266,10 @@ export default function Catalogue({ onOpenDownloadModal }) {
                               )}
                             </div>
                             <button
-                              onClick={onOpenDownloadModal}
+                              onClick={() => onOpenDownloadModal(p)}
                               className="bg-primary hover:bg-secondary text-white text-[10px] font-extrabold py-2 px-3.5 rounded-large flex items-center space-x-1 cursor-pointer transition-all shadow-sm group-hover:shadow"
                             >
-                              <span>Inquire Specs</span>
+                              <span>Download Catalogue</span>
                               <ChevronRight size={10} />
                             </button>
                           </div>
