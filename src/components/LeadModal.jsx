@@ -34,9 +34,17 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
   React.useEffect(() => {
     if (isOpen && prefilledProduct) {
       setValue("category_interest", prefilledProduct.category_id);
-      setValue("product_interest", prefilledProduct.name);
     }
   }, [isOpen, prefilledProduct, setValue]);
+
+  React.useEffect(() => {
+    if (isOpen && prefilledProduct && selectedCategoryId === prefilledProduct.category_id) {
+      const timer = setTimeout(() => {
+        setValue("product_interest", prefilledProduct.name);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, prefilledProduct, selectedCategoryId, setValue]);
 
   const countryDialCodes = {
     "Australia": "+61",
