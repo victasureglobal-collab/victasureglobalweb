@@ -6,7 +6,7 @@ import ProductCard from '../components/ProductCard';
 import { TabsSkeleton, ProductGridSkeleton } from '../components/Skeletons';
 
 export default function Products({ selectedProduct, setSelectedProduct, setEnquiryProduct }) {
-  const { products, categories, subcategories, settings, addToCart, loading } = useApp();
+  const { products, categories, settings, addToCart, loading } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -58,8 +58,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
       if (selectedCatSlug === "all") {
         return matchSearch;
       } else {
-        const selectedCat = categories.find(c => c.slug === selectedCatSlug);
-        return matchSearch && p.category_id === selectedCat?.id;
+        return matchSearch && p.category_id === cat?.id;
       }
     })
     .sort((a, b) => {
@@ -80,78 +79,6 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
-
-  const getGroupedSections = (productList) => {
-    const sections = [];
-    
-    // Group products by category first to handle category-specific subcategory checking
-    const productsByCategory = {};
-    productList.forEach(p => {
-      if (!productsByCategory[p.category_id]) {
-        productsByCategory[p.category_id] = [];
-      }
-      productsByCategory[p.category_id].push(p);
-    });
-
-    Object.keys(productsByCategory).forEach(catId => {
-      const catProducts = productsByCategory[catId];
-      const cat = categories.find(c => c.id === catId);
-      const catName = cat ? cat.name : "General";
-      
-      // Check if this category has any subcategories configured
-      const catSubcategories = (subcategories || []).filter(sub => sub.category_id === catId);
-      const hasSubcategoriesConfigured = catSubcategories.length > 0;
-
-      if (!hasSubcategoriesConfigured) {
-        // List normally if there are no subcategories configured for that category
-        sections.push({
-          type: 'normal',
-          title: null,
-          products: catProducts
-        });
-      } else {
-        // Group by subcategory
-        const subGroups = {}; // subcategory_id -> products[]
-        const fallbackProducts = [];
-
-        catProducts.forEach(p => {
-          if (p.subcategory_id) {
-            const subExists = catSubcategories.some(sub => sub.id === p.subcategory_id);
-            if (subExists) {
-              if (!subGroups[p.subcategory_id]) {
-                subGroups[p.subcategory_id] = [];
-              }
-              subGroups[p.subcategory_id].push(p);
-              return;
-            }
-          }
-          fallbackProducts.push(p);
-        });
-
-        // Add subcategory groups
-        catSubcategories.forEach(sub => {
-          if (subGroups[sub.id] && subGroups[sub.id].length > 0) {
-            sections.push({
-              type: 'subcategory',
-              title: sub.name,
-              products: subGroups[sub.id]
-            });
-          }
-        });
-
-        // Add fallback group if any
-        if (fallbackProducts.length > 0) {
-          sections.push({
-            type: 'fallback',
-            title: `${catName} - General`,
-            products: fallbackProducts
-          });
-        }
-      }
-    });
-
-    return sections;
-  };
 
   const handleCategorySelect = (slug) => {
     setSelectedCatSlug(slug);
@@ -336,28 +263,14 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
         {isLoading ? (
           <ProductGridSkeleton count={8} />
         ) : paginatedProducts.length > 0 ? (
-          <div className="space-y-10">
-            {getGroupedSections(paginatedProducts).map((section, secIdx) => (
-              <div key={secIdx} className="space-y-6">
-                {section.title && (
-                  <div className="flex items-center space-x-3 pt-4 pb-1">
-                    <div className="h-6 w-1.5 bg-accent rounded-full"></div>
-                    <h3 className="text-xs font-extrabold text-primary tracking-wider uppercase bg-accent/5 px-3 py-1.5 rounded-large border border-accent/10">
-                      {section.title}
-                    </h3>
-                  </div>
-                )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {section.products.map((product) => (
-                    <div key={product.id}>
-                      <ProductCard
-                        product={product}
-                        onViewDetails={handleOpenProduct}
-                        onRequestQuote={handleRequestQuote}
-                      />
-                    </div>
-                  ))}
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {paginatedProducts.map((product) => (
+              <div key={product.id}>
+                <ProductCard
+                  product={product}
+                  onViewDetails={handleOpenProduct}
+                  onRequestQuote={handleRequestQuote}
+                />
               </div>
             ))}
           </div>

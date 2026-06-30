@@ -618,30 +618,13 @@ export default function Dashboard() {
                     <select
                       required
                       value={editingItem.category_id || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value, subcategory_id: "" })}
+                      onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
                       className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1"
                     >
                       <option value="">Select Category...</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Subcategory *</label>
-                    <select
-                      required
-                      value={editingItem.subcategory_id || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, subcategory_id: e.target.value })}
-                      className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1"
-                    >
-                      <option value="">Select Subcategory...</option>
-                      {(subcategories || [])
-                        .filter(s => s.category_id === editingItem.category_id)
-                        .map(s => (
-                          <option key={s.id} value={s.id}>{s.name}</option>
-                        ))
-                      }
                     </select>
                   </div>
                 </div>
@@ -931,296 +914,137 @@ export default function Dashboard() {
       triggerToast("Category configurations saved.");
     };
 
-    const handleEditSubcategory = (sub) => {
-      setItemType("subcategory");
-      setEditingItem(sub || { name: "", slug: "", category_id: "" });
-    };
-
-    const handleSaveSubcategory = async (e) => {
-      e.preventDefault();
-      if (!editingItem.category_id) {
-        alert("Please select a parent category.");
-        return;
-      }
-      if (!editingItem.slug) {
-        editingItem.slug = editingItem.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      }
-      await saveSubcategory(editingItem);
-      setEditingItem(null);
-      triggerToast("Subcategory saved successfully.");
-    };
-
     return (
       <div className="space-y-6">
-        
-        {/* Sub-tab navigation */}
-        <div className="flex border-b border-gray-200">
-          <button
-            onClick={() => { setCatSubTab('categories'); setEditingItem(null); }}
-            className={`py-2.5 px-6 font-bold text-xs border-b-2 transition-all ${
-              catSubTab === 'categories'
-                ? 'border-secondary text-secondary'
-                : 'border-transparent text-gray-400 hover:text-primary'
-            }`}
-          >
-            Main Categories
-          </button>
-          <button
-            onClick={() => { setCatSubTab('subcategories'); setEditingItem(null); }}
-            className={`py-2.5 px-6 font-bold text-xs border-b-2 transition-all ${
-              catSubTab === 'subcategories'
-                ? 'border-secondary text-secondary'
-                : 'border-transparent text-gray-400 hover:text-primary'
-            }`}
-          >
-            Subcategories Management
-          </button>
-        </div>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-base font-bold text-primary">Product Categories</h2>
+            <button
+              onClick={() => handleEditCategory(null)}
+              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
+            >
+              <Plus size={16} />
+              <span>Add Category</span>
+            </button>
+          </div>
 
-        {catSubTab === 'categories' ? (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-base font-bold text-primary">Product Categories</h2>
-              <button
-                onClick={() => handleEditCategory(null)}
-                className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
-              >
-                <Plus size={16} />
-                <span>Add Category</span>
-              </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
+                    <th className="p-4">Category Name</th>
+                    <th className="p-4">Slug</th>
+                    <th className="p-4">Visibility</th>
+                    <th className="p-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 text-gray-600">
+                  {categories.map((c) => (
+                    <tr key={c.id}>
+                      <td className="p-4 font-bold text-primary">{c.name}</td>
+                      <td className="p-4"><code>{c.slug}</code></td>
+                      <td className="p-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                          c.is_visible !== false
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : 'bg-red-50 text-red-700 border-red-200'
+                        }`}>
+                          {c.is_visible !== false ? 'Visible' : 'Hidden'}
+                        </span>
+                      </td>
+                      <td className="p-4 flex items-center space-x-3">
+                        <button onClick={() => handleEditCategory(c)} className="text-primary hover:text-accent">
+                          <Edit2 size={14} />
+                        </button>
+                        <button onClick={() => { if(confirm("Delete category?")) deleteCategory(c.id); }} className="text-red-500 hover:text-red-700">
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {categories.length === 0 && (
+                    <tr>
+                      <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold italic">
+                        No categories created yet. Click Add Category.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
-                      <th className="p-4">Category Name</th>
-                      <th className="p-4">Slug</th>
-                      <th className="p-4">Visibility</th>
-                      <th className="p-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 text-gray-600">
-                    {categories.map((c) => (
-                      <tr key={c.id}>
-                        <td className="p-4 font-bold text-primary">{c.name}</td>
-                        <td className="p-4"><code>{c.slug}</code></td>
-                        <td className="p-4">
-                          {c.is_visible !== false ? (
-                            <span className="text-green-600 font-bold">Visible</span>
-                          ) : (
-                            <span className="text-gray-400 font-semibold">Hidden</span>
-                          )}
-                        </td>
-                        <td className="p-4 flex items-center space-x-3">
-                          <button onClick={() => handleEditCategory(c)} className="text-primary hover:text-accent">
-                            <Edit2 size={14} />
-                          </button>
-                          <button onClick={() => { if(confirm("Delete category? This will unlink products in it.")) deleteCategory(c.id); }} className="text-red-500 hover:text-red-700">
-                            <Trash2 size={14} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            {editingItem && itemType === "category" ? (
+              <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
+                <form onSubmit={handleSaveCategory} className="space-y-4">
+                  <h3 className="font-bold text-sm text-primary border-b pb-2">
+                    {editingItem.id ? "Edit Category Details" : "Create Category"}
+                  </h3>
+                  
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Category Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingItem.name || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                    />
+                  </div>
 
-              {editingItem && itemType === "category" ? (
-                <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
-                  <form onSubmit={handleSaveCategory} className="space-y-4">
-                    <h3 className="font-bold text-sm text-primary border-b pb-2">
-                      {editingItem.id ? "Edit Category Details" : "Create Category"}
-                    </h3>
-                    
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Category Name</label>
-                      <input
-                        type="text"
-                        required
-                        value={editingItem.name}
-                        onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Slug (leave empty for auto)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. areca-leaf-plates"
+                      value={editingItem.slug || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
+                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Slug (leave empty for auto)</label>
-                      <input
-                        type="text"
-                        placeholder="areca-leaf-plates"
-                        value={editingItem.slug}
-                        onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
+                    <textarea
+                      rows="3"
+                      value={editingItem.description || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
-                      <textarea
-                        rows="2"
-                        value={editingItem.description}
-                        onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="flex items-center space-x-2 pt-2">
+                  <div className="flex items-center space-x-6 pt-2">
+                    <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
                       <input
                         type="checkbox"
-                        id="is_visible"
                         checked={editingItem.is_visible !== false}
                         onChange={(e) => setEditingItem({ ...editingItem, is_visible: e.target.checked })}
                         className="rounded text-primary focus:ring-0"
                       />
-                      <label htmlFor="is_visible" className="text-xs font-semibold text-gray-700">Display Category publicly on site</label>
-                    </div>
+                      <span>Make visible on website listings</span>
+                    </label>
+                  </div>
 
-                    <div className="flex justify-end space-x-2 pt-2">
-                      <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
-                        Cancel
-                      </button>
-                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                        Save Category
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              ) : (
-                <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
-                  <FolderTree size={36} className="mx-auto text-gray-300 mb-2" />
-                  <span className="text-xs font-semibold">Select edit icon or create category to start editing parameters.</span>
-                </div>
-              )}
-
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-base font-bold text-primary">Subcategories Management</h2>
-              <button
-                onClick={() => handleEditSubcategory(null)}
-                className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
-              >
-                <Plus size={16} />
-                <span>Add Subcategory</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
-                      <th className="p-4">Subcategory Name</th>
-                      <th className="p-4">Parent Category</th>
-                      <th className="p-4">Slug</th>
-                      <th className="p-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 text-gray-600">
-                    {(subcategories || []).map((s) => {
-                      const parentCat = categories.find(c => c.id === s.category_id);
-                      return (
-                        <tr key={s.id}>
-                          <td className="p-4 font-bold text-primary">{s.name}</td>
-                          <td className="p-4">
-                            <span className="bg-primary/5 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10">
-                              {parentCat ? parentCat.name : 'Unlinked Category'}
-                            </span>
-                          </td>
-                          <td className="p-4"><code>{s.slug}</code></td>
-                          <td className="p-4 flex items-center space-x-3">
-                            <button onClick={() => handleEditSubcategory(s)} className="text-primary hover:text-accent">
-                              <Edit2 size={14} />
-                            </button>
-                            <button onClick={() => { if(confirm("Delete subcategory?")) deleteSubcategory(s.id); }} className="text-red-500 hover:text-red-700">
-                              <Trash2 size={14} />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {(!subcategories || subcategories.length === 0) && (
-                      <tr>
-                        <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold italic">
-                          No subcategories created yet. Click Add Subcategory.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                  <div className="flex justify-end space-x-2 pt-2">
+                    <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
+                      Cancel
+                    </button>
+                    <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
+                      Save Category
+                    </button>
+                  </div>
+                </form>
               </div>
+            ) : (
+              <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
+                <FolderTree size={36} className="mx-auto text-gray-300 mb-2" />
+                <span className="text-xs font-semibold">Select edit icon or create category to start editing parameters.</span>
+              </div>
+            )}
 
-              {editingItem && itemType === "subcategory" ? (
-                <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
-                  <form onSubmit={handleSaveSubcategory} className="space-y-4">
-                    <h3 className="font-bold text-sm text-primary border-b pb-2">
-                      {editingItem.id ? "Edit Subcategory Details" : "Create Subcategory"}
-                    </h3>
-                    
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Subcategory Name</label>
-                      <input
-                        type="text"
-                        required
-                        value={editingItem.name || ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Parent Category (Mandatory) *</label>
-                      <select
-                        required
-                        value={editingItem.category_id || ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded border bg-white focus:outline-none focus:ring-1 focus:ring-primary"
-                      >
-                        <option value="">Select Category...</option>
-                        {categories.map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Slug (leave empty for auto)</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. square-plates"
-                        value={editingItem.slug || ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
-                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="flex justify-end space-x-2 pt-2">
-                      <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
-                        Cancel
-                      </button>
-                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                        Save Subcategory
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              ) : (
-                <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
-                  <FolderTree size={36} className="mx-auto text-gray-300 mb-2" />
-                  <span className="text-xs font-semibold">Select edit icon or create subcategory to start editing parameters.</span>
-                </div>
-              )}
-
-            </div>
           </div>
-        )}
-
+        </div>
       </div>
     );
   };
