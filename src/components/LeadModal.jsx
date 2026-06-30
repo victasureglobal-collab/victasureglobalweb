@@ -262,7 +262,7 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-primary/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-xlarge shadow-premium w-full max-w-lg border border-neutral-border relative overflow-hidden">
+      <div className="bg-white rounded-xlarge shadow-premium w-full max-w-lg border border-neutral-border relative max-h-[95vh] overflow-y-auto custom-scrollbar">
         
         {/* Header decoration */}
         <div className="h-2 bg-gradient-gold"></div>
