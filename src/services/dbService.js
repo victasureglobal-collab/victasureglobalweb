@@ -639,9 +639,13 @@ export const dbService = {
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.from('traffic_views').select('*').order('created_at', { ascending: false });
-        if (!error && data) return data;
+        if (error) {
+          console.error("Supabase traffic_views select failed:", error);
+        } else if (data) {
+          return data;
+        }
       } catch (err) {
-        console.warn("Supabase traffic_views failed:", err);
+        console.error("Supabase traffic_views select exception:", err);
       }
     }
     return getLocal('vs_traffic_views') || [];
@@ -655,9 +659,12 @@ export const dbService = {
     };
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from('traffic_views').insert(view);
+        const { error } = await supabase.from('traffic_views').insert(view);
+        if (error) {
+          console.error("Supabase traffic_views insert failed:", error);
+        }
       } catch (err) {
-        console.warn("Supabase traffic_views log failed:", err);
+        console.error("Supabase traffic_views insert exception:", err);
       }
     }
     const list = getLocal('vs_traffic_views') || [];
