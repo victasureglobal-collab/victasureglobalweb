@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { Shield, Lock, Mail, AlertCircle } from 'lucide-react';
+import { Shield, Lock, Mail, AlertCircle, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isForgot, setIsForgot] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { loginAdmin, isAdminAuthenticated } = useApp();
+  const { loginAdmin, resetAdminPassword, isAdminAuthenticated } = useApp();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -22,9 +24,14 @@ export default function AdminLogin() {
     try {
       setErrorMsg("");
       setLoading(true);
-      const success = await loginAdmin(email, password);
-      if (success) {
-        navigate('/admin');
+      if (isForgot) {
+        await resetAdminPassword(email);
+        setResetSent(true);
+      } else {
+        const success = await loginAdmin(email, password);
+        if (success) {
+          navigate('/admin');
+        }
       }
     } catch (err) {
       setErrorMsg(err.message || "Invalid credentials. Please try again.");
@@ -35,7 +42,7 @@ export default function AdminLogin() {
 
   return (
     <div className="flex-grow flex items-center justify-center py-16 px-4 bg-neutral-lightBg">
-      <div className="bg-white rounded-xlarge shadow-premium border border-neutral-border w-full max-w-md overflow-hidden">
+      <div className="bg-white rounded-xlarge shadow-premium border border-neutral-border w-full max-w-md overflow-hidden font-sans">
         
         {/* Navy border highlight */}
         <div className="h-2 bg-primary"></div>
@@ -46,9 +53,13 @@ export default function AdminLogin() {
             <span className="p-3 bg-primary/10 text-primary rounded-full inline-flex">
               <Shield size={28} />
             </span>
-            <h1 className="text-xl font-bold text-primary font-sans">Admin Portal Login</h1>
+            <h1 className="text-xl font-bold text-primary">
+              {isForgot ? "Reset Admin Password" : "Admin Portal Login"}
+            </h1>
             <p className="text-xs text-gray-400">
-              Authorized personnel only. Please sign in to manage site content.
+              {isForgot 
+                ? "Enter your registered email to receive a password reset link." 
+                : "Authorized personnel only. Please sign in to manage site content."}
             </p>
           </div>
 
@@ -59,57 +70,90 @@ export default function AdminLogin() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="email"
-                  required
-                  placeholder="admin@victasure.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full text-xs pl-10 pr-4 py-2.5 rounded-large border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
+          {resetSent ? (
+            <div className="space-y-4 text-center">
+              <div className="bg-green-50 border border-green-400 text-green-700 p-4 rounded-large flex flex-col items-center space-y-2">
+                <CheckCircle size={24} className="text-green-600 animate-bounce" />
+                <span className="text-xs font-bold">Reset Link Sent Successfully!</span>
+                <p className="text-[10px] text-green-600 font-medium">Please check your email inbox and spam folder for instructions.</p>
               </div>
+              <button 
+                onClick={() => { setIsForgot(false); setResetSent(false); setErrorMsg(""); }}
+                className="inline-flex items-center space-x-1 text-xs text-primary font-bold hover:underline"
+              >
+                <ArrowLeft size={12} />
+                <span>Back to Sign In</span>
+              </button>
             </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full text-xs pl-10 pr-4 py-2.5 rounded-large border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="admin@victasure.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full text-xs pl-10 pr-4 py-2.5 rounded-large border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Mock Info Alert */}
-            <div className="bg-accent/10 border border-accent/30 rounded-large p-3 text-[10px] text-accent-dark leading-relaxed">
-              <strong>Mock Mode Credentials:</strong><br />
-              Username: <code className="bg-white px-1 py-0.5 rounded">admin@victasure.com</code><br />
-              Password: <code className="bg-white px-1 py-0.5 rounded">admin123</code>
-            </div>
+              {/* Password */}
+              {!isForgot && (
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs font-semibold text-gray-700">Password</label>
+                    <button
+                      type="button"
+                      onClick={() => { setIsForgot(true); setErrorMsg(""); }}
+                      className="text-[10px] text-primary hover:underline font-bold"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full text-xs pl-10 pr-4 py-2.5 rounded-large border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    />
+                  </div>
+                </div>
+              )}
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary hover:bg-secondary text-white font-bold text-xs py-3 rounded-large transition-colors shadow disabled:opacity-50"
-            >
-              {loading ? "Authenticating..." : "Sign In to Console"}
-            </button>
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-primary hover:bg-secondary text-white font-bold text-xs py-3 rounded-large transition-colors shadow disabled:opacity-50 cursor-pointer"
+                >
+                  {loading ? "Processing..." : (isForgot ? "Send Reset Instructions" : "Sign In to Console")}
+                </button>
 
-          </form>
+                {isForgot && (
+                  <button
+                    type="button"
+                    onClick={() => { setIsForgot(false); setErrorMsg(""); }}
+                    className="w-full text-center text-xs text-gray-400 hover:text-slate-600 font-semibold"
+                  >
+                    Cancel and Go Back
+                  </button>
+                )}
+              </div>
+
+            </form>
+          )}
 
         </div>
       </div>

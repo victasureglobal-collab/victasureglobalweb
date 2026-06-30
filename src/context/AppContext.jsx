@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { dbService } from '../services/dbService';
+import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 
 const AppContext = createContext(null);
 
@@ -383,6 +384,21 @@ export const AppProvider = ({ children }) => {
   };
 
   const loginAdmin = async (email, password) => {
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+      if (data && data.user) {
+        setIsAdminAuthenticated(true);
+        sessionStorage.setItem('vs_admin_auth', 'true');
+        return true;
+      }
+    }
+
     // For local mock / default admin
     if (email === "admin@victasure.com" && password === "admin123") {
       setIsAdminAuthenticated(true);
@@ -390,6 +406,19 @@ export const AppProvider = ({ children }) => {
       return true;
     }
     throw new Error("Invalid username or password");
+  };
+
+  const resetAdminPassword = async (email) => {
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/admin'
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+      return true;
+    }
+    throw new Error("Supabase is not configured for email resets.");
   };
 
   const logoutAdmin = () => {
@@ -481,6 +510,7 @@ export const AppProvider = ({ children }) => {
       saveFounder,
       saveSettings,
       loginAdmin,
+      resetAdminPassword,
       logoutAdmin,
       loginUser,
       signupUser,
