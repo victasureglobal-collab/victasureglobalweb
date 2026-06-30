@@ -1930,7 +1930,14 @@ CREATE TABLE orders (
 
 -- ALTER TABLE orders ADD COLUMN user_id TEXT;
 
--- 10. Disable Row Level Security (RLS) on all tables to allow client-side inserts/upserts using anon key
+-- 10. Traffic Views
+CREATE TABLE traffic_views (
+  id TEXT PRIMARY KEY,
+  country TEXT DEFAULT 'Unknown',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 11. Disable Row Level Security (RLS) on all tables to allow client-side inserts/upserts using anon key
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE subcategories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE products DISABLE ROW LEVEL SECURITY;
@@ -1941,7 +1948,7 @@ ALTER TABLE blogs DISABLE ROW LEVEL SECURITY;
 ALTER TABLE founder_details DISABLE ROW LEVEL SECURITY;
 ALTER TABLE website_settings DISABLE ROW LEVEL SECURITY;
 ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
-ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
+ALTER TABLE traffic_views DISABLE ROW LEVEL SECURITY;
 `;
 
     const handleCopySQL = () => {

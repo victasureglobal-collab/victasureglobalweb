@@ -108,21 +108,57 @@ export const AppProvider = ({ children }) => {
         return;
       }
 
+      let country = 'Unknown';
+      
+      // 1. Try ipapi.co (HTTPS, free limit 1000/day)
       try {
-        const geoRes = await fetch('https://ipapi.co/json/');
-        const geoData = await geoRes.json();
-        const country = geoData.country_name || 'Unknown';
+        const res = await fetch('https://ipapi.co/json/');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.country_name) {
+            country = data.country_name;
+          }
+        }
+      } catch (e) {
+        console.warn("ipapi.co rate limited or blocked, trying fallback 1...", e);
+      }
 
+      // 2. Try ipwho.is if country is still unknown (HTTPS, free limit 10000/day)
+      if (country === 'Unknown') {
+        try {
+          const res = await fetch('https://ipwho.is/');
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && data.country) {
+              country = data.country;
+            }
+          }
+        } catch (e) {
+          console.warn("ipwho.is failed, trying fallback 2...", e);
+        }
+      }
+
+      // 3. Try db-ip.com if country is still unknown (HTTPS, free self-lookup)
+      if (country === 'Unknown') {
+        try {
+          const res = await fetch('https://api.db-ip.com/v2/free/self');
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.countryName) {
+              country = data.countryName;
+            }
+          }
+        } catch (e) {
+          console.warn("db-ip.com lookup failed...", e);
+        }
+      }
+
+      try {
         const newView = await dbService.logTrafficView(country);
         setTrafficViews(prev => [newView, ...prev]);
         sessionStorage.setItem('vs_session_view_logged', 'true');
       } catch (err) {
         console.error("Failed to log page view analytics", err);
-        try {
-          const newView = await dbService.logTrafficView('Unknown');
-          setTrafficViews(prev => [newView, ...prev]);
-          sessionStorage.setItem('vs_session_view_logged', 'true');
-        } catch (e) {}
       }
     };
     logPageView();
