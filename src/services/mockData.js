@@ -1,8 +1,8 @@
 export const initialCategories = [
-  { id: "cat-1", name: "Areca Leaf Plates", slug: "areca-leaf-plates", description: "Biodegradable heat-pressed plates made from fallen palm leaves.", is_visible: true },
-  { id: "cat-2", name: "Areca Leaf Bowls", slug: "areca-leaf-bowls", description: "Chemical-free compostable bowls for soups, desserts, and sides.", is_visible: true },
-  { id: "cat-3", name: "Areca Leaf Trays", slug: "areca-leaf-trays", description: "Sturdy organic serving trays, perfect for caterers and events.", is_visible: true },
-  { id: "cat-4", name: "Areca Cutlery", slug: "areca-cutlery", description: "100% natural birchwood and palm leaf forks and spoons.", is_visible: true }
+  { id: "cat-1", name: "Areca Leaf Plates", slug: "areca-leaf-plates", description: "Biodegradable heat-pressed plates made from fallen palm leaves.", is_visible: true, display_order: 1 },
+  { id: "cat-2", name: "Areca Leaf Bowls", slug: "areca-leaf-bowls", description: "Chemical-free compostable bowls for soups, desserts, and sides.", is_visible: true, display_order: 2 },
+  { id: "cat-3", name: "Areca Leaf Trays", slug: "areca-leaf-trays", description: "Sturdy organic serving trays, perfect for caterers and events.", is_visible: true, display_order: 3 },
+  { id: "cat-4", name: "Areca Cutlery", slug: "areca-cutlery", description: "100% natural birchwood and palm leaf forks and spoons.", is_visible: true, display_order: 4 }
 ];
 
 export const initialSubcategories = [

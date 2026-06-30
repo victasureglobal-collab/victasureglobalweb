@@ -80,6 +80,38 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
 
+  const getGroupedByCategories = (productList) => {
+    const sortedCategories = [...categories]
+      .filter(cat => cat.is_visible !== false)
+      .sort((a, b) => {
+        const orderA = Number(a.display_order) || 0;
+        const orderB = Number(b.display_order) || 0;
+        if (orderA !== orderB) return orderA - orderB;
+        return a.name.localeCompare(b.name);
+      });
+
+    const groups = [];
+    sortedCategories.forEach(cat => {
+      const catProducts = productList.filter(p => p.category_id === cat.id);
+      if (catProducts.length > 0) {
+        groups.push({
+          categoryName: cat.name,
+          products: catProducts
+        });
+      }
+    });
+
+    const orphanedProducts = productList.filter(p => !categories.some(cat => cat.id === p.category_id && cat.is_visible !== false));
+    if (orphanedProducts.length > 0) {
+      groups.push({
+        categoryName: "Other Products",
+        products: orphanedProducts
+      });
+    }
+
+    return groups;
+  };
+
   const handleCategorySelect = (slug) => {
     setSelectedCatSlug(slug);
     setCurrentPage(1);
@@ -263,14 +295,26 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
         {isLoading ? (
           <ProductGridSkeleton count={8} />
         ) : paginatedProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {paginatedProducts.map((product) => (
-              <div key={product.id}>
-                <ProductCard
-                  product={product}
-                  onViewDetails={handleOpenProduct}
-                  onRequestQuote={handleRequestQuote}
-                />
+          <div className="space-y-10">
+            {getGroupedByCategories(paginatedProducts).map((group, groupIdx) => (
+              <div key={groupIdx} className="space-y-6">
+                <div className="flex items-center space-x-3 pt-4 pb-1 border-b border-gray-100">
+                  <div className="h-6 w-1 bg-primary rounded-full"></div>
+                  <h3 className="text-xs font-extrabold text-primary tracking-wider uppercase bg-primary/5 px-3 py-1.5 rounded-large border border-primary-light/10">
+                    {group.categoryName}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {group.products.map((product) => (
+                    <div key={product.id}>
+                      <ProductCard
+                        product={product}
+                        onViewDetails={handleOpenProduct}
+                        onRequestQuote={handleRequestQuote}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

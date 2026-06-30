@@ -941,7 +941,12 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 text-gray-600">
-                  {categories.map((c) => (
+                  {[...categories].sort((a, b) => {
+                    const orderA = Number(a.display_order) || 0;
+                    const orderB = Number(b.display_order) || 0;
+                    if (orderA !== orderB) return orderA - orderB;
+                    return a.name.localeCompare(b.name);
+                  }).map((c) => (
                     <tr key={c.id}>
                       <td className="p-4 font-bold text-primary">{c.name}</td>
                       <td className="p-4"><code>{c.slug}</code></td>
@@ -1001,6 +1006,17 @@ export default function Dashboard() {
                       value={editingItem.slug || ""}
                       onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
                       className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Display Sorting Position (lower values show first)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={editingItem.display_order !== undefined ? editingItem.display_order : 0}
+                      onChange={(e) => setEditingItem({ ...editingItem, display_order: parseInt(e.target.value, 10) || 0 })}
+                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
 
@@ -1721,10 +1737,12 @@ CREATE TABLE categories (
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   description TEXT,
-  is_visible BOOLEAN DEFAULT true
+  is_visible BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0
 );
 
 -- ALTER TABLE categories ADD COLUMN is_visible BOOLEAN DEFAULT true;
+-- ALTER TABLE categories ADD COLUMN display_order INTEGER DEFAULT 0;
 
 -- 1.5 Subcategories
 CREATE TABLE subcategories (

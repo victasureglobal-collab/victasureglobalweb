@@ -25,6 +25,38 @@ export default function Catalogue({ onOpenDownloadModal }) {
     return a.name.localeCompare(b.name);
   });
 
+  const getGroupedByCategories = (productList) => {
+    const sortedCategories = [...categories]
+      .filter(cat => cat.is_visible !== false)
+      .sort((a, b) => {
+        const orderA = Number(a.display_order) || 0;
+        const orderB = Number(b.display_order) || 0;
+        if (orderA !== orderB) return orderA - orderB;
+        return a.name.localeCompare(b.name);
+      });
+
+    const groups = [];
+    sortedCategories.forEach(cat => {
+      const catProducts = productList.filter(p => p.category_id === cat.id);
+      if (catProducts.length > 0) {
+        groups.push({
+          categoryName: cat.name,
+          products: catProducts
+        });
+      }
+    });
+
+    const orphanedProducts = productList.filter(p => !categories.some(cat => cat.id === p.category_id && cat.is_visible !== false));
+    if (orphanedProducts.length > 0) {
+      groups.push({
+        categoryName: "Other Products",
+        products: orphanedProducts
+      });
+    }
+
+    return groups;
+  };
+
   return (
     <div className="flex-grow bg-slate-50 py-16 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-16">
@@ -158,85 +190,97 @@ export default function Catalogue({ onOpenDownloadModal }) {
         {isLoading ? (
           <ProductGridSkeleton count={8} gridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredProducts.map((p) => {
-              const catName = categories.find(c => c.id === p.category_id)?.name || "Tableware";
-              return (
-                <div key={p.id} className="bg-white border border-neutral-border rounded-2xl overflow-hidden shadow-premium hover:shadow-premium-hover transition-all duration-300 flex flex-col justify-between relative group">
-                  
-                  {/* Image Section */}
-                  <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden border-b border-gray-100 flex items-center justify-center">
-                    {p.images && p.images[0] ? (
-                      <img 
-                        src={p.images[0]} 
-                        alt={p.name} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    ) : (
-                      <div className="text-gray-300">
-                        <BookOpen size={32} />
-                      </div>
-                    )}
-                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary text-[8px] font-extrabold uppercase px-2 py-0.5 rounded border border-gray-100 shadow-sm font-sans tracking-wide">
-                      {catName}
-                    </span>
-                    
-                    {/* Small eco pill */}
-                    <span className="absolute bottom-3 right-3 bg-secondary text-white text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center space-x-0.5 shadow-sm">
-                      <Leaf size={8} />
-                      <span>Bio-fallen</span>
-                    </span>
-                  </div>
-
-                  {/* Info Text */}
-                  <div className="p-6 space-y-3.5 flex-grow">
-                    <div className="flex flex-col">
-                      <h3 className="font-extrabold text-sm text-primary tracking-wide leading-tight group-hover:text-secondary transition-colors font-sans">
-                        {p.name}
-                      </h3>
-                      {p.product_code && (
-                        <span className="text-[9px] text-gray-400 font-semibold uppercase mt-0.5">{p.product_code}</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
-                      {p.short_description}
-                    </p>
-
-                    {/* Specifications details list */}
-                    <div className="pt-3 border-t border-gray-100 grid grid-cols-2 gap-y-2 gap-x-1 text-[10px] text-gray-600 font-sans">
-                      <div>Material: <strong className="text-primary font-bold">{p.material || 'Palm Leaf'}</strong></div>
-                      <div>Dimensions: <strong className="text-primary font-bold">{p.dimensions || 'Custom'}</strong></div>
-                      <div>MOQ: <strong className="text-primary font-bold">{p.moq || '5,000 Pcs'}</strong></div>
-                      <div>Availability: <strong className="text-primary font-bold">Global</strong></div>
-                    </div>
-                  </div>
-
-                  {/* Action CTA Bar */}
-                  <div className="p-6 pt-0 mt-auto">
-                    <div className="bg-slate-50 border border-gray-100 p-3 rounded-xlarge flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none">FOB Rate</span>
-                        {p.show_price !== false ? (
-                          <span className="text-sm font-extrabold text-secondary-dark mt-1 leading-none">
-                            ₹{p.price_inr} <span className="text-[10px] text-gray-400 font-semibold">/ ${p.price_usd}</span>
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-extrabold text-accent mt-1 uppercase leading-none bg-accent/10 px-1.5 py-0.5 rounded select-none">Inquire</span>
-                        )}
-                      </div>
-                      <button
-                        onClick={onOpenDownloadModal}
-                        className="bg-primary hover:bg-secondary text-white text-[10px] font-extrabold py-2 px-3.5 rounded-large flex items-center space-x-1 cursor-pointer transition-all shadow-sm group-hover:shadow"
-                      >
-                        <span>Inquire Specs</span>
-                        <ChevronRight size={10} />
-                      </button>
-                    </div>
-                  </div>
-
+          <div className="space-y-12">
+            {getGroupedByCategories(filteredProducts).map((group, groupIdx) => (
+              <div key={groupIdx} className="space-y-6">
+                <div className="flex items-center space-x-3 pt-4 pb-1 border-b border-gray-100">
+                  <div className="h-6 w-1 bg-primary rounded-full"></div>
+                  <h3 className="text-xs font-extrabold text-primary tracking-wider uppercase bg-primary/5 px-3 py-1.5 rounded-large border border-primary-light/10">
+                    {group.categoryName}
+                  </h3>
                 </div>
-              );
-            })}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {group.products.map((p) => {
+                    const catName = categories.find(c => c.id === p.category_id)?.name || "Tableware";
+                    return (
+                      <div key={p.id} className="bg-white border border-neutral-border rounded-2xl overflow-hidden shadow-premium hover:shadow-premium-hover transition-all duration-300 flex flex-col justify-between relative group">
+                        
+                        {/* Image Section */}
+                        <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden border-b border-gray-100 flex items-center justify-center">
+                          {p.images && p.images[0] ? (
+                            <img 
+                              src={p.images[0]} 
+                              alt={p.name} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                            />
+                          ) : (
+                            <div className="text-gray-300">
+                              <BookOpen size={32} />
+                            </div>
+                          )}
+                          <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary text-[8px] font-extrabold uppercase px-2 py-0.5 rounded border border-gray-100 shadow-sm font-sans tracking-wide">
+                            {catName}
+                          </span>
+                          
+                          {/* Small eco pill */}
+                          <span className="absolute bottom-3 right-3 bg-secondary text-white text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center space-x-0.5 shadow-sm">
+                            <Leaf size={8} />
+                            <span>Bio-fallen</span>
+                          </span>
+                        </div>
+
+                        {/* Info Text */}
+                        <div className="p-6 space-y-3.5 flex-grow">
+                          <div className="flex flex-col">
+                            <h3 className="font-extrabold text-sm text-primary tracking-wide leading-tight group-hover:text-secondary transition-colors font-sans">
+                              {p.name}
+                            </h3>
+                            {p.product_code && (
+                              <span className="text-[9px] text-gray-400 font-semibold uppercase mt-0.5">{p.product_code}</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                            {p.short_description}
+                          </p>
+
+                          {/* Specifications details list */}
+                          <div className="pt-3 border-t border-gray-100 grid grid-cols-2 gap-y-2 gap-x-1 text-[10px] text-gray-600 font-sans">
+                            <div>Material: <strong className="text-primary font-bold">{p.material || 'Palm Leaf'}</strong></div>
+                            <div>Dimensions: <strong className="text-primary font-bold">{p.dimensions || 'Custom'}</strong></div>
+                            <div>MOQ: <strong className="text-primary font-bold">{p.moq || '5,000 Pcs'}</strong></div>
+                            <div>Availability: <strong className="text-primary font-bold">Global</strong></div>
+                          </div>
+                        </div>
+
+                        {/* Action CTA Bar */}
+                        <div className="p-6 pt-0 mt-auto">
+                          <div className="bg-slate-50 border border-gray-100 p-3 rounded-xlarge flex items-center justify-between">
+                            <div className="flex flex-col">
+                              <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none">FOB Rate</span>
+                              {p.show_price !== false ? (
+                                <span className="text-sm font-extrabold text-secondary-dark mt-1 leading-none">
+                                  ₹{p.price_inr} <span className="text-[10px] text-gray-400 font-semibold">/ ${p.price_usd}</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-extrabold text-accent mt-1 uppercase leading-none bg-accent/10 px-1.5 py-0.5 rounded select-none">Inquire</span>
+                              )}
+                            </div>
+                            <button
+                              onClick={onOpenDownloadModal}
+                              className="bg-primary hover:bg-secondary text-white text-[10px] font-extrabold py-2 px-3.5 rounded-large flex items-center space-x-1 cursor-pointer transition-all shadow-sm group-hover:shadow"
+                            >
+                              <span>Inquire Specs</span>
+                              <ChevronRight size={10} />
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         ) }
 
