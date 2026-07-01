@@ -489,13 +489,27 @@ export default function Dashboard() {
 
     const handleSaveProduct = async (e) => {
       e.preventDefault();
-      // Ensure country availability is array if user edited as text
-      if (typeof editingItem.country_availability === "string") {
-        editingItem.country_availability = editingItem.country_availability.split(",").map(c => c.trim());
+      try {
+        // Ensure country availability is array if user edited as text
+        if (typeof editingItem.country_availability === "string") {
+          editingItem.country_availability = editingItem.country_availability.split(",").map(c => c.trim());
+        }
+        
+        // Clean empty values to prevent foreign key errors with empty strings
+        const cleanedItem = { ...editingItem };
+        if (cleanedItem.subcategory_id === "" || cleanedItem.subcategory_id === undefined) {
+          cleanedItem.subcategory_id = null;
+        }
+        if (cleanedItem.category_id === "") {
+          cleanedItem.category_id = null;
+        }
+
+        await saveProduct(cleanedItem);
+        setEditingItem(null);
+        triggerToast("Product details saved successfully.");
+      } catch (err) {
+        alert("Failed to save product in Supabase: " + (err.message || err));
       }
-      await saveProduct(editingItem);
-      setEditingItem(null);
-      triggerToast("Product details saved successfully.");
     };
 
     return (
@@ -513,17 +527,17 @@ export default function Dashboard() {
         </div>
 
         {/* Products Table list */}
-        <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-          <table className="w-full text-left border-collapse text-xs">
+        <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium">
+          <table className="w-full text-left border-collapse text-xs min-w-[600px] md:min-w-full">
             <thead>
               <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
                 <th className="p-4">Thumbnail</th>
                 <th className="p-4">Name</th>
                 <th className="p-4">Category</th>
-                <th className="p-4">MOQ</th>
-                <th className="p-4">Featured</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Actions</th>
+                <th className="p-4 hidden md:table-cell">MOQ</th>
+                <th className="p-4 hidden md:table-cell">Featured</th>
+                <th className="p-4 hidden md:table-cell">Status</th>
+                <th className="p-4 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 text-gray-600">
@@ -534,7 +548,7 @@ export default function Dashboard() {
                     <td className="p-4">
                       <img src={p.images?.[0]} alt="" className="w-12 h-8 object-cover rounded border" />
                     </td>
-                    <td className="p-4 font-bold text-primary">{p.name}</td>
+                    <td className="p-4 font-bold text-primary max-w-[150px] truncate md:max-w-none md:whitespace-normal">{p.name}</td>
                     <td className="p-4 space-y-1">
                       <span className="font-semibold block">{catName}</span>
                       {p.subcategory_id && (
@@ -543,36 +557,38 @@ export default function Dashboard() {
                         </span>
                       )}
                     </td>
-                    <td className="p-4">{p.moq}</td>
-                    <td className="p-4">
+                    <td className="p-4 hidden md:table-cell">{p.moq}</td>
+                    <td className="p-4 hidden md:table-cell">
                       {p.is_featured ? (
                         <span className="text-secondary font-bold">Yes</span>
                       ) : (
                         <span className="text-gray-400">No</span>
                       )}
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 hidden md:table-cell">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         p.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {p.status}
                       </span>
                     </td>
-                    <td className="p-4 flex items-center space-x-3 mt-1">
-                      <button
-                        onClick={() => handleEditProductClick(p)}
-                        className="text-primary hover:text-accent"
-                        title="Edit product"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => { if(confirm("Delete product?")) deleteProduct(p.id); }}
-                        className="text-red-500 hover:text-red-700"
-                        title="Delete product"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                    <td className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => handleEditProductClick(p)}
+                          className="text-primary hover:text-accent"
+                          title="Edit product"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => { if(confirm("Delete product?")) deleteProduct(p.id); }}
+                          className="text-red-500 hover:text-red-700"
+                          title="Delete product"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -581,12 +597,33 @@ export default function Dashboard() {
           </table>
         </div>
 
+        {/* Mobile Floating Add Product Button */}
+        <button
+          type="button"
+          onClick={() => handleEditProductClick(null)}
+          className="md:hidden fixed bottom-6 right-6 z-40 bg-secondary hover:bg-secondary-light text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all cursor-pointer"
+          title="Add New Product"
+        >
+          <Plus size={28} />
+        </button>
+
         {/* Modal for Add / Edit Product */}
         {editingItem && itemType === "product" && (
-          <div className="fixed inset-0 bg-primary/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xlarge max-w-2xl w-full border border-neutral-border max-h-[90vh] overflow-y-auto custom-scrollbar shadow-premium">
+          <div 
+            className="fixed inset-0 bg-primary/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget) setEditingItem(null); }}
+          >
+            <div className="bg-white rounded-xlarge max-w-2xl w-full border border-neutral-border shadow-premium relative my-auto">
+              <button 
+                type="button" 
+                onClick={() => setEditingItem(null)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                title="Close modal"
+              >
+                <X size={20} />
+              </button>
               <form onSubmit={handleSaveProduct} className="p-6 sm:p-8 space-y-4">
-                <h3 className="font-sans font-bold text-lg text-primary border-b pb-2">
+                <h3 className="font-sans font-bold text-lg text-primary border-b pb-2 pr-8">
                   {editingItem.id ? "Edit Product Details" : "Add New Product"}
                 </h3>
 
@@ -620,12 +657,26 @@ export default function Dashboard() {
                     <select
                       required
                       value={editingItem.category_id || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
+                      onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value, subcategory_id: "" })}
                       className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1"
                     >
                       <option value="">Select Category...</option>
                       {categories.map(c => (
                         <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Subcategory</label>
+                    <select
+                      value={editingItem.subcategory_id || ""}
+                      onChange={(e) => setEditingItem({ ...editingItem, subcategory_id: e.target.value || null })}
+                      className="w-full text-xs px-3 py-2 bg-white rounded border focus:outline-none focus:ring-1"
+                      disabled={!editingItem.category_id}
+                    >
+                      <option value="">No Subcategory</option>
+                      {subcategories && subcategories.filter(s => s.category_id === editingItem.category_id).map(sub => (
+                        <option key={sub.id} value={sub.id}>{sub.name}</option>
                       ))}
                     </select>
                   </div>
@@ -974,162 +1025,319 @@ export default function Dashboard() {
 
     const handleSaveCategory = async (e) => {
       e.preventDefault();
-      // Generate slug if empty
-      if (!editingItem.slug) {
-        editingItem.slug = editingItem.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      try {
+        // Generate slug automatically from category name
+        editingItem.slug = editingItem.name.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+        await saveCategory(editingItem);
+        setEditingItem(null);
+        triggerToast("Category configurations saved.");
+      } catch (err) {
+        alert("Failed to save category in Supabase: " + (err.message || err));
       }
-      await saveCategory(editingItem);
-      setEditingItem(null);
-      triggerToast("Category configurations saved.");
     };
 
     return (
       <div className="space-y-6">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-base font-bold text-primary">Product Categories</h2>
-            <button
-              onClick={() => handleEditCategory(null)}
-              className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
-            >
-              <Plus size={16} />
-              <span>Add Category</span>
-            </button>
-          </div>
+        {/* Tab Selector */}
+        <div className="flex space-x-2 bg-gray-100 p-1.5 rounded-large w-fit border border-gray-200">
+          <button
+            type="button"
+            onClick={() => { setCatSubTab('categories'); setEditingItem(null); }}
+            className={`px-4 py-1.5 text-xs font-bold rounded-large transition-all cursor-pointer ${
+              catSubTab === 'categories' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-primary'
+            }`}
+          >
+            Categories
+          </button>
+          <button
+            type="button"
+            onClick={() => { setCatSubTab('subcategories'); setEditingItem(null); }}
+            className={`px-4 py-1.5 text-xs font-bold rounded-large transition-all cursor-pointer ${
+              catSubTab === 'subcategories' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-primary'
+            }`}
+          >
+            Subcategories
+          </button>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
-                    <th className="p-4">Category Name</th>
-                    <th className="p-4">Slug</th>
-                    <th className="p-4">Visibility</th>
-                    <th className="p-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 text-gray-600">
-                  {[...categories].sort((a, b) => {
-                    const orderA = Number(a.display_order) || 0;
-                    const orderB = Number(b.display_order) || 0;
-                    if (orderA !== orderB) return orderA - orderB;
-                    return a.name.localeCompare(b.name);
-                  }).map((c) => (
-                    <tr key={c.id}>
-                      <td className="p-4 font-bold text-primary">{c.name}</td>
-                      <td className="p-4"><code>{c.slug}</code></td>
-                      <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
-                          c.is_visible !== false
-                            ? 'bg-green-50 text-green-700 border-green-200'
-                            : 'bg-red-50 text-red-700 border-red-200'
-                        }`}>
-                          {c.is_visible !== false ? 'Visible' : 'Hidden'}
-                        </span>
-                      </td>
-                      <td className="p-4 flex items-center space-x-3">
-                        <button onClick={() => handleEditCategory(c)} className="text-primary hover:text-accent">
-                          <Edit2 size={14} />
-                        </button>
-                        <button onClick={() => { if(confirm("Delete category?")) deleteCategory(c.id); }} className="text-red-500 hover:text-red-700">
-                          <Trash2 size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {categories.length === 0 && (
-                    <tr>
-                      <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold italic">
-                        No categories created yet. Click Add Category.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+        {catSubTab === 'subcategories' ? (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex justify-between items-center">
+              <h2 className="text-base font-bold text-primary">Product Subcategories</h2>
+              <button
+                onClick={() => {
+                  setItemType("subcategory");
+                  setEditingItem({ name: "", category_id: "", is_visible: true });
+                }}
+                className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
+              >
+                <Plus size={16} />
+                <span>Add Subcategory</span>
+              </button>
             </div>
 
-            {editingItem && itemType === "category" ? (
-              <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
-                <form onSubmit={handleSaveCategory} className="space-y-4">
-                  <h3 className="font-bold text-sm text-primary border-b pb-2">
-                    {editingItem.id ? "Edit Category Details" : "Create Category"}
-                  </h3>
-                  
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Category Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={editingItem.name || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
-                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                    />
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium">
+                <table className="w-full text-left border-collapse text-xs min-w-[450px]">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
+                      <th className="p-4">Subcategory Name</th>
+                      <th className="p-4">Parent Category</th>
+                      <th className="p-4">Visibility</th>
+                      <th className="p-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 text-gray-600">
+                    {subcategories && subcategories.map((sub) => {
+                      const matchedParent = categories.find(c => c.id === sub.category_id);
+                      return (
+                        <tr key={sub.id}>
+                          <td className="p-4 font-bold text-primary">{sub.name}</td>
+                          <td className="p-4 font-semibold text-slate-500">{matchedParent ? matchedParent.name : "N/A"}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                              sub.is_visible !== false
+                                ? 'bg-green-50 text-green-700 border-green-200'
+                                : 'bg-red-50 text-red-700 border-red-200'
+                            }`}>
+                              {sub.is_visible !== false ? 'Visible' : 'Hidden'}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center space-x-3">
+                              <button onClick={() => { setItemType("subcategory"); setEditingItem(sub); }} className="text-primary hover:text-accent">
+                                <Edit2 size={14} />
+                              </button>
+                              <button onClick={() => { if(confirm("Delete subcategory?")) deleteSubcategory(sub.id); }} className="text-red-500 hover:text-red-700">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {(!subcategories || subcategories.length === 0) && (
+                      <tr>
+                        <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold italic">
+                          No subcategories created yet. Click Add Subcategory.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Slug (leave empty for auto)</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. areca-leaf-plates"
-                      value={editingItem.slug || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
-                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                    />
-                  </div>
+              {editingItem && itemType === "subcategory" ? (
+                <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
+                  <form onSubmit={async (e) => {
+                    e.preventDefault();
+                    try {
+                      await saveSubcategory(editingItem);
+                      setEditingItem(null);
+                      triggerToast("Subcategory configurations saved.");
+                    } catch (err) {
+                      alert("Failed to save subcategory in Supabase: " + (err.message || err));
+                    }
+                  }} className="space-y-4">
+                    <h3 className="font-bold text-sm text-primary border-b pb-2">
+                      {editingItem.id ? "Edit Subcategory Details" : "Create Subcategory"}
+                    </h3>
+                    
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Parent Category *</label>
+                      <select
+                        required
+                        value={editingItem.category_id || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                      >
+                        <option value="">Select Parent Category...</option>
+                        {categories && categories.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Display Sorting Position (lower values show first)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={editingItem.display_order !== undefined ? editingItem.display_order : 0}
-                      onChange={(e) => setEditingItem({ ...editingItem, display_order: parseInt(e.target.value, 10) || 0 })}
-                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
-                    <textarea
-                      rows="3"
-                      value={editingItem.description || ""}
-                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                      className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="flex items-center space-x-6 pt-2">
-                    <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Subcategory Name *</label>
                       <input
-                        type="checkbox"
-                        checked={editingItem.is_visible !== false}
-                        onChange={(e) => setEditingItem({ ...editingItem, is_visible: e.target.checked })}
-                        className="rounded text-primary focus:ring-0"
+                        type="text"
+                        required
+                        value={editingItem.name || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
                       />
-                      <span>Make visible on website listings</span>
-                    </label>
-                  </div>
+                    </div>
 
-                  <div className="flex justify-end space-x-2 pt-2">
-                    <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
-                      Cancel
-                    </button>
-                    <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                      Save Category
-                    </button>
-                  </div>
-                </form>
-              </div>
-            ) : (
-              <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400">
-                <FolderTree size={36} className="mx-auto text-gray-300 mb-2" />
-                <span className="text-xs font-semibold">Select edit icon or create category to start editing parameters.</span>
-              </div>
-            )}
+                    <div className="flex items-center space-x-6 pt-2">
+                      <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editingItem.is_visible !== false}
+                          onChange={(e) => setEditingItem({ ...editingItem, is_visible: e.target.checked })}
+                          className="rounded text-primary focus:ring-0"
+                        />
+                        <span>Make visible on website listings</span>
+                      </label>
+                    </div>
 
+                    <div className="flex justify-end space-x-2 pt-2">
+                      <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
+                        Cancel
+                      </button>
+                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
+                        Save Subcategory
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <div className="bg-[#E6F4FE]/30 border border-dashed border-[#B8DFFE] p-8 rounded-xlarge text-center flex flex-col items-center justify-center text-slate-500 space-y-2 h-fit">
+                  <span className="font-bold text-xs">Configure Subcategories</span>
+                  <span className="text-[10px] text-slate-400 max-w-[200px]">Select a subcategory to modify details, or click Add Subcategory to begin.</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex justify-between items-center">
+              <h2 className="text-base font-bold text-primary">Product Categories</h2>
+              <button
+                onClick={() => handleEditCategory(null)}
+                className="flex items-center space-x-1.5 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-2 px-4 rounded-large transition-colors shadow"
+              >
+                <Plus size={16} />
+                <span>Add Category</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium">
+                <table className="w-full text-left border-collapse text-xs min-w-[450px]">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
+                      <th className="p-4">Category Name</th>
+                      <th className="p-4">Slug</th>
+                      <th className="p-4">Visibility</th>
+                      <th className="p-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 text-gray-600">
+                    {[...categories].sort((a, b) => {
+                      const orderA = Number(a.display_order) || 0;
+                      const orderB = Number(b.display_order) || 0;
+                      if (orderA !== orderB) return orderA - orderB;
+                      return a.name.localeCompare(b.name);
+                    }).map((c) => (
+                      <tr key={c.id}>
+                        <td className="p-4 font-bold text-primary">{c.name}</td>
+                        <td className="p-4"><code>{c.slug}</code></td>
+                        <td className="p-4">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                            c.is_visible !== false
+                              ? 'bg-green-50 text-green-700 border-green-200'
+                              : 'bg-red-50 text-red-700 border-red-200'
+                          }`}>
+                            {c.is_visible !== false ? 'Visible' : 'Hidden'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center space-x-3">
+                            <button onClick={() => handleEditCategory(c)} className="text-primary hover:text-accent">
+                              <Edit2 size={14} />
+                            </button>
+                            <button onClick={() => { if(confirm("Delete category?")) deleteCategory(c.id); }} className="text-red-500 hover:text-red-700">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {categories.length === 0 && (
+                      <tr>
+                        <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold italic">
+                          No categories created yet. Click Add Category.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {editingItem && itemType === "category" ? (
+                <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
+                  <form onSubmit={handleSaveCategory} className="space-y-4">
+                    <h3 className="font-bold text-sm text-primary border-b pb-2">
+                      {editingItem.id ? "Edit Category Details" : "Create Category"}
+                    </h3>
+                    
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Category Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={editingItem.name || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Display Sorting Position (lower values show first)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingItem.display_order !== undefined ? editingItem.display_order : 0}
+                        onChange={(e) => setEditingItem({ ...editingItem, display_order: parseInt(e.target.value, 10) || 0 })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
+                      <textarea
+                        rows="3"
+                        value={editingItem.description || ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                        className="w-full text-xs px-3 py-2 rounded border focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex items-center space-x-6 pt-2">
+                      <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editingItem.is_visible !== false}
+                          onChange={(e) => setEditingItem({ ...editingItem, is_visible: e.target.checked })}
+                          className="rounded text-primary focus:ring-0"
+                        />
+                        <span>Make visible on website listings</span>
+                      </label>
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-2">
+                      <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
+                        Cancel
+                      </button>
+                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
+                        Save Category
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <div className="bg-gray-50 border border-dashed rounded-xlarge p-8 text-center flex flex-col justify-center text-gray-400 h-fit">
+                  <span className="font-bold text-xs">Configure Categories</span>
+                  <span className="text-[10px] text-slate-400 max-w-[200px] mx-auto">Select a category to modify details, or click Add Category to begin.</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -1165,8 +1373,8 @@ export default function Dashboard() {
             <span>Product Inquiries Received (User List)</span>
           </h2>
 
-          <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-            <table className="w-full text-left border-collapse text-[11px] sm:text-xs">
+          <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium">
+            <table className="w-full text-left border-collapse text-[11px] sm:text-xs min-w-[700px] md:min-w-full">
               <thead>
                 <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
                   <th className="p-3">Name</th>
@@ -1262,8 +1470,8 @@ export default function Dashboard() {
             <span>Catalogue Downloads Captured (User List)</span>
           </h2>
 
-          <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-            <table className="w-full text-left border-collapse text-[11px] sm:text-xs">
+          <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium">
+            <table className="w-full text-left border-collapse text-[11px] sm:text-xs min-w-[800px] md:min-w-full">
               <thead>
                 <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
                   <th className="p-3">Name</th>
@@ -1505,8 +1713,8 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium">
-          <table className="w-full text-left border-collapse text-xs">
+        <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium">
+          <table className="w-full text-left border-collapse text-xs min-w-[500px] md:min-w-full">
             <thead>
               <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
                 <th className="p-4">Image</th>
@@ -1552,10 +1760,21 @@ export default function Dashboard() {
 
         {/* Modal for Add / Edit Blog Post */}
         {editingItem && itemType === "blog" && (
-          <div className="fixed inset-0 bg-primary/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xlarge max-w-2xl w-full border border-neutral-border max-h-[90vh] overflow-y-auto custom-scrollbar shadow-premium">
+          <div 
+            className="fixed inset-0 bg-primary/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget) setEditingItem(null); }}
+          >
+            <div className="bg-white rounded-xlarge max-w-2xl w-full border border-neutral-border shadow-premium relative my-auto">
+              <button 
+                type="button" 
+                onClick={() => setEditingItem(null)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                title="Close modal"
+              >
+                <X size={20} />
+              </button>
               <form onSubmit={handleSaveBlog} className="p-6 sm:p-8 space-y-4">
-                <h3 className="font-sans font-bold text-lg text-primary border-b pb-2">
+                <h3 className="font-sans font-bold text-lg text-primary border-b pb-2 pr-8">
                   {editingItem.id ? "Edit Blog Details" : "Write New Article"}
                 </h3>
                 
@@ -1671,7 +1890,7 @@ export default function Dashboard() {
   const renderCatalogues = () => {
     const handleEditCatalogue = (catg) => {
       setItemType("catalogue");
-      setEditingItem(catg || { name: "", category_id: "", pdf_url: "" });
+      setEditingItem(catg || { name: "", category_id: "", pdf_url: "", product_name: "" });
     };
 
     const handleSaveCatalogue = async (e) => {
@@ -1722,12 +1941,13 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white border border-neutral-border rounded-xlarge shadow-premium overflow-hidden h-fit">
-            <table className="w-full text-left border-collapse">
+          <div className="lg:col-span-2 bg-white border border-neutral-border rounded-xlarge shadow-premium overflow-x-auto custom-scrollbar h-fit">
+            <table className="w-full text-left border-collapse min-w-[550px] md:min-w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   <th className="p-4">Catalogue Name</th>
                   <th className="p-4">Product Category</th>
+                  <th className="p-4">Mapped Product</th>
                   <th className="p-4">File Link</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
@@ -1741,6 +1961,7 @@ export default function Dashboard() {
                       <tr key={catg.id} className="hover:bg-gray-50/50">
                         <td className="p-4 font-semibold text-primary">{catg.name}</td>
                         <td className="p-4 font-medium text-slate-500">{catName}</td>
+                        <td className="p-4 font-medium text-slate-500">{catg.product_name || "None"}</td>
                         <td className="p-4">
                           {catg.pdf_url ? (
                             <button
@@ -1777,7 +1998,7 @@ export default function Dashboard() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center text-gray-400 font-semibold">
+                    <td colSpan="5" className="p-8 text-center text-gray-400 font-semibold">
                       No catalogues uploaded yet.
                     </td>
                   </tr>
@@ -1801,9 +2022,31 @@ export default function Dashboard() {
                     onChange={(e) => setEditingItem({ ...editingItem, category_id: e.target.value })}
                     className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-emerald-600 bg-white"
                   >
-                    <option value="">Select Category...</option>
-                    {categories && categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    <option value="">Select Category/Subcategory...</option>
+                    {categories && categories.map(cat => {
+                      const subList = subcategories && subcategories.filter(s => s.category_id === cat.id);
+                      return (
+                        <React.Fragment key={cat.id}>
+                          <option value={cat.id}>{cat.name} (Category)</option>
+                          {subList && subList.map(sub => (
+                            <option key={sub.id} value={sub.id}>&nbsp;&nbsp;&nbsp;&nbsp;↳ {sub.name} (Subcategory)</option>
+                          ))}
+                        </React.Fragment>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Mapped Product (Optional)</label>
+                  <select
+                    value={editingItem.product_name || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, product_name: e.target.value })}
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-emerald-600 bg-white"
+                  >
+                    <option value="">No Product (Category level catalog)</option>
+                    {products.map(p => (
+                      <option key={p.id} value={p.name}>{p.name}</option>
                     ))}
                   </select>
                 </div>
@@ -1821,14 +2064,20 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Select PDF File *</label>
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    required={!editingItem.id}
-                    onChange={handleFileChange}
-                    className="w-full text-xs"
-                  />
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Select PDF File *</label>
+                  <label className="flex items-center justify-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-2 border-emerald-300 border-dashed rounded-large py-3 px-4 cursor-pointer transition-all active:scale-[0.98]">
+                    <Upload size={16} className="text-emerald-600" />
+                    <span className="text-xs font-bold text-emerald-800">
+                      {editingItem.pdf_url ? "Change Attached PDF File" : "Choose PDF Catalogue File"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      required={!editingItem.id}
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
                   <span className="text-[9px] text-gray-400 block mt-1">Accepts PDF files up to 8MB.</span>
                 </div>
 
@@ -1898,8 +2147,8 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          <div className="bg-white border border-neutral-border rounded-xlarge overflow-hidden shadow-premium lg:col-span-2">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium lg:col-span-2">
+            <table className="w-full text-left border-collapse text-xs min-w-[500px] md:min-w-full">
               <thead>
                 <tr className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
                   <th className="p-4">Certificate Badge</th>
@@ -2218,10 +2467,12 @@ CREATE TABLE catalogues (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   category_id TEXT,
+  product_name TEXT,
   pdf_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ALTER TABLE catalogues ADD COLUMN product_name TEXT;
 -- ALTER TABLE catalogues ADD COLUMN category_id TEXT;
 
 -- 11. Disable Row Level Security (RLS) on all tables to allow client-side inserts/upserts using anon key
@@ -2399,7 +2650,7 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key`}
               </p>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center flex-wrap gap-3">
               <button
                 onClick={handleSeed}
                 disabled={isSeeding}
@@ -2413,6 +2664,19 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key`}
                 ) : (
                   <span>Seed Supabase Database</span>
                 )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Reset local storage cache? This will clear temporary local overrides but keep your Supabase data safe.")) {
+                    localStorage.clear();
+                    window.location.reload();
+                  }
+                }}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs py-2.5 px-5 rounded-large shadow transition-all flex items-center space-x-2 cursor-pointer"
+              >
+                <span>Reset Local Cache</span>
               </button>
               
               <button
@@ -2524,7 +2788,6 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
       <div className="flex md:hidden items-center justify-between p-4 bg-[#E6F4FE] text-primary border-b border-blue-100 flex-shrink-0 w-full z-30 shadow-sm">
         <div className="relative">
           <img src={logoImg} alt="VictaSure Logo" className="h-8 w-auto object-contain max-w-[130px]" />
-          <span className="absolute -top-1 -right-3 text-[6px] font-extrabold text-[#8CE48C] select-none font-sans">TM</span>
         </div>
         <button
           onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
@@ -2558,7 +2821,6 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
           <div className="flex flex-col items-center text-center space-y-2 border-b border-blue-100 pb-4">
             <div className="relative inline-block">
               <img src={logoImg} alt="VictaSure Logo" className="h-9 w-auto object-contain max-w-[150px]" />
-              <span className="absolute -top-1 -right-3 text-[7px] font-extrabold text-[#8CE48C] select-none font-sans">TM</span>
             </div>
             <span className="text-[#0D2C54] font-bold text-[10px] uppercase tracking-widest mt-1">Admin Portal</span>
           </div>
@@ -2736,7 +2998,10 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
         )}
 
         {previewPdfUrl && (
-          <div className="fixed inset-0 bg-primary/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+          <div 
+            className="fixed inset-0 bg-primary/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4"
+            onClick={(e) => { if (e.target === e.currentTarget) setPreviewPdfUrl(null); }}
+          >
             <div className="bg-white rounded-xlarge border border-neutral-border shadow-premium w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden animate-fade-in">
               <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50 flex-shrink-0">
                 <span className="font-bold text-sm text-primary">PDF Catalogue Preview</span>

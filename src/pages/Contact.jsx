@@ -422,7 +422,7 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Requirement Description *</label>
                 <textarea
                   rows="4"
-                  placeholder="Detail your requirements, volume (annual or target container load count), preferred packaging and shipping ports..."
+                  placeholder="Please enter the requirements details such as volume, tentative frequency per month, preferred packaging and shipping ports."
                   className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white resize-y ${
                     errors.message ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
                   } focus:outline-none focus:ring-2`}

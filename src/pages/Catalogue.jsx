@@ -13,10 +13,10 @@ export default function Catalogue({ onOpenDownloadModal }) {
   // Filter products by selected category
   const filteredProducts = products.filter(p => {
     if (p.status !== 'published') return false;
-    const cat = categories.find(c => c.id === p.category_id);
+    const cat = categories.find(c => c.id === p.category_id || c.name === p.category_id);
     if (cat && cat.is_visible === false) return false;
     if (selectedCat === "all") return true;
-    return p.category_id === selectedCat;
+    return p.category_id === selectedCat || (cat && cat.id === selectedCat);
   })
   .sort((a, b) => {
     const orderA = Number(a.display_order) || 0;
@@ -37,7 +37,7 @@ export default function Catalogue({ onOpenDownloadModal }) {
 
     const groups = [];
     sortedCategories.forEach(cat => {
-      const catProducts = productList.filter(p => p.category_id === cat.id);
+      const catProducts = productList.filter(p => p.category_id === cat.id || p.category_id === cat.name);
       if (catProducts.length > 0) {
         groups.push({
           categoryName: cat.name,
@@ -46,7 +46,7 @@ export default function Catalogue({ onOpenDownloadModal }) {
       }
     });
 
-    const orphanedProducts = productList.filter(p => !categories.some(cat => cat.id === p.category_id && cat.is_visible !== false));
+    const orphanedProducts = productList.filter(p => !categories.some(cat => (cat.id === p.category_id || cat.name === p.category_id) && cat.is_visible !== false));
     if (orphanedProducts.length > 0) {
       groups.push({
         categoryName: "Other Products",

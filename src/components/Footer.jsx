@@ -88,7 +88,6 @@ export default function Footer() {
           <div className="flex items-center">
             <div className="relative">
               <img src={settings?.logo_url || logoImg} alt={companyName} className="h-8 w-auto object-contain max-w-[150px]" />
-              <span className="absolute -top-1 -right-3 text-[6px] font-extrabold text-primary select-none font-sans">TM</span>
             </div>
           </div>
           <p className="text-xs leading-relaxed text-gray-500 max-w-xs">
@@ -191,7 +190,7 @@ export default function Footer() {
 
           <div className="flex items-center space-x-2 text-xs">
             <Phone size={14} className="text-gray-400 flex-shrink-0" />
-            <span className="text-gray-500">{phone}</span>
+            <a href={`tel:${phone.replace(/\s+/g, "")}`} className="text-gray-500 hover:text-primary transition-colors">{phone}</a>
           </div>
         </div>
 

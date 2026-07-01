@@ -77,12 +77,16 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
       {/* Top Bar for contact details and Google Translate */}
-      <div className="bg-primary text-white text-[10px] sm:text-[11px] py-2 px-4 sm:px-6 lg:px-8 border-b border-primary-light">
+      <div className="relative z-50 bg-primary text-white text-[10px] sm:text-[11px] py-2 px-4 sm:px-6 lg:px-8 border-b border-primary-light">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3 text-gray-300">
-            <span>{settings?.contact_email || "info@victasure.com"}</span>
+          <div className="flex items-center space-x-3 text-gray-300 relative z-[60] pointer-events-auto">
+            <a href={`mailto:${settings?.contact_email || "info@victasure.com"}`} className="hover:text-white transition-colors relative z-[60] pointer-events-auto cursor-pointer">
+              {settings?.contact_email || "info@victasure.com"}
+            </a>
             <span className="hidden sm:inline">|</span>
-            <span className="hidden sm:inline">{settings?.contact_phone || "+91 83909 00120"}</span>
+            <a href={`tel:${(settings?.contact_phone || "+91 83909 00120").replace(/\s+/g, "")}`} className="hidden sm:inline hover:text-white transition-colors relative z-[60] pointer-events-auto cursor-pointer">
+              {settings?.contact_phone || "+91 83909 00120"}
+            </a>
           </div>
           <div className="flex items-center space-x-3 ml-auto">
             <div className="flex items-center space-x-1.5">
@@ -118,7 +122,6 @@ export default function Navbar() {
             <Link to="/" className="flex items-center group">
               <div className="relative">
                 <img src={settings?.logo_url || logoImg} alt={companyName} className="h-10 w-auto object-contain max-w-[180px]" />
-                <span className="absolute -top-1 -right-3 text-[7px] font-extrabold text-primary select-none font-sans">TM</span>
               </div>
             </Link>
           </div>

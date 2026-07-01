@@ -33,7 +33,13 @@ initializeLocalStorage();
 
 // Local Storage Helper CRUDs
 const getLocal = (key) => JSON.parse(localStorage.getItem(key));
-const setLocal = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+const setLocal = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {
+    console.warn(`localStorage write failed for key "${key}":`, e);
+  }
+};
 
 // Unified DB Service
 export const dbService = {
@@ -56,12 +62,40 @@ export const dbService = {
       category.id = 'cat-' + Math.random().toString(36).substr(2, 9);
     }
     if (isSupabaseConfigured()) {
+      const trySave = async (payload, strippedKeys = {}) => {
+        try {
+          const { data, error } = await supabase.from('categories').upsert(payload).select().single();
+          if (error) throw error;
+          return { ...data, ...strippedKeys };
+        } catch (err) {
+          const errMsg = String(err.message || err);
+          const match = errMsg.match(/column "(.+?)" of relation/i) || 
+                        errMsg.match(/Could not find the '(.+?)' column/i) ||
+                        errMsg.match(/column "(.+?)" does not exist/i) ||
+                        errMsg.match(/column (.+?) does not exist/i);
+          if (match && match[1]) {
+            const missingColumn = match[1].replace(/["']/g, '');
+            console.warn(`Column '${missingColumn}' missing in Supabase categories table. Retrying save without it...`);
+            const { [missingColumn]: value, ...remainingPayload } = payload;
+            return await trySave(remainingPayload, { ...strippedKeys, [missingColumn]: value });
+          }
+          throw err;
+        }
+      };
       try {
-        const { data, error } = await supabase.from('categories').upsert(category).select().single();
-        if (error) throw error;
-        return data;
+        const saved = await trySave(category);
+        const categories = getLocal('vs_categories') || [];
+        const idx = categories.findIndex(c => c.id === saved.id);
+        if (idx !== -1) {
+          categories[idx] = saved;
+        } else {
+          categories.push(saved);
+        }
+        setLocal('vs_categories', categories);
+        return saved;
       } catch (err) {
-        console.error("Supabase category save failed, using localStorage:", err);
+        console.error("Supabase category save failed:", err);
+        throw err;
       }
     }
     const categories = getLocal('vs_categories') || [];
@@ -116,12 +150,40 @@ export const dbService = {
       subcategory.id = 'sub-' + Math.random().toString(36).substr(2, 9);
     }
     if (isSupabaseConfigured()) {
+      const trySave = async (payload, strippedKeys = {}) => {
+        try {
+          const { data, error } = await supabase.from('subcategories').upsert(payload).select().single();
+          if (error) throw error;
+          return { ...data, ...strippedKeys };
+        } catch (err) {
+          const errMsg = String(err.message || err);
+          const match = errMsg.match(/column "(.+?)" of relation/i) || 
+                        errMsg.match(/Could not find the '(.+?)' column/i) ||
+                        errMsg.match(/column "(.+?)" does not exist/i) ||
+                        errMsg.match(/column (.+?) does not exist/i);
+          if (match && match[1]) {
+            const missingColumn = match[1].replace(/["']/g, '');
+            console.warn(`Column '${missingColumn}' missing in Supabase subcategories table. Retrying save without it...`);
+            const { [missingColumn]: value, ...remainingPayload } = payload;
+            return await trySave(remainingPayload, { ...strippedKeys, [missingColumn]: value });
+          }
+          throw err;
+        }
+      };
       try {
-        const { data, error } = await supabase.from('subcategories').upsert(subcategory).select().single();
-        if (error) throw error;
-        return data;
+        const saved = await trySave(subcategory);
+        const subcategories = getLocal('vs_subcategories') || [];
+        const idx = subcategories.findIndex(s => s.id === saved.id);
+        if (idx !== -1) {
+          subcategories[idx] = saved;
+        } else {
+          subcategories.push(saved);
+        }
+        setLocal('vs_subcategories', subcategories);
+        return saved;
       } catch (err) {
-        console.error("Supabase subcategory save failed, using localStorage:", err);
+        console.error("Supabase subcategory save failed:", err);
+        throw err;
       }
     }
     const subcategories = getLocal('vs_subcategories') || [];
@@ -200,8 +262,8 @@ export const dbService = {
             const { [missingColumn]: value, ...remainingPayload } = payload;
             return trySave(remainingPayload);
           }
-          console.error("Supabase product save failed completely, using local storage:", err);
-          return product;
+          console.error("Supabase product save failed completely:", err);
+          throw err;
         }
       };
       return trySave(product);
@@ -336,12 +398,41 @@ export const dbService = {
       catalogue.created_at = new Date().toISOString();
     }
     if (isSupabaseConfigured()) {
+      const trySave = async (payload, strippedKeys = {}) => {
+        try {
+          const { data, error } = await supabase.from('catalogues').upsert(payload).select().single();
+          if (error) throw error;
+          return { ...data, ...strippedKeys };
+        } catch (err) {
+          const errMsg = String(err.message || err);
+          const match = errMsg.match(/column "(.+?)" of relation/i) || 
+                        errMsg.match(/Could not find the '(.+?)' column/i) ||
+                        errMsg.match(/column "(.+?)" does not exist/i) ||
+                        errMsg.match(/column (.+?) does not exist/i);
+          if (match && match[1]) {
+            const missingColumn = match[1].replace(/["']/g, '');
+            console.warn(`Column '${missingColumn}' missing in Supabase catalogues table. Retrying save without it...`);
+            const { [missingColumn]: value, ...remainingPayload } = payload;
+            return await trySave(remainingPayload, { ...strippedKeys, [missingColumn]: value });
+          }
+          throw err;
+        }
+      };
+
       try {
-        const { data, error } = await supabase.from('catalogues').upsert(catalogue).select().single();
-        if (error) throw error;
-        return data;
+        const saved = await trySave(catalogue);
+        // Sync to local
+        const list = getLocal('vs_catalogues') || [];
+        const idx = list.findIndex(c => c.id === saved.id);
+        if (idx !== -1) {
+          list[idx] = saved;
+        } else {
+          list.unshift(saved);
+        }
+        setLocal('vs_catalogues', list);
+        return saved;
       } catch (err) {
-        console.error("Supabase catalogue save failed, using localStorage:", err);
+        console.error("Supabase catalogue save failed:", err);
         throw err;
       }
     }
@@ -546,7 +637,11 @@ export const dbService = {
 
     const current = getLocal('vs_settings') || {};
     const updated = { ...current, ...settings, updated_at: new Date().toISOString() };
-    setLocal('vs_settings', updated);
+    try {
+      setLocal('vs_settings', updated);
+    } catch (localErr) {
+      console.warn("localStorage quota exceeded while saving settings, continuing with Supabase:", localErr);
+    }
 
     if (!isSupabaseConfigured()) {
       return updated;

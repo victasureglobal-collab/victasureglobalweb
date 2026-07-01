@@ -10,6 +10,12 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const isMatch = (cat, prodCatId) => {
+    if (!cat || !prodCatId) return false;
+    const clean = (str) => String(str).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    return clean(cat.id) === clean(prodCatId) || clean(cat.name) === clean(prodCatId);
+  };
+
   const [modalQuantity, setModalQuantity] = useState(1);
   const [modalAdded, setModalAdded] = useState(false);
 
@@ -48,7 +54,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
   const filteredProducts = products
     .filter(p => p.status === 'published')
     .filter(p => {
-      const cat = categories.find(c => c.id === p.category_id);
+      const cat = categories.find(c => isMatch(c, p.category_id));
       if (cat && cat.is_visible === false) return false;
 
       const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -92,7 +98,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
 
     const groups = [];
     sortedCategories.forEach(cat => {
-      const catProducts = productList.filter(p => p.category_id === cat.id);
+      const catProducts = productList.filter(p => isMatch(cat, p.category_id));
       if (catProducts.length > 0) {
         groups.push({
           categoryName: cat.name,
@@ -101,7 +107,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
       }
     });
 
-    const orphanedProducts = productList.filter(p => !categories.some(cat => cat.id === p.category_id && cat.is_visible !== false));
+    const orphanedProducts = productList.filter(p => !categories.some(cat => isMatch(cat, p.category_id) && cat.is_visible !== false));
     if (orphanedProducts.length > 0) {
       groups.push({
         categoryName: "Other Products",
@@ -166,7 +172,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
   // Related products logic for modal
   const getRelatedProducts = (activeProd) => {
     return products
-      .filter(p => p.category_id === activeProd.category_id && p.id !== activeProd.id && p.status === 'published')
+      .filter(p => isMatch({ id: activeProd.category_id, name: activeProd.category_name }, p.category_id) && p.id !== activeProd.id && p.status === 'published')
       .slice(0, 4);
   };
 

@@ -5,17 +5,20 @@ import { useApp } from '../context/AppContext';
 
 export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
   const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm();
-  const { submitDownload, products, settings, categories, catalogues } = useApp();
+  const { submitDownload, products, settings, categories, catalogues, subcategories } = useApp();
 
   const selectedCategoryId = watch("category_interest");
   
-  // Get all catalogues and products matching the selected category ID
+  const selectedSub = subcategories && subcategories.find(s => s.id === selectedCategoryId);
+  const parentCatId = selectedSub ? selectedSub.category_id : null;
+
+  // Get all catalogues and products matching the selected category ID or subcategory ID
   const filteredCatalogues = catalogues && selectedCategoryId 
-    ? catalogues.filter(c => c.category_id === selectedCategoryId)
+    ? catalogues.filter(c => c.category_id === selectedCategoryId || (parentCatId && c.category_id === parentCatId))
     : [];
 
   const filteredProducts = products && selectedCategoryId
-    ? products.filter(p => p.category_id === selectedCategoryId)
+    ? products.filter(p => p.category_id === selectedCategoryId || p.subcategory_id === selectedCategoryId)
     : [];
 
   // Merge and deduplicate by name
@@ -30,6 +33,11 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
       catalogueOptions.push({ id: p.id, name: p.name });
     }
   });
+
+  // Fallback: If empty, add a default general option so the form is not blocked
+  if (catalogueOptions.length === 0) {
+    catalogueOptions.push({ id: "default-cat", name: "VictaSure Global General Catalogue" });
+  }
 
   React.useEffect(() => {
     if (isOpen && prefilledProduct) {
@@ -217,7 +225,8 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
   const onSubmit = async (data) => {
     try {
       const matchedCat = categories && categories.find(c => c.id === data.category_interest);
-      const catName = matchedCat ? matchedCat.name : "Unknown Category";
+      const matchedSub = subcategories && subcategories.find(s => s.id === data.category_interest);
+      const catName = matchedCat ? matchedCat.name : (matchedSub ? matchedSub.name : "Unknown");
       
       const interest = data.product_interest || "";
       const categoryId = data.category_interest;
@@ -232,12 +241,11 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
             ? selectedCatg.pdf_url 
             : (categoryCatg ? categoryCatg.pdf_url : null));
 
-      const qtyUnit = interest.includes("Cutlery") ? "Packs" : "Pieces";
       const submissionData = {
         ...data,
         category_interest: catName,
         quantity: Number(data.quantity),
-        qty_unit: qtyUnit
+        qty_unit: data.qty_unit || (interest.includes("Cutlery") ? "Packs" : "Pieces")
       };
       await submitDownload(submissionData);
 
@@ -382,9 +390,17 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
                 {...register("category_interest", { required: "Please select a category" })}
               >
                 <option value="">Select category...</option>
-                {categories && categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
+                {categories && categories.map(cat => {
+                  const subList = subcategories && subcategories.filter(s => s.category_id === cat.id);
+                  return (
+                    <React.Fragment key={cat.id}>
+                      <option value={cat.id}>{cat.name}</option>
+                      {subList && subList.map(sub => (
+                        <option key={sub.id} value={sub.id}>&nbsp;&nbsp;&nbsp;&nbsp;↳ {sub.name}</option>
+                      ))}
+                    </React.Fragment>
+                  );
+                })}
               </select>
               {errors.category_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.category_interest.message}</span>}
             </div>
@@ -409,25 +425,49 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
               {errors.product_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.product_interest.message}</span>}
             </div>
 
-            {/* Quantity */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Quantity (in {watch("product_interest") ? (watch("product_interest").includes("Cutlery") ? "Packs" : "Pieces") : "Pieces"}) *
-              </label>
-              <input
-                type="number"
-                min="1"
-                placeholder="1000"
-                className={`w-full text-sm px-4 py-2.5 rounded-large border ${
-                  errors.quantity ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
-                } focus:outline-none focus:ring-2 focus:border-primary`}
-                {...register("quantity", { 
-                  required: "Quantity is required", 
-                  min: { value: 1, message: "Quantity must be greater than 0" },
-                  valueAsNumber: true
-                })}
-              />
-              {errors.quantity && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.quantity.message}</span>}
+            {/* Quantity and Quantity Unit Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Quantity */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Quantity *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="1000"
+                  className={`w-full text-sm px-4 py-2.5 rounded-large border ${
+                    errors.quantity ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                  } focus:outline-none focus:ring-2 focus:border-primary`}
+                  {...register("quantity", { 
+                    required: "Quantity is required", 
+                    min: { value: 1, message: "Quantity must be greater than 0" },
+                    valueAsNumber: true
+                  })}
+                />
+                {errors.quantity && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.quantity.message}</span>}
+              </div>
+
+              {/* Quantity Unit */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Quantity Unit *
+                </label>
+                <select
+                  className={`w-full text-sm px-4 py-2.5 rounded-large bg-white border ${
+                    errors.qty_unit ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-primary/20'
+                  } focus:outline-none focus:ring-2 focus:border-primary`}
+                  {...register("qty_unit", { required: "Unit is required" })}
+                  defaultValue="Pieces"
+                >
+                  <option value="Pieces">Pieces</option>
+                  <option value="KGs">KGs</option>
+                  <option value="MT">MT</option>
+                  <option value="Cartons">Cartons</option>
+                  <option value="Packs">Packs</option>
+                </select>
+                {errors.qty_unit && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.qty_unit.message}</span>}
+              </div>
             </div>
 
             {/* Submit Button */}
