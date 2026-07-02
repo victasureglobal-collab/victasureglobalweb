@@ -72,10 +72,10 @@ export default function ProductCard({ product, onViewDetails, onRequestQuote }) 
                 <span className="text-[10px] text-gray-400 font-semibold uppercase mt-0.5">{product.product_code}</span>
               )}
             </div>
-            {product.show_price !== false ? (
+            {product.show_price !== false && product.price_inr ? (
               <div className="text-right flex-shrink-0 flex flex-col items-end leading-none mt-0.5">
-                <span className="text-xs font-extrabold text-accent">₹{product.price_inr || 400}</span>
-                <span className="text-[9px] font-bold text-gray-400 mt-1">${product.price_usd || 5}</span>
+                <span className="text-xs font-extrabold text-accent">₹{product.price_inr}</span>
+                {product.price_usd && <span className="text-[9px] font-bold text-gray-400 mt-1">${product.price_usd}</span>}
               </div>
             ) : (
               <div className="text-right flex-shrink-0 flex flex-col items-end mt-0.5">
@@ -112,7 +112,7 @@ export default function ProductCard({ product, onViewDetails, onRequestQuote }) 
               className="w-full flex items-center justify-center space-x-1.5 bg-primary hover:bg-primary-light text-white font-semibold text-xs py-2 px-3 rounded-large transition-all"
             >
               <Send size={14} />
-              <span>Request Quote</span>
+              <span>Submit Quotation Enquiry</span>
             </button>
             {settings?.enable_cart && (
               <button

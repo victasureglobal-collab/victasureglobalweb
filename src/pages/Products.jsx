@@ -454,10 +454,10 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                           <span className="text-xs text-gray-400 font-bold uppercase mt-1">Product Code: {selectedProduct.product_code}</span>
                         )}
                       </div>
-                      {selectedProduct.show_price !== false ? (
+                      {selectedProduct.show_price !== false && selectedProduct.price_inr ? (
                         <div className="text-right">
-                          <span className="text-lg font-bold text-accent block font-sans">₹{selectedProduct.price_inr || 400}</span>
-                          <span className="text-xs font-semibold text-gray-400 block font-sans">${selectedProduct.price_usd || 5} USD</span>
+                          <span className="text-lg font-bold text-accent block font-sans">₹{selectedProduct.price_inr}</span>
+                          {selectedProduct.price_usd && <span className="text-xs font-semibold text-gray-400 block font-sans">${selectedProduct.price_usd} USD</span>}
                         </div>
                       ) : (
                         <div className="text-right">
@@ -535,7 +535,7 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
                       className="flex-grow flex items-center justify-center space-x-2 bg-primary hover:bg-primary-light text-white font-bold text-xs py-3 px-6 rounded-large shadow-md transition-colors"
                     >
                       <Send size={14} />
-                      <span>Request FOB Quotation</span>
+                      <span>Request Quotation</span>
                     </button>
 
                     <button

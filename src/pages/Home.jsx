@@ -427,10 +427,10 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
                             <span className="text-[10px] text-gray-400 font-semibold uppercase mt-0.5">{product.product_code}</span>
                           )}
                         </div>
-                        {product.show_price !== false ? (
+                        {product.show_price !== false && product.price_inr ? (
                           <div className="text-right flex-shrink-0 flex flex-col items-end leading-none mt-0.5">
-                            <span className="text-xs font-extrabold text-accent font-sans">₹{product.price_inr || 400}</span>
-                            <span className="text-[9px] font-bold text-gray-400 mt-1 font-sans">${product.price_usd || 5}</span>
+                            <span className="text-xs font-extrabold text-accent font-sans">₹{product.price_inr}</span>
+                            {product.price_usd && <span className="text-[9px] font-bold text-gray-400 mt-1 font-sans">${product.price_usd}</span>}
                           </div>
                         ) : (
                           <div className="text-right flex-shrink-0 flex flex-col items-end mt-0.5">
@@ -452,7 +452,7 @@ export default function Home({ onOpenDownloadModal, setSelectedProduct }) {
                         }}
                         className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-[10px] py-2 px-3 rounded-large transition-colors text-center block"
                       >
-                        Enquire / Request Quote
+                        Enquire / Submit Quotation Enquiry
                       </button>
                       {settings?.enable_cart && (
                         <button

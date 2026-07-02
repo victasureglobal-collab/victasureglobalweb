@@ -30,6 +30,7 @@ export default function Dashboard() {
 
   // Modal / Form States
   const [editingItem, setEditingItem] = useState(null); // holds product/cat/blog/cert being added or edited
+  const [isSaving, setIsSaving] = useState(false);
   const [itemType, setItemType] = useState(""); // 'product' | 'category' | 'blog' | 'certificate'
   const [successToast, setSuccessToast] = useState("");
   const [previewPdfUrl, setPreviewPdfUrl] = useState(null);
@@ -489,6 +490,8 @@ export default function Dashboard() {
 
     const handleSaveProduct = async (e) => {
       e.preventDefault();
+      if (isSaving) return;
+      setIsSaving(true);
       try {
         // Ensure country availability is array if user edited as text
         if (typeof editingItem.country_availability === "string") {
@@ -509,6 +512,8 @@ export default function Dashboard() {
         triggerToast("Product details saved successfully.");
       } catch (err) {
         alert("Failed to save product in Supabase: " + (err.message || err));
+      } finally {
+        setIsSaving(false);
       }
     };
 
@@ -870,6 +875,7 @@ export default function Dashboard() {
                   )}
                 </div>
 
+                {/* 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Price (INR - ₹)</label>
@@ -936,6 +942,7 @@ export default function Dashboard() {
                 <div className="text-[10px] text-gray-400 font-semibold px-1">
                   Live Rate Indicator: 1 USD = {usdRate.toFixed(2)} INR
                 </div>
+                */}
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Country Availability (Comma separated list)</label>
@@ -1002,9 +1009,10 @@ export default function Dashboard() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-secondary text-white text-xs font-bold rounded hover:bg-secondary-light"
+                    disabled={isSaving}
+                    className="px-4 py-2 bg-secondary text-white text-xs font-bold rounded hover:bg-secondary-light disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
-                    Save Product
+                    {isSaving ? "Saving..." : "Save Product"}
                   </button>
                 </div>
               </form>
@@ -4686,12 +4694,28 @@ function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = fal
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
+        const MAX_WIDTH = 1000;
+        const MAX_HEIGHT = 1000;
+        let width = img.naturalWidth;
+        let height = img.naturalHeight;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round(height * (MAX_WIDTH / width));
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round(width * (MAX_HEIGHT / height));
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        // Export to WebP format at 1.0 (lossless/max) quality
-        const webpData = canvas.toDataURL('image/webp', 1.0);
+        ctx.drawImage(img, 0, 0, width, height);
+        const webpData = canvas.toDataURL('image/webp', 0.7);
         resolve(webpData);
       };
       img.src = base64Str;

@@ -31,6 +31,99 @@ const initializeLocalStorage = () => {
 
 initializeLocalStorage();
 
+// Timeout helper to prevent Supabase queries from hanging if they time out or run slowly
+const withTimeout = (promise, ms = 3000) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("Database request timeout")), ms))
+  ]);
+};
+
+// Upload base64 strings to Supabase Storage bucket 'website_assets'
+const uploadFileToStorage = async (fileBase64, folder = 'general') => {
+  if (!isSupabaseConfigured()) return fileBase64;
+  try {
+    if (!fileBase64 || typeof fileBase64 !== 'string' || !fileBase64.startsWith('data:')) {
+      return fileBase64;
+    }
+    const match = fileBase64.match(/^data:(.+?);base64,(.+)$/);
+    if (!match) return fileBase64;
+    
+    const contentType = match[1];
+    const base64Data = match[2];
+    
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: contentType });
+
+    const extension = contentType.split('/')[1] || 'bin';
+    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${extension}`;
+
+    const { error } = await supabase.storage
+      .from('website_assets')
+      .upload(fileName, blob, {
+        contentType: contentType,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) throw error;
+
+    const { data: urlData } = supabase.storage
+      .from('website_assets')
+      .getPublicUrl(fileName);
+
+    return urlData.publicUrl;
+  } catch (err) {
+    console.error("Supabase storage upload failed, falling back to base64:", err);
+    return fileBase64;
+  }
+};
+
+// Process base64 strings in payload object recursively before database save
+const processBase64Fields = async (item, folder) => {
+  if (!item) return item;
+  const processed = { ...item };
+  
+  for (const key of Object.keys(processed)) {
+    const val = processed[key];
+    if (typeof val === 'string' && val.startsWith('data:')) {
+      processed[key] = await uploadFileToStorage(val, folder);
+    } else if (Array.isArray(val)) {
+      processed[key] = await Promise.all(
+        val.map(async (v) => {
+          if (typeof v === 'string' && v.startsWith('data:')) {
+            return await uploadFileToStorage(v, folder);
+          }
+          return v;
+        })
+      );
+    } else if (key === 'hero_banner_url' && typeof val === 'string' && val.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) {
+          const uploaded = await Promise.all(
+            parsed.map(async (v) => {
+              if (typeof v === 'string' && v.startsWith('data:')) {
+                return await uploadFileToStorage(v, 'heroes');
+              }
+              return v;
+            })
+          );
+          processed[key] = JSON.stringify(uploaded);
+        }
+      } catch (e) {
+        console.error("Failed to parse hero_banner_url array in upload filter", e);
+      }
+    }
+  }
+  return processed;
+};
+
 // Local Storage Helper CRUDs
 const getLocal = (key) => JSON.parse(localStorage.getItem(key));
 const setLocal = (key, data) => {
@@ -47,7 +140,7 @@ export const dbService = {
   async getCategories() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('categories').select('*').order('name');
+        const { data, error } = await withTimeout(supabase.from('categories').select('*').order('name'), 2000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -135,7 +228,7 @@ export const dbService = {
   async getSubcategories() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('subcategories').select('*').order('name');
+        const { data, error } = await withTimeout(supabase.from('subcategories').select('*').order('name'), 2000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -217,7 +310,7 @@ export const dbService = {
   async getProducts() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('products').select('*').order('created_at', { ascending: false }), 2000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -266,7 +359,19 @@ export const dbService = {
           throw err;
         }
       };
-      return trySave(product);
+      try {
+        const uploadedProduct = await processBase64Fields(product, 'products');
+        const productsList = getLocal('vs_products') || [];
+        const index = productsList.findIndex(p => p.id === product.id);
+        if (index !== -1) {
+          productsList[index] = { ...productsList[index], ...uploadedProduct };
+          setLocal('vs_products', productsList);
+        }
+        return await trySave(uploadedProduct);
+      } catch (err) {
+        console.error("Supabase product save failed:", err);
+        throw err;
+      }
     }
     return product;
   },
@@ -382,7 +487,7 @@ export const dbService = {
   async getCatalogues() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('catalogues').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('catalogues').select('*').order('created_at', { ascending: false }), 2000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -465,7 +570,7 @@ export const dbService = {
   async getCertificates() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('certificates').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('certificates').select('*').order('created_at', { ascending: false }), 2000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -520,7 +625,7 @@ export const dbService = {
   async getBlogs() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(supabase.from('blogs').select('*').order('created_at', { ascending: false }), 2000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -582,7 +687,7 @@ export const dbService = {
   async getFounderDetails() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('founder_details').select('*').single();
+        const { data, error } = await withTimeout(supabase.from('founder_details').select('*').single(), 2000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -615,7 +720,7 @@ export const dbService = {
     let supabaseSettings = {};
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('website_settings').select('*').single();
+        const { data, error } = await withTimeout(supabase.from('website_settings').select('*').single(), 3000);
         if (error) throw error;
         if (data) {
           Object.keys(data).forEach(key => {
@@ -669,7 +774,15 @@ export const dbService = {
       }
     };
 
-    return trySave(settings);
+    try {
+      const uploadedSettings = await processBase64Fields(settings, 'settings');
+      const latest = { ...current, ...uploadedSettings, updated_at: new Date().toISOString() };
+      setLocal('vs_settings', latest);
+      return await trySave(uploadedSettings);
+    } catch (err) {
+      console.error("Supabase settings save failed:", err);
+      return updated;
+    }
   },
 
   // --- ORDERS ---

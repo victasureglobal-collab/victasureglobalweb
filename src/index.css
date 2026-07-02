@@ -158,3 +158,20 @@ body {
   margin: 0 !important;
 }
 
+/* Progress loading bar animation */
+@keyframes loading-bar {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+.animate-loading-bar {
+  animation: loading-bar 1.5s infinite linear;
+}
+
+/* Button click visual feedback */
+button, a.button {
+  transition: transform 0.1s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+button:active:not(:disabled), a.button:active {
+  transform: scale(0.96) !important;
+}

@@ -5,18 +5,62 @@ import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('vs_website_settings');
+    } catch { return true; }
+  });
   const [isAdminLoading, setIsAdminLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_categories');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [subcategories, setSubcategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_subcategories');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [products, setProducts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_products');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [enquiries, setEnquiries] = useState([]);
   const [downloads, setDownloads] = useState([]);
-  const [catalogues, setCatalogues] = useState([]);
-  const [certificates, setCertificates] = useState([]);
-  const [blogs, setBlogs] = useState([]);
-  const [founder, setFounder] = useState(null);
-  const [settings, setSettings] = useState(null);
+  const [catalogues, setCatalogues] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_catalogues');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [certificates, setCertificates] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_certificates');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [blogs, setBlogs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_blogs');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [founder, setFounder] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_founder_details');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vs_website_settings');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
   const [orders, setOrders] = useState([]);
   const [trafficViews, setTrafficViews] = useState([]);
   const [trafficStats, setTrafficStats] = useState({ totalViews: 0, countryViews: {} });
@@ -44,7 +88,10 @@ export const AppProvider = ({ children }) => {
 
   const refreshData = async () => {
     try {
-      setLoading(true);
+      const hasCache = !!localStorage.getItem('vs_website_settings');
+      if (!hasCache) {
+        setLoading(true);
+      }
       const [cats, subcats, prods, certs, blgs, fndr, stgs, cals] = await Promise.all([
         dbService.getCategories(),
         dbService.getSubcategories(),

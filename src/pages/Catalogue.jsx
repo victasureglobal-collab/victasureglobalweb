@@ -77,13 +77,13 @@ export default function Catalogue({ onOpenDownloadModal }) {
                 <span>B2B Global Trade Catalog • 2026</span>
               </div>
               <h1 className="text-3xl sm:text-6xl font-extrabold tracking-tight leading-tight font-sans text-white">
-                Eco-Conscious <br/>
+                Explore Our <br/>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-accent-light to-white">
-                  Tableware Collection
+                  Eco-conscious Products
                 </span>
               </h1>
               <p className="text-xs sm:text-base text-gray-300 leading-relaxed font-sans">
-                Browse our premium, export-compliant, certified biodegradable dinnerware crafted from naturally fallen areca leaves. Zero chemicals, 100% bio-based.
+                Browse our premium, export-compliant and high quality value added products.
               </p>
             </div>
 
@@ -109,7 +109,7 @@ export default function Catalogue({ onOpenDownloadModal }) {
                 className="w-full flex items-center justify-center space-x-2 bg-white text-primary hover:bg-slate-50 font-bold text-xs py-3 rounded-large transition-all shadow cursor-pointer"
               >
                 <Download size={14} className="stroke-[2.5]" />
-                <span>Get B2B PDF Copy</span>
+                <span>Download Brochure</span>
               </button>
             </div>
 

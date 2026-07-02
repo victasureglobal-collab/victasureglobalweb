@@ -29,7 +29,7 @@ import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 
 export default function App() {
-  const { settings } = useApp();
+  const { settings, loading } = useApp();
   const location = useLocation();
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [prefilledProduct, setPrefilledProduct] = useState(null);
@@ -47,6 +47,12 @@ export default function App() {
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-lightBg min-w-[320px]">
+      {/* Global Loading Top Bar */}
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-[3px] bg-secondary/20 z-[9999] overflow-hidden">
+          <div className="h-full bg-secondary animate-loading-bar w-full"></div>
+        </div>
+      )}
       
       {/* Visitor Header Navigation */}
       {!isAdminRoute && (

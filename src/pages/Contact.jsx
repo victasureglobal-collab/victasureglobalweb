@@ -252,7 +252,7 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
           {/* Form Card */}
           <div className="bg-white border border-neutral-border/80 p-6 sm:p-10 rounded-xlarge shadow-premium lg:col-span-2 space-y-6">
             <div className="space-y-1.5 pb-4 border-b border-gray-100">
-              <h3 className="font-bold text-2xl text-primary tracking-tight font-sans">Submit Trade Request</h3>
+              <h3 className="font-bold text-2xl text-primary tracking-tight font-sans">Request Quotation</h3>
               <p className="text-[11px] text-gray-400 font-sans">Provide your packaging, volume, and target port specifications to receive quotations.</p>
             </div>
             
@@ -399,21 +399,43 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                     Quantity {qtyUnit ? `(in ${qtyUnit})` : ""} *
                   </label>
                   <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="e.g. 1000"
+                    type="text"
+                    placeholder="e.g. 1000 KGs, 10 MT, 5000 Pcs"
                     className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white ${
                       errors.quantity ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
                     } focus:outline-none focus:ring-2`}
                     {...register("quantity", { 
-                      required: "Quantity is required",
-                      min: { value: 1, message: "Quantity must be greater than 0" },
-                      pattern: { value: /^[0-9]+$/, message: "Quantity must be a positive integer" },
-                      valueAsNumber: true
+                      required: "Quantity description is required"
                     })}
                   />
                   {errors.quantity && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.quantity.message}</span>}
+                </div>
+              </div>
+
+              {/* Destination Port & Preferred INCOTERM */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">
+                    Destination Port
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Port of Rotterdam, Hamburg"
+                    className="w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white border-gray-200 focus:ring-accent/20 focus:border-accent focus:outline-none focus:ring-2"
+                    {...register("destination_port")}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">
+                    Preferred INCOTERM
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. FOB, CIF, EXW"
+                    className="w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white border-gray-200 focus:ring-accent/20 focus:border-accent focus:outline-none focus:ring-2"
+                    {...register("preferred_incoterm")}
+                  />
                 </div>
               </div>
 
@@ -422,7 +444,7 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 font-sans">Requirement Description *</label>
                 <textarea
                   rows="4"
-                  placeholder="Please enter the requirements details such as volume, tentative frequency per month, preferred packaging and shipping ports."
+                  placeholder="Describe your wholesale/B2B specifications here..."
                   className={`w-full text-xs px-4 py-3 rounded-large border bg-neutral-lightBg/20 font-sans font-medium transition-all duration-300 focus:bg-white resize-y ${
                     errors.message ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-accent/20 focus:border-accent'
                   } focus:outline-none focus:ring-2`}
@@ -431,6 +453,9 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                     maxLength: { value: 1000, message: "Max 1000 characters allowed" } 
                   })}
                 ></textarea>
+                <span className="text-[9px] text-gray-400 block mt-1 leading-normal">
+                  Please enter the requirements details such as volume, tentative frequency per month, preferred packaging and shipping ports.
+                </span>
                 {errors.message && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.message.message}</span>}
               </div>
 
@@ -440,7 +465,7 @@ export default function Contact({ enquiryProduct, setEnquiryProduct }) {
                 className="w-full flex items-center justify-center space-x-2 bg-secondary hover:bg-secondary-light text-white font-bold text-xs py-3.5 px-6 rounded-large shadow-premium hover:shadow-premium-hover transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer mt-6 font-sans"
               >
                 <Send size={13} className="text-accent" />
-                <span>Submit Trade Enquiry</span>
+                <span>Submit Quotation Request</span>
               </button>
 
             </form>
