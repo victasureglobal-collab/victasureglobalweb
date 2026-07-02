@@ -1028,11 +1028,13 @@ export default function Dashboard() {
   const renderCategories = () => {
     const handleEditCategory = (cat) => {
       setItemType("category");
-      setEditingItem(cat || { name: "", slug: "", description: "", is_visible: true });
+      setEditingItem(cat || { name: "", slug: "", description: "", is_visible: true, show_in_footer: false });
     };
 
     const handleSaveCategory = async (e) => {
       e.preventDefault();
+      if (isSaving) return;
+      setIsSaving(true);
       try {
         // Generate slug automatically from category name
         editingItem.slug = editingItem.name.toLowerCase()
@@ -1043,6 +1045,8 @@ export default function Dashboard() {
         triggerToast("Category configurations saved.");
       } catch (err) {
         alert("Failed to save category in Supabase: " + (err.message || err));
+      } finally {
+        setIsSaving(false);
       }
     };
 
@@ -1141,12 +1145,16 @@ export default function Dashboard() {
                 <div className="bg-white border border-neutral-border p-6 rounded-xlarge shadow-premium h-fit">
                   <form onSubmit={async (e) => {
                     e.preventDefault();
+                    if (isSaving) return;
+                    setIsSaving(true);
                     try {
                       await saveSubcategory(editingItem);
                       setEditingItem(null);
                       triggerToast("Subcategory configurations saved.");
                     } catch (err) {
                       alert("Failed to save subcategory in Supabase: " + (err.message || err));
+                    } finally {
+                      setIsSaving(false);
                     }
                   }} className="space-y-4">
                     <h3 className="font-bold text-sm text-primary border-b pb-2">
@@ -1195,8 +1203,8 @@ export default function Dashboard() {
                       <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
                         Cancel
                       </button>
-                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                        Save Subcategory
+                      <button type="submit" disabled={isSaving} className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded disabled:opacity-50">
+                        {isSaving ? "Saving..." : "Save Subcategory"}
                       </button>
                     </div>
                   </form>
@@ -1315,7 +1323,7 @@ export default function Dashboard() {
                       />
                     </div>
 
-                    <div className="flex items-center space-x-6 pt-2">
+                    <div className="flex flex-col space-y-2 pt-2">
                       <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
                         <input
                           type="checkbox"
@@ -1325,14 +1333,23 @@ export default function Dashboard() {
                         />
                         <span>Make visible on website listings</span>
                       </label>
+                      <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editingItem.show_in_footer === true}
+                          onChange={(e) => setEditingItem({ ...editingItem, show_in_footer: e.target.checked })}
+                          className="rounded text-primary focus:ring-0"
+                        />
+                        <span>Show in Footer (Quick Links)</span>
+                      </label>
                     </div>
 
                     <div className="flex justify-end space-x-2 pt-2">
                       <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
                         Cancel
                       </button>
-                      <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                        Save Category
+                      <button type="submit" disabled={isSaving} className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded disabled:opacity-50">
+                        {isSaving ? "Saving..." : "Save Category"}
                       </button>
                     </div>
                   </form>
@@ -1698,13 +1715,21 @@ export default function Dashboard() {
 
     const handleSaveBlog = async (e) => {
       e.preventDefault();
-      // Auto-generate slug from title if empty
-      if (!editingItem.slug) {
-        editingItem.slug = editingItem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      if (isSaving) return;
+      setIsSaving(true);
+      try {
+        // Auto-generate slug from title if empty
+        if (!editingItem.slug) {
+          editingItem.slug = editingItem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        }
+        await saveBlog(editingItem);
+        setEditingItem(null);
+        triggerToast("Trade article saved successfully.");
+      } catch (err) {
+        alert("Failed to save article in Supabase: " + (err.message || err));
+      } finally {
+        setIsSaving(false);
       }
-      await saveBlog(editingItem);
-      setEditingItem(null);
-      triggerToast("Trade article saved successfully.");
     };
 
     return (
@@ -1879,9 +1904,10 @@ export default function Dashboard() {
                     </button>
                     <button 
                       type="submit" 
-                      className="px-4 py-2 bg-secondary text-white text-xs font-bold rounded hover:bg-secondary-light"
+                      disabled={isSaving}
+                      className="px-4 py-2 bg-secondary text-white text-xs font-bold rounded hover:bg-secondary-light disabled:opacity-50"
                     >
-                      Save Article
+                      {isSaving ? "Saving..." : "Save Article"}
                     </button>
                   </div>
                 </div>
@@ -1903,12 +1929,16 @@ export default function Dashboard() {
 
     const handleSaveCatalogue = async (e) => {
       e.preventDefault();
+      if (isSaving) return;
+      setIsSaving(true);
       try {
         await saveCatalogue(editingItem);
         setEditingItem(null);
         triggerToast("Catalogue PDF saved successfully.");
       } catch (err) {
         alert("Failed to save to Supabase: " + (err.message || err));
+      } finally {
+        setIsSaving(false);
       }
     };
 
@@ -2105,9 +2135,10 @@ export default function Dashboard() {
                 <div className="flex space-x-2 pt-2">
                   <button
                     type="submit"
-                    className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded shadow transition-all cursor-pointer text-center"
+                    disabled={isSaving}
+                    className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded shadow transition-all cursor-pointer text-center disabled:opacity-50"
                   >
-                    Save Catalogue
+                    {isSaving ? "Saving..." : "Save Catalogue"}
                   </button>
                   <button
                     type="button"
@@ -2134,9 +2165,17 @@ export default function Dashboard() {
 
     const handleSaveCert = async (e) => {
       e.preventDefault();
-      await saveCertificate(editingItem);
-      setEditingItem(null);
-      triggerToast("Compliance certificate saved.");
+      if (isSaving) return;
+      setIsSaving(true);
+      try {
+        await saveCertificate(editingItem);
+        setEditingItem(null);
+        triggerToast("Compliance certificate saved.");
+      } catch (err) {
+        alert("Failed to save certificate in Supabase: " + (err.message || err));
+      } finally {
+        setIsSaving(false);
+      }
     };
 
     return (
@@ -2245,8 +2284,8 @@ export default function Dashboard() {
                   <button type="button" onClick={() => setEditingItem(null)} className="px-3 py-1.5 border text-xs font-bold rounded">
                     Cancel
                   </button>
-                  <button type="submit" className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded">
-                    Save Certificate
+                  <button type="submit" disabled={isSaving} className="px-3 py-1.5 bg-secondary text-white text-xs font-bold rounded disabled:opacity-50">
+                    {isSaving ? "Saving..." : "Save Certificate"}
                   </button>
                 </div>
               </form>

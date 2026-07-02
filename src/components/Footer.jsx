@@ -72,7 +72,7 @@ const SocialIconMap = {
 };
 
 export default function Footer() {
-  const { settings, loading } = useApp();
+  const { settings, loading, categories } = useApp();
 
   const companyName = settings?.company_name || "VictaSure Global";
   const email = settings?.contact_email || "info@victasure.com";
@@ -122,38 +122,20 @@ export default function Footer() {
         {/* Quick Links Column */}
         <div>
           <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-4">Quick Links</h4>
-          <ul className="space-y-2.5 text-xs">
-            <li>
-              <a href="/products?category=areca-leaf-plates" className="hover:text-primary hover:font-semibold transition-all">
-                Areca Plates
-              </a>
-            </li>
-            <li>
-              <a href="/products?category=areca-leaf-bowls" className="hover:text-primary hover:font-semibold transition-all">
-                Areca Bowls
-              </a>
-            </li>
-            <li>
-              <a href="/products?category=areca-leaf-trays" className="hover:text-primary hover:font-semibold transition-all">
-                Areca Trays
-              </a>
-            </li>
-            <li>
-              <a href="/products?category=areca-cutlery" className="hover:text-primary hover:font-semibold transition-all">
-                Areca Cutlery
-              </a>
-            </li>
-            <li>
-              <a href="/certificates" className="hover:text-primary hover:font-semibold transition-all">
-                Quality Assurance
-              </a>
-            </li>
-            {settings?.enable_cart && (
-              <li>
-                <Link to="/cart" className="hover:text-primary hover:font-semibold transition-all">
-                  Shopping Cart
-                </Link>
+          <ul className="space-y-2.5 text-xs text-gray-500">
+            {categories.filter(c => c.show_in_footer === true && c.is_visible !== false).slice(0, 5).map(c => (
+              <li key={c.id}>
+                <a href={`/catalogue?category=${c.id}`} className="hover:text-primary transition-all">
+                  {c.name}
+                </a>
               </li>
+            ))}
+            {categories.filter(c => c.is_visible !== false).length === 0 && (
+              <>
+                <li><a href="/catalogue" className="hover:text-primary transition-all">Areca Plates</a></li>
+                <li><a href="/catalogue" className="hover:text-primary transition-all">Areca Bowls</a></li>
+                <li><a href="/catalogue" className="hover:text-primary transition-all">Areca Trays</a></li>
+              </>
             )}
           </ul>
         </div>
@@ -162,15 +144,14 @@ export default function Footer() {
         <div>
           <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-4">Company</h4>
           <ul className="space-y-2.5 text-xs text-gray-500">
-            <li><a href="/about" className="hover:text-primary transition-all">About Us</a></li>
-            <li><span className="hover:text-primary transition-all cursor-pointer">Privacy Policy</span></li>
-            {settings?.show_terms_page !== false && (
-              <li><Link to="/terms" className="hover:text-primary transition-all">Terms & Conditions</Link></li>
+            <li><Link to="/" className="hover:text-primary transition-all">Home</Link></li>
+            <li><Link to="/about" className="hover:text-primary transition-all">About Us</Link></li>
+            <li><Link to="/products" className="hover:text-primary transition-all">Products</Link></li>
+            <li><Link to="/catalogue" className="hover:text-primary transition-all">Catalogue</Link></li>
+            {settings?.show_certificates_page !== false && (
+              <li><Link to="/certificates" className="hover:text-primary transition-all">Certificates</Link></li>
             )}
-            {settings?.enable_client_login && (
-              <li><Link to="/login" className="hover:text-primary transition-all">Client Login / Profile</Link></li>
-            )}
-            <li><span className="hover:text-primary transition-all cursor-pointer">Sustainability Report</span></li>
+            <li><Link to="/contact" className="hover:text-primary transition-all">Contact Us</Link></li>
           </ul>
         </div>
 
