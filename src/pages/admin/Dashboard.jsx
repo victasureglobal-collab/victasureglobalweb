@@ -4765,9 +4765,9 @@ function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = fal
     const file = e.target.files[0];
     if (!file) return;
 
-    const maxLimit = disableCrop ? 8 * 1024 * 1024 : 2 * 1024 * 1024;
+    const maxLimit = 8 * 1024 * 1024;
     if (file.size > maxLimit) {
-      alert(`File is too large! Please choose an image smaller than ${disableCrop ? '8MB' : '2MB'}.`);
+      alert("File is too large! Please choose an image smaller than 8MB.");
       return;
     }
 
@@ -4865,7 +4865,7 @@ function ImageUploader({ label, value, onChange, aspect = '4:3', isCompact = fal
               onClick={(e) => { e.target.value = null; }}
             />
           </label>
-          <span className="text-[9px] text-gray-400 block mt-0.5">PNG, JPG, JPEG up to 2MB</span>
+          <span className="text-[9px] text-gray-400 block mt-0.5">PNG, JPG, JPEG up to 8MB</span>
         </div>
       </div>
       {showCropper && (

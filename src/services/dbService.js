@@ -32,7 +32,7 @@ const initializeLocalStorage = () => {
 initializeLocalStorage();
 
 // Timeout helper to prevent Supabase queries from hanging if they time out or run slowly
-const withTimeout = (promise, ms = 3000) => {
+const withTimeout = (promise, ms = 8000) => {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error("Database request timeout")), ms))
@@ -140,7 +140,7 @@ export const dbService = {
   async getCategories() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('categories').select('*').order('name'), 2000);
+        const { data, error } = await withTimeout(supabase.from('categories').select('*').order('name'), 8000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -228,7 +228,7 @@ export const dbService = {
   async getSubcategories() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('subcategories').select('*').order('name'), 2000);
+        const { data, error } = await withTimeout(supabase.from('subcategories').select('*').order('name'), 8000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -310,7 +310,7 @@ export const dbService = {
   async getProducts() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('products').select('*').order('created_at', { ascending: false }), 2000);
+        const { data, error } = await withTimeout(supabase.from('products').select('*').order('created_at', { ascending: false }), 8000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -487,7 +487,7 @@ export const dbService = {
   async getCatalogues() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('catalogues').select('*').order('created_at', { ascending: false }), 2000);
+        const { data, error } = await withTimeout(supabase.from('catalogues').select('*').order('created_at', { ascending: false }), 8000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -570,7 +570,7 @@ export const dbService = {
   async getCertificates() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('certificates').select('*').order('created_at', { ascending: false }), 2000);
+        const { data, error } = await withTimeout(supabase.from('certificates').select('*').order('created_at', { ascending: false }), 8000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -625,7 +625,7 @@ export const dbService = {
   async getBlogs() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('blogs').select('*').order('created_at', { ascending: false }), 2000);
+        const { data, error } = await withTimeout(supabase.from('blogs').select('*').order('created_at', { ascending: false }), 8000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -687,7 +687,7 @@ export const dbService = {
   async getFounderDetails() {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('founder_details').select('*').single(), 2000);
+        const { data, error } = await withTimeout(supabase.from('founder_details').select('*').single(), 8000);
         if (error) throw error;
         return data;
       } catch (err) {
@@ -720,7 +720,7 @@ export const dbService = {
     let supabaseSettings = {};
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await withTimeout(supabase.from('website_settings').select('*').single(), 3000);
+        const { data, error } = await withTimeout(supabase.from('website_settings').select('*').single(), 8000);
         if (error) throw error;
         if (data) {
           Object.keys(data).forEach(key => {
