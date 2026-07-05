@@ -138,6 +138,15 @@
   visibility: hidden !important;
 }
 
+#google_translate_element {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 0px !important;
+  height: 0px !important;
+  overflow: hidden !important;
+}
+
 body {
   top: 0px !important;
   position: static !important;

@@ -99,8 +99,19 @@ export default function Navbar() {
               <select
                 onChange={(e) => {
                   const lang = e.target.value;
+                  // Set googtrans cookie on root path and current domain
                   document.cookie = `googtrans=/en/${lang}; path=/;`;
-                  window.location.reload();
+                  document.cookie = `googtrans=/en/${lang}; path=/; domain=${window.location.hostname};`;
+                  
+                  // Programmatically trigger native google translate select element
+                  const googleSelect = document.querySelector('.goog-te-combo');
+                  if (googleSelect) {
+                    googleSelect.value = lang;
+                    googleSelect.dispatchEvent(new Event('change'));
+                  } else {
+                    // Fallback to page reload if native script is cold-starting
+                    window.location.reload();
+                  }
                 }}
                 className="bg-primary border border-primary-light text-white text-[10px] sm:text-[11px] rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
                 defaultValue=""
