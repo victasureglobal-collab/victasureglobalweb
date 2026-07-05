@@ -76,7 +76,7 @@ export default function About() {
         
         {/* Overview */}
         <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
-          <span className="text-xs uppercase text-accent font-extrabold tracking-wider block">Corporate Overview</span>
+          <span className="text-xs uppercase text-secondary font-extrabold tracking-wider block">Corporate Overview</span>
           <p className="text-xs text-gray-500 leading-relaxed">
             {settings.about_overview}
           </p>
@@ -92,7 +92,7 @@ export default function About() {
 
         {/* Vision */}
         <div className="bg-white p-8 rounded-large border border-neutral-border shadow-premium space-y-3">
-          <span className="text-xs uppercase text-primary font-extrabold tracking-wider block">Our Vision</span>
+          <span className="text-xs uppercase text-secondary font-extrabold tracking-wider block">Our Vision</span>
           <p className="text-xs text-gray-500 leading-relaxed">
             {settings.about_vision}
           </p>

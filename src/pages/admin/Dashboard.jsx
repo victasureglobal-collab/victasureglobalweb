@@ -424,14 +424,18 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 text-gray-600">
-              {products.slice(0, 4).map((p, idx) => (
-                <tr key={p.id}>
-                  <td className="p-4 font-bold text-primary">{p.name}</td>
-                  <td className="p-4">{15 + idx * 8} Enquiries</td>
-                  <td className="p-4">{35 + idx * 12} times</td>
-                  <td className="p-4 font-semibold text-accent-dark">{p.country_availability?.slice(0,3).join(", ")}</td>
-                </tr>
-              ))}
+              {products.slice(0, 4).map((p, idx) => {
+                const prodEnquiries = enquiries ? enquiries.filter(e => e.product_code === p.product_code || e.product_interested === p.name).length : 0;
+                const prodDownloads = downloads ? downloads.filter(d => d.product_interest === p.name).length : 0;
+                return (
+                  <tr key={p.id}>
+                    <td className="p-4 font-bold text-primary">{p.name}</td>
+                    <td className="p-4">{prodEnquiries} Enquiries</td>
+                    <td className="p-4">{prodDownloads} times</td>
+                    <td className="p-4 font-semibold text-accent-dark">{p.country_availability?.slice(0,3).join(", ")}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -3103,6 +3107,7 @@ function SettingsManager({ triggerToast }) {
   const [showFounder, setShowFounder] = React.useState(true);
   const [showOverview, setShowOverview] = React.useState(true);
   const [showCertificatesPage, setShowCertificatesPage] = React.useState(true);
+  const [showPreviousWork, setShowPreviousWork] = React.useState(true);
 
   // Local state for About Page
   const [aboutOverview, setAboutOverview] = React.useState('');
@@ -3207,6 +3212,7 @@ function SettingsManager({ triggerToast }) {
       setShowFounder(settings.show_founder_section !== false);
       setShowOverview(settings.show_overview_section !== false);
       setShowCertificatesPage(settings.show_certificates_page !== false);
+      setShowPreviousWork(settings.show_previous_work !== false);
 
       setAboutOverview(settings.about_overview || '');
       setAboutMission(settings.about_mission || '');
@@ -3307,6 +3313,7 @@ function SettingsManager({ triggerToast }) {
         show_founder_section: showFounder,
         show_overview_section: showOverview,
         show_certificates_page: showCertificatesPage,
+        show_previous_work: showPreviousWork,
         why_choose_us_items: whyChooseUsItems,
         socials: socials
       };
@@ -3875,6 +3882,15 @@ function SettingsManager({ triggerToast }) {
                   className="rounded text-primary focus:ring-0"
                 />
                 <span>Certificates Pg</span>
+              </label>
+              <label className="flex items-center space-x-2 text-xs font-semibold text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showPreviousWork}
+                  onChange={(e) => setShowPreviousWork(e.target.checked)}
+                  className="rounded text-primary focus:ring-0"
+                />
+                <span>Previous Work Pg</span>
               </label>
             </div>
           </div>

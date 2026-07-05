@@ -89,7 +89,11 @@ export default function App() {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogs/:slug" element={<Blogs />} />
           <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/previous-work" element={<PreviousWork />} />
+          {settings?.show_previous_work !== false ? (
+            <Route path="/previous-work" element={<PreviousWork />} />
+          ) : (
+            <Route path="/previous-work" element={<NotFound />} />
+          )}
           <Route path="/terms" element={<Terms />} />
           {settings?.enable_cart && <Route path="/cart" element={<Cart />} />}
           <Route 

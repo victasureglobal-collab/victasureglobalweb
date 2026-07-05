@@ -12,27 +12,21 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
   const selectedSub = subcategories && subcategories.find(s => s.id === selectedCategoryId);
   const parentCatId = selectedSub ? selectedSub.category_id : null;
 
-  // Get all catalogues and products matching the selected category ID or subcategory ID
+  // Get all catalogues matching the selected category ID (no products!)
   const filteredCatalogues = catalogues && selectedCategoryId 
     ? catalogues.filter(c => c.category_id === selectedCategoryId || (parentCatId && c.category_id === parentCatId))
     : [];
 
-  const filteredProducts = products && selectedCategoryId
-    ? products.filter(p => p.category_id === selectedCategoryId || p.subcategory_id === selectedCategoryId)
-    : [];
-
-  // Merge and deduplicate by name
+  // Populate only catalogue entries
   const catalogueOptions = [];
   filteredCatalogues.forEach(c => {
     if (!catalogueOptions.some(o => o.name === c.name)) {
       catalogueOptions.push({ id: c.id, name: c.name });
     }
   });
-  filteredProducts.forEach(p => {
-    if (!catalogueOptions.some(o => o.name === p.name)) {
-      catalogueOptions.push({ id: p.id, name: p.name });
-    }
-  });
+
+  // Display all visible parent categories in the first dropdown
+  const parentCategories = categories ? categories.filter(c => c.is_visible !== false) : [];
 
   // Fallback: If empty, add a default general option so the form is not blocked
   if (catalogueOptions.length === 0) {
@@ -390,17 +384,9 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
                 {...register("category_interest", { required: "Please select a category" })}
               >
                 <option value="">Select category...</option>
-                {categories && categories.map(cat => {
-                  const subList = subcategories && subcategories.filter(s => s.category_id === cat.id);
-                  return (
-                    <React.Fragment key={cat.id}>
-                      <option value={cat.id}>{cat.name}</option>
-                      {subList && subList.map(sub => (
-                        <option key={sub.id} value={sub.id}>&nbsp;&nbsp;&nbsp;&nbsp;↳ {sub.name}</option>
-                      ))}
-                    </React.Fragment>
-                  );
-                })}
+                {parentCategories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </select>
               {errors.category_interest && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.category_interest.message}</span>}
             </div>

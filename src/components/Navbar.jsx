@@ -57,15 +57,20 @@ export default function Navbar() {
     { name: 'About Us', href: '/about' },
     { name: 'Products', href: '/products' },
     { name: 'Catalogue', href: '/catalogue' },
-    { name: 'Previous Work', href: '/previous-work' },
-    { name: 'Testimonials', href: '/testimonials' },
-    { name: 'Blogs', href: '/blogs' },
-    { name: 'Contact', href: '/contact' },
   ];
 
-  if (settings?.show_certificates_page !== false) {
-    navigation.splice(navigation.length - 1, 0, { name: 'Certificates', href: '/certificates' });
+  if (settings?.show_previous_work !== false) {
+    navigation.push({ name: 'Previous Work', href: '/previous-work' });
   }
+
+  navigation.push({ name: 'Testimonials', href: '/testimonials' });
+  navigation.push({ name: 'Blogs', href: '/blogs' });
+
+  if (settings?.show_certificates_page !== false) {
+    navigation.push({ name: 'Certificates', href: '/certificates' });
+  }
+
+  navigation.push({ name: 'Contact', href: '/contact' });
 
   const isActive = (path) => {
     if (path === '/') {
@@ -107,6 +112,14 @@ export default function Navbar() {
                 <option value="es">Spanish</option>
                 <option value="pt">Portuguese</option>
                 <option value="ar">Arabic</option>
+                <option value="hi">Hindi</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="bn">Bengali</option>
               </select>
             </div>
             <div id="google_translate_element" className="google-translate-topbar hidden sm:block"></div>

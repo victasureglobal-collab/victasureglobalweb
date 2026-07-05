@@ -224,10 +224,10 @@ export default function Products({ selectedProduct, setSelectedProduct, setEnqui
             Export Catalogue
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-primary tracking-tight leading-tight">
-            Export Product Lineup
+            Our Premium Quality Products for Global Markets
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-xl mx-auto">
-            All premium exports are eco-certified, moisture-controlled, and fumigated before sea freight delivery.
+            Victasure ensures all its products meet the global standards of quality control and certifications before every delivery.
           </p>
         </div>
 
