@@ -7,19 +7,19 @@ import { useApp } from '../context/AppContext';
 import logoImg from '../assets/logo/VictaSure_Final.png';
 
 const FacebookIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
 
 const TwitterIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
   </svg>
 );
 
 const LinkedinIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
     <rect x="2" y="9" width="4" height="12" />
     <circle cx="4" cy="4" r="2" />
@@ -27,7 +27,7 @@ const LinkedinIcon = (props) => (
 );
 
 const InstagramIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
@@ -35,26 +35,26 @@ const InstagramIcon = (props) => (
 );
 
 const YoutubeIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
     <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" />
   </svg>
 );
 
 const WhatsappIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" {...props}>
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.454 5.709 1.455h.008c6.56 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
 
 const PinterestIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" {...props}>
     <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.41 7.61 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.966 1.406-5.966s-.359-.715-.359-1.774c0-1.66 1.054-2.9 2.146-2.9 1.01 0 1.498.758 1.498 1.668 0 1.014-.647 2.533-.98 3.94-.279 1.179.605 2.141 1.767 2.141 2.122 0 3.754-2.24 3.754-5.474 0-2.862-2.057-4.864-4.996-4.864-3.403 0-5.4 2.553-5.4 5.19 0 1.026.395 2.13 1.01 2.876.111.135.127.253.084.426-.093.387-.3.12-.4-.486-.33-1.36-.612-2.127-.612-3.42 0-3.136 2.278-6.015 6.568-6.015 3.456 0 6.143 2.463 6.143 5.758 0 3.434-2.165 6.198-5.17 6.198-1.009 0-1.959-.524-2.283-1.144l-.622 2.373c-.225.864-.833 1.948-1.24 2.607a12.008 12.008 0 003.743.593C18.622 24 24 18.631 24 12.012 24 5.39 18.622 0 12.017 0z"/>
   </svg>
 );
 
 const TiktokIcon = (props) => (
-  <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" {...props}>
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" {...props}>
     <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.52-4.06-1.37-.28-.2-.55-.41-.8-.65-.01 2.92.01 5.84-.02 8.76-.18 3.59-2.43 6.84-5.94 7.74-3.71.95-8.03-1.02-9.45-4.57-1.42-3.56.09-8.15 3.66-9.74 1.7-.76 3.73-.79 5.43-.07v4.09c-1.08-.47-2.34-.39-3.32.22-1.12.69-1.74 2-1.57 3.32.18 1.44 1.4 2.58 2.84 2.52 1.48-.06 2.62-1.31 2.62-2.8V0z"/>
   </svg>
 );
@@ -91,7 +91,7 @@ export default function Footer() {
             </div>
           </div>
           <p className="text-xs leading-relaxed text-gray-500 max-w-xs">
-            Connecting premium eco-friendly manufacturers with international retailers through excellence.
+            Every shipment reflects our commitment to quality, transparency, reliability, and long-term partnerships.
           </p>
           {/* Simple Dynamic Social Icons */}
           <div className="flex space-x-3 pt-2">
@@ -110,9 +110,9 @@ export default function Footer() {
                   href={soc.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-7 h-7 bg-gray-200/60 rounded-full flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer text-gray-400"
+                  className="w-9 h-9 bg-gray-200/90 rounded-full flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors cursor-pointer text-gray-700 shadow-sm border border-gray-300/40"
                 >
-                  <IconComp size={12} />
+                  <IconComp size={16} />
                 </a>
               );
             })}

@@ -109,7 +109,7 @@ const processBase64Fields = async (item, folder) => {
           const uploaded = await Promise.all(
             parsed.map(async (v) => {
               if (typeof v === 'string' && v.startsWith('data:')) {
-                return await uploadFileToStorage(v, 'heroes');
+                return await uploadFileToStorage(v, 'products');
               }
               return v;
             })
@@ -587,7 +587,8 @@ export const dbService = {
     }
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('certificates').upsert(cert).select().single();
+        const uploadedCert = await processBase64Fields(cert, 'products');
+        const { data, error } = await supabase.from('certificates').upsert(uploadedCert).select().single();
         if (error) throw error;
         return data;
       } catch (err) {
@@ -1066,7 +1067,8 @@ export const dbService = {
       faqs: initialWebsiteSettings.faqs || [],
       socials: initialWebsiteSettings.socials || [],
       enable_cart: initialWebsiteSettings.enable_cart || false,
-      enable_client_login: initialWebsiteSettings.enable_client_login || false
+      enable_client_login: initialWebsiteSettings.enable_client_login || false,
+      catalogue_badges: initialWebsiteSettings.catalogue_badges || []
     };
     const { error: settingsErr } = await supabase.from('website_settings').upsert(cleanSettings);
     if (settingsErr) throw new Error(`Website settings seeding failed: ${settingsErr.message}`);

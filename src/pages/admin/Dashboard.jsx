@@ -59,6 +59,14 @@ export default function Dashboard() {
     fetchExchangeRate();
   }, []);
 
+  React.useEffect(() => {
+    if (activeTab !== 'leads') return;
+    const interval = setInterval(() => {
+      refreshData();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [activeTab, refreshData]);
+
   const runSchemaCheck = async () => {
     setIsCheckingSchema(true);
     try {
@@ -192,10 +200,9 @@ export default function Dashboard() {
         return date >= dayStart && date <= dayEnd;
       }).length : 0;
 
-      // Fallback: if no views are recorded in the database, show a baseline of at least 1 view, 
-      // or more if there are downloads/enquiries on that day.
+      // Fallback: if no views are recorded in the database, show 0 by default for a fresh site handover.
       if (!trafficViews || trafficViews.length === 0) {
-        dayViews = Math.max(1, dayDls + dayEnqs);
+        dayViews = 0;
       }
 
       chartData.push({
@@ -511,6 +518,21 @@ export default function Dashboard() {
           cleanedItem.category_id = null;
         }
 
+        // Validate category exists in database to prevent foreign key constraint violations
+        if (cleanedItem.category_id) {
+          const categoryExists = categories.some(c => c.id === cleanedItem.category_id);
+          if (!categoryExists) {
+            alert(`Selected category ID "${cleanedItem.category_id}" does not exist in the database. Please re-select the category or save it first.`);
+            setIsSaving(false);
+            return;
+          }
+        }
+
+        // Clean product code
+        if (cleanedItem.product_code === "") {
+          cleanedItem.product_code = null;
+        }
+        
         await saveProduct(cleanedItem);
         setEditingItem(null);
         triggerToast("Product details saved successfully.");
@@ -648,10 +670,9 @@ export default function Dashboard() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Product Code (e.g. VS-101) *</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Product Code (e.g. VS-101)</label>
                     <input
                       type="text"
-                      required
                       placeholder="e.g. VS-101"
                       value={editingItem.product_code || ""}
                       onChange={(e) => setEditingItem({ ...editingItem, product_code: e.target.value })}
@@ -1396,11 +1417,31 @@ export default function Dashboard() {
       <div className="space-y-8 font-sans">
         
         {/* Enquiries block */}
-        <div className="space-y-4">
-          <h2 className="text-base font-bold text-primary flex items-center space-x-1.5">
-            <Mail size={18} className="text-accent" />
-            <span>Product Inquiries Received (User List)</span>
-          </h2>
+        <div className="space-y-4 font-sans">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-base font-bold text-primary flex items-center space-x-1.5">
+              <Mail size={18} className="text-accent" />
+              <span>Product Inquiries Received (User List)</span>
+            </h2>
+            <button
+              onClick={async () => {
+                setIsRefreshing(true);
+                try {
+                  await refreshData();
+                  triggerToast("Inquiries and leads successfully refreshed.");
+                } catch (e) {
+                  triggerToast("Refresh failed. Please check network connections.");
+                } finally {
+                  setIsRefreshing(false);
+                }
+              }}
+              disabled={isRefreshing}
+              className="flex items-center justify-center space-x-1.5 self-start sm:self-auto bg-white border hover:bg-gray-50 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-large shadow-sm active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw size={12} className={isRefreshing ? "animate-spin text-accent" : ""} />
+              <span>{isRefreshing ? "Refreshing..." : "Refresh Data"}</span>
+            </button>
+          </div>
 
           <div className="bg-white border border-neutral-border rounded-xlarge overflow-x-auto custom-scrollbar shadow-premium">
             <table className="w-full text-left border-collapse text-[11px] sm:text-xs min-w-[700px] md:min-w-full">
@@ -2263,14 +2304,51 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Document Link / PDF File URL</label>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-semibold text-gray-700">Document Link / PDF File URL</label>
+                    <span className="text-[10px] text-gray-400 font-bold font-sans">Or Upload PDF file</span>
+                  </div>
+                  
                   <input
                     type="text"
                     value={editingItem.file_url}
                     onChange={(e) => setEditingItem({ ...editingItem, file_url: e.target.value })}
-                    className="w-full text-xs px-3 py-2 rounded border"
+                    placeholder="Enter manual link or upload below..."
+                    className="w-full text-xs px-3 py-2 rounded border focus:outline-none mb-1.5"
                   />
+
+                  <label className="flex items-center justify-center space-x-1.5 bg-gray-50 hover:bg-gray-100 border text-gray-700 border-dashed rounded py-2 px-3 cursor-pointer transition-all active:scale-[0.98]">
+                    <Upload size={14} className="text-gray-500" />
+                    <span className="text-xs font-bold text-gray-700">
+                      {editingItem.file_url && editingItem.file_url.startsWith("data:application/pdf") ? "PDF Attached (Change)" : "Upload PDF Document File"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        if (file.type !== "application/pdf") {
+                          alert("Please choose a PDF file.");
+                          return;
+                        }
+                        if (file.size > 8 * 1024 * 1024) {
+                          alert("File too large. Max limit is 8MB.");
+                          return;
+                        }
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setEditingItem({ ...editingItem, file_url: reader.result });
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {editingItem.file_url && editingItem.file_url.startsWith("data:application/pdf") && (
+                    <span className="text-[9px] text-emerald-600 block mt-1 font-semibold">✓ PDF Document attached locally. Saves on submit.</span>
+                  )}
                 </div>
 
                 <div className="flex items-center space-x-2 pt-2">
@@ -3094,6 +3172,7 @@ function SettingsManager({ triggerToast }) {
   const [heroSlideDelay, setHeroSlideDelay] = React.useState('5');
   const [enableCart, setEnableCart] = React.useState(false);
   const [enableClientLogin, setEnableClientLogin] = React.useState(false);
+  const [catalogueBadges, setCatalogueBadges] = React.useState([]);
   const [contactWhatsapp, setContactWhatsapp] = React.useState('');
   const [contactEmail, setContactEmail] = React.useState('');
   const [contactPhone, setContactPhone] = React.useState('');
@@ -3162,6 +3241,7 @@ function SettingsManager({ triggerToast }) {
   const [isSavedFounder, setIsSavedFounder] = React.useState(false);
   const [isSavingTerms, setIsSavingTerms] = React.useState(false);
   const [isSavedTerms, setIsSavedTerms] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   // Sync settings local state to context data when loaded
   React.useEffect(() => {
@@ -3205,6 +3285,12 @@ function SettingsManager({ triggerToast }) {
       setCataloguePdf(settings.catalogue_pdf || '');
       setEnableCart(settings.enable_cart === true);
       setEnableClientLogin(settings.enable_client_login === true);
+      setCatalogueBadges(settings.catalogue_badges || [
+        { title: "Compostable & Eco", desc: "100% naturally biodegradable palm leaves", icon: "Leaf", border: "border-emerald-100 bg-emerald-50/20 text-emerald-700" },
+        { title: "USDA Bio-Based", desc: "Certified chemical-free, food-safe grade", icon: "ShieldCheck", border: "border-blue-100 bg-blue-50/20 text-blue-700" },
+        { title: "Quality Accreditations", desc: "ISO 9001:2015 audited facility", icon: "Award", border: "border-yellow-100 bg-yellow-50/20 text-yellow-700" },
+        { title: "Integrated Logistics", desc: "Standardized bulk packaging & fast shipping", icon: "Globe", border: "border-purple-100 bg-purple-50/20 text-purple-700" }
+      ]);
       
       setShowHero(settings.show_hero_section !== false);
       setShowFeatured(settings.show_featured_section !== false);
@@ -3315,6 +3401,7 @@ function SettingsManager({ triggerToast }) {
         show_certificates_page: showCertificatesPage,
         show_previous_work: showPreviousWork,
         why_choose_us_items: whyChooseUsItems,
+        catalogue_badges: catalogueBadges,
         socials: socials
       };
       await saveSettings(updated);
@@ -3442,6 +3529,8 @@ function SettingsManager({ triggerToast }) {
   // --- Consignment Actions ---
   const handleSaveConsignmentItem = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     let updatedList = [...consignments];
     const newItem = {
       id: editingConsignment.id || Date.now(),
@@ -3473,6 +3562,8 @@ function SettingsManager({ triggerToast }) {
     } catch (err) {
       console.error(err);
       triggerToast('Failed to update consignments.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -3495,6 +3586,8 @@ function SettingsManager({ triggerToast }) {
 
   const handleSaveFaqItem = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     let updatedList = [...faqs];
     const newItem = {
       question: editingFaq.question,
@@ -3519,6 +3612,8 @@ function SettingsManager({ triggerToast }) {
     } catch (err) {
       console.error(err);
       triggerToast('Failed to update FAQ.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -3656,7 +3751,7 @@ function SettingsManager({ triggerToast }) {
                     setHeroBannerUrls(next);
                   }}
                   aspect="16:9"
-                  disableCrop={true}
+                  disableCrop={false}
                 />
               ))}
             </div>
@@ -3757,6 +3852,65 @@ function SettingsManager({ triggerToast }) {
                         const next = [...whyChooseUsItems];
                         next[idx] = { ...next[idx], description: e.target.value };
                         setWhyChooseUsItems(next);
+                      }}
+                      className="w-full text-xs px-2.5 py-1.5 rounded border focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t pt-4 space-y-4">
+            <span className="block text-xs font-bold text-primary uppercase tracking-wider">Catalogue Highlight Badges (4 Grid Cards)</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {catalogueBadges.map((item, idx) => (
+                <div key={idx} className="bg-gray-50 p-4 rounded border border-gray-200 space-y-3">
+                  <span className="block text-xs font-bold text-secondary">Badge Card {idx + 1}</span>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-700 mb-1">Badge Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={item.title || ''}
+                        onChange={(e) => {
+                          const next = [...catalogueBadges];
+                          next[idx] = { ...next[idx], title: e.target.value };
+                          setCatalogueBadges(next);
+                        }}
+                        className="w-full text-xs px-2.5 py-1.5 rounded border focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-700 mb-1">Badge Icon</label>
+                      <select
+                        value={item.icon || 'Leaf'}
+                        onChange={(e) => {
+                          const next = [...catalogueBadges];
+                          next[idx] = { ...next[idx], icon: e.target.value };
+                          setCatalogueBadges(next);
+                        }}
+                        className="w-full text-xs px-2.5 py-1.5 bg-white rounded border focus:outline-none"
+                      >
+                        {["ShieldCheck", "Globe", "Award", "Leaf", "Target", "Eye", "Compass", "Heart", "Activity", "Sparkles", "TrendingUp", "Users"].map(icon => (
+                          <option key={icon} value={icon}>{icon}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-700 mb-1">Badge Description</label>
+                    <textarea
+                      rows="2"
+                      required
+                      value={item.desc || ''}
+                      onChange={(e) => {
+                        const next = [...catalogueBadges];
+                        next[idx] = { ...next[idx], desc: e.target.value };
+                        setCatalogueBadges(next);
                       }}
                       className="w-full text-xs px-2.5 py-1.5 rounded border focus:outline-none"
                     />
@@ -4458,9 +4612,10 @@ function SettingsManager({ triggerToast }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-secondary text-white text-xs font-bold rounded"
+                  disabled={isSaving}
+                  className="px-4 py-1.5 bg-secondary text-white text-xs font-bold rounded disabled:opacity-50"
                 >
-                  Save Dispatch
+                  {isSaving ? "Saving..." : "Save Dispatch"}
                 </button>
               </div>
             </form>
@@ -4600,9 +4755,10 @@ function SettingsManager({ triggerToast }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-secondary text-white text-xs font-bold rounded"
+                  disabled={isSaving}
+                  className="px-4 py-1.5 bg-secondary text-white text-xs font-bold rounded disabled:opacity-50"
                 >
-                  Save FAQ
+                  {isSaving ? "Saving..." : "Save FAQ"}
                 </button>
               </div>
             </form>

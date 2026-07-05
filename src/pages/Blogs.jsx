@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 
 export default function Blogs() {
   const { slug } = useParams();
-  const { blogs } = useApp();
+  const { blogs, loading } = useApp();
   const navigate = useNavigate();
 
   // Handle SEO Meta tags on active blog
@@ -66,6 +66,26 @@ export default function Blogs() {
       }
     }
   }, [slug, blogs]);
+
+  // Render a custom skeleton layout if loading from Supabase is in progress (placed after Hooks)
+  if (loading) {
+    return (
+      <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8 bg-neutral-lightBg space-y-12">
+        <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
+          <div className="text-center max-w-3xl mx-auto space-y-4 pt-8">
+            <div className="h-6 bg-gray-200 rounded-full w-32 mx-auto"></div>
+            <div className="h-10 bg-gray-200 rounded w-64 mx-auto"></div>
+            <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[1, 2].map((n) => (
+              <div key={n} className="bg-gray-200 rounded-xlarge aspect-video border border-neutral-border"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const formatDate = (isoString) => {
     return new Date(isoString).toLocaleDateString('en-US', {

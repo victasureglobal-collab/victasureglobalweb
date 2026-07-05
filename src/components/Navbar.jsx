@@ -142,12 +142,15 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           
           {/* Logo Brand */}
-          <div className="flex-shrink-0 flex items-center">
+          <div className="flex-shrink-0 flex flex-col justify-center">
             <Link to="/" className="flex items-center group">
               <div className="relative">
                 <img src={settings?.logo_url || logoImg} alt={companyName} className="h-10 w-auto object-contain max-w-[180px]" />
               </div>
             </Link>
+            <span className="text-[7.5px] sm:text-[8px] font-sans text-gray-400 font-bold uppercase tracking-wider mt-0.5 whitespace-nowrap">
+              Trusted Alliances. Assured Quality. Global Reach.
+            </span>
           </div>
 
           {/* Desktop Navigation Links */}

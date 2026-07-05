@@ -9,21 +9,21 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
 
   const selectedCategoryId = watch("category_interest");
   
-  const selectedSub = subcategories && subcategories.find(s => s.id === selectedCategoryId);
-  const parentCatId = selectedSub ? selectedSub.category_id : null;
-
-  // Get all catalogues matching the selected category ID (no products!)
-  const filteredCatalogues = catalogues && selectedCategoryId 
-    ? catalogues.filter(c => c.category_id === selectedCategoryId || (parentCatId && c.category_id === parentCatId))
+  // Find all subcategories belonging to this parent category
+  const childSubcategories = subcategories && selectedCategoryId
+    ? subcategories.filter(s => s.category_id === selectedCategoryId && s.is_visible !== false)
     : [];
 
-  // Populate only catalogue entries
-  const catalogueOptions = [];
-  filteredCatalogues.forEach(c => {
-    if (!catalogueOptions.some(o => o.name === c.name)) {
-      catalogueOptions.push({ id: c.id, name: c.name });
-    }
-  });
+  // Populate catalogueOptions from the subcategories list
+  const catalogueOptions = childSubcategories.map(s => ({
+    id: s.id,
+    name: s.name
+  }));
+
+  // If a product is prefilled, make sure it is added to the catalogueOptions list so it is selectable!
+  if (prefilledProduct && !catalogueOptions.some(o => o.name === prefilledProduct.name)) {
+    catalogueOptions.push({ id: prefilledProduct.id, name: prefilledProduct.name });
+  }
 
   // Display all visible parent categories in the first dropdown
   const parentCategories = categories ? categories.filter(c => c.is_visible !== false) : [];
@@ -41,12 +41,21 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
 
   React.useEffect(() => {
     if (isOpen && prefilledProduct && selectedCategoryId === prefilledProduct.category_id) {
+      const matchedProductInList = products ? products.find(p => p.id === prefilledProduct.id || p.name === prefilledProduct.name) : null;
+      const prefilledSubcategory = matchedProductInList && subcategories
+        ? subcategories.find(s => s.id === matchedProductInList.subcategory_id)
+        : null;
+
       const timer = setTimeout(() => {
-        setValue("product_interest", prefilledProduct.name);
+        if (prefilledSubcategory) {
+          setValue("product_interest", prefilledSubcategory.name);
+        } else {
+          setValue("product_interest", prefilledProduct.name);
+        }
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, prefilledProduct, selectedCategoryId, setValue]);
+  }, [isOpen, prefilledProduct, selectedCategoryId, setValue, products, subcategories]);
 
   const countryDialCodes = {
     "Australia": "+61",
@@ -225,15 +234,29 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
       const interest = data.product_interest || "";
       const categoryId = data.category_interest;
 
+      const selectedSubcategory = subcategories && subcategories.find(s => s.name === interest && s.category_id === categoryId);
+      const subcategoryId = selectedSubcategory ? selectedSubcategory.id : null;
+
+      const subcatCatalogue = subcategoryId ? (catalogues && catalogues.find(c => c.category_id === subcategoryId)) : null;
+      const parentcatCatalogue = catalogues && catalogues.find(c => c.category_id === categoryId);
+      const fallbackPdf = settings?.catalogue_pdf || null;
+
       const matchedProduct = products && products.find(p => p.name === interest);
-      const selectedCatg = catalogues && catalogues.find(c => c.name === interest);
-      const categoryCatg = catalogues && catalogues.find(c => c.category_id === categoryId);
-      
-      const pdfToDownload = (matchedProduct && matchedProduct.pdf_url)
-        ? matchedProduct.pdf_url
-        : (selectedCatg && selectedCatg.pdf_url 
-            ? selectedCatg.pdf_url 
-            : (categoryCatg ? categoryCatg.pdf_url : null));
+
+      let pdfToDownload = null;
+      if (matchedProduct && matchedProduct.pdf_url) {
+        // Condition 1: Specific Product Catalogue exists
+        pdfToDownload = matchedProduct.pdf_url;
+      } else if (subcatCatalogue && subcatCatalogue.pdf_url) {
+        // Condition 2: Subcategory Catalogue exists
+        pdfToDownload = subcatCatalogue.pdf_url;
+      } else if (parentcatCatalogue && parentcatCatalogue.pdf_url) {
+        // Condition 3: Parent Category level Catalogue exists
+        pdfToDownload = parentcatCatalogue.pdf_url;
+      } else {
+        // Fallback: Global general website catalogue
+        pdfToDownload = fallbackPdf;
+      }
 
       const submissionData = {
         ...data,
@@ -373,6 +396,20 @@ export default function LeadModal({ isOpen, onClose, prefilledProduct }) {
               />
               {errors.phone && <span className="text-[10px] text-red-500 mt-0.5 block">{errors.phone.message}</span>}
             </div>
+
+            {/* Selected Product (only visible when prefilledProduct is present) */}
+            {prefilledProduct && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Selected Product</label>
+                <input
+                  type="text"
+                  readOnly
+                  disabled
+                  value={prefilledProduct.name}
+                  className="w-full text-sm px-4 py-2.5 rounded-large bg-gray-50 border border-gray-200 text-gray-500 font-semibold cursor-not-allowed focus:outline-none"
+                />
+              </div>
+            )}
 
             {/* Product Category Selection */}
             <div>

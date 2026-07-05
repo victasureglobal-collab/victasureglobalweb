@@ -562,41 +562,13 @@ Phytosanitary and fumigation credentials are provided with every shipment. The i
     }
   ],
   enable_cart: false,
-  enable_client_login: false
+  enable_client_login: false,
+  catalogue_badges: [
+    { title: "Compostable & Eco", desc: "100% naturally biodegradable palm leaves", icon: "Leaf", border: "border-emerald-100 bg-emerald-50/20 text-emerald-700" },
+    { title: "USDA Bio-Based", desc: "Certified chemical-free, food-safe grade", icon: "ShieldCheck", border: "border-blue-100 bg-blue-50/20 text-blue-700" },
+    { title: "Quality Accreditations", desc: "ISO 9001:2015 audited facility", icon: "Award", border: "border-yellow-100 bg-yellow-50/20 text-yellow-700" },
+    { title: "Integrated Logistics", desc: "Standardized bulk packaging & fast shipping", icon: "Globe", border: "border-purple-100 bg-purple-50/20 text-purple-700" }
+  ]
 };
 
-export const initialOrders = [
-  {
-    id: "ord-1001",
-    customer_name: "Jonathan Miller",
-    email: "j.miller@ecotableware-dist.de",
-    phone: "+491701234567",
-    company_name: "EcoTableware Distribution GmbH",
-    country: "Germany",
-    state: "Bavaria",
-    address: "St.-Martin-Straße 76, Munich",
-    pincode: "81541",
-    delivery_port: "Port of Hamburg",
-    notes: "Please prioritize standard ocean-worthy double wall packing.",
-    items: [
-      {
-        product_id: "prod-1",
-        product_name: "10 Inch Round Plates",
-        quantity: 50,
-        price_inr: 400,
-        price_usd: 5
-      },
-      {
-        product_id: "prod-10",
-        product_name: "Areca Leaf Spoon",
-        quantity: 100,
-        price_inr: 400,
-        price_usd: 5
-      }
-    ],
-    total_inr: 60000,
-    total_usd: 750,
-    status: "confirmed",
-    created_at: "2026-06-19T10:00:00Z"
-  }
-];
+export const initialOrders = [];

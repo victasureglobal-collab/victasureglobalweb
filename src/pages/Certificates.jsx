@@ -3,7 +3,26 @@ import { Download, Award, ShieldCheck, CheckCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function Certificates() {
-  const { certificates, settings } = useApp();
+  const { certificates, settings, loading } = useApp();
+
+  if (loading) {
+    return (
+      <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8 bg-neutral-lightBg space-y-12">
+        <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
+          <div className="text-center max-w-3xl mx-auto space-y-4 pt-8">
+            <div className="h-6 bg-gray-200 rounded-full w-32 mx-auto"></div>
+            <div className="h-10 bg-gray-200 rounded w-64 mx-auto"></div>
+            <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="bg-gray-200 rounded-xlarge aspect-video border border-neutral-border"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (settings && settings.show_certificates_page === false) {
     return (
@@ -20,26 +39,17 @@ export default function Certificates() {
   }
 
   const handleDownload = (cert) => {
-    // Dynamically download a text audit document as mock
-    const content = `========================================================\n` +
-                    `          VICTASURE GLOBAL QUALITY CERTIFICATE\n` +
-                    `========================================================\n\n` +
-                    `Certificate: ${cert.title}\n` +
-                    `Audit Status: COMPLIANT & ACTIVE\n` +
-                    `Issuer: Global Standards Auditing Body\n` +
-                    `Fumigation & Moisture Compliance: Approved\n` +
-                    `Verification Key: VS-${cert.id}-${Math.floor(1000 + Math.random()*9000)}\n\n` +
-                    `VictaSure Global assures that exports meet the requisite health, regulatory,\n` +
-                    `and bio-degradability standards. For queries, contact info@victasure.com\n`;
-                    
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `VictaSure_Certificate_${cert.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (cert.file_url && cert.file_url !== "#") {
+      const link = document.createElement("a");
+      link.href = cert.file_url;
+      link.target = "_blank";
+      link.download = `VictaSure_Certificate_${cert.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert("Verification document for this certificate is currently being updated. Please contact support.");
+    }
   };
 
   const visibleCerts = certificates.filter(c => c.is_visible);

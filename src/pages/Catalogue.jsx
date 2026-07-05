@@ -118,16 +118,32 @@ export default function Catalogue({ onOpenDownloadModal }) {
 
         {/* Global Certifications Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { title: "Compostable & Eco", desc: "100% naturally biodegradable palm leaves", icon: Leaf, border: "border-emerald-100 bg-emerald-50/20 text-emerald-700" },
-            { title: "USDA Bio-Based", desc: "Certified chemical-free, food-safe grade", icon: ShieldCheck, border: "border-blue-100 bg-blue-50/20 text-blue-700" },
-            { title: "Quality Accreditations", desc: "ISO 9001:2015 audited facility", icon: Award, border: "border-yellow-100 bg-yellow-50/20 text-yellow-700" },
-            { title: "Integrated Logistics", desc: "Standardized bulk packaging & fast shipping", icon: Globe, border: "border-purple-100 bg-purple-50/20 text-purple-700" }
-          ].map((item, idx) => {
-            const Icon = item.icon;
+          {(settings?.catalogue_badges && settings.catalogue_badges.length === 4
+            ? settings.catalogue_badges
+            : [
+                { title: "Compostable & Eco", desc: "100% naturally biodegradable palm leaves", icon: "Leaf" },
+                { title: "USDA Bio-Based", desc: "Certified chemical-free, food-safe grade", icon: "ShieldCheck" },
+                { title: "Quality Accreditations", desc: "ISO 9001:2015 audited facility", icon: "Award" },
+                { title: "Integrated Logistics", desc: "Standardized bulk packaging & fast shipping", icon: "Globe" }
+              ]
+          ).map((item, idx) => {
+            const LucideIconMap = { Leaf, ShieldCheck, Award, Globe, Sparkles, Filter, BookOpen };
+            const Icon = LucideIconMap[item.icon] || Leaf;
+            
+            const getBadgeStyles = (iconName) => {
+              switch (iconName) {
+                case "Leaf": return "border-emerald-100 bg-emerald-50/20 text-emerald-700";
+                case "ShieldCheck": return "border-blue-100 bg-blue-50/20 text-blue-700";
+                case "Award": return "border-yellow-100 bg-yellow-50/20 text-yellow-700";
+                case "Globe": return "border-purple-100 bg-purple-50/20 text-purple-700";
+                default: return "border-slate-100 bg-slate-50/20 text-slate-700";
+              }
+            };
+            const borderStyle = getBadgeStyles(item.icon);
+
             return (
               <div key={idx} className={`border p-6 rounded-xlarge shadow-sm flex items-start space-x-4 bg-white hover:shadow-md transition-shadow duration-200`}>
-                <div className={`p-3 rounded-large ${item.border.split(' ')[1]} ${item.border.split(' ')[2]} flex-shrink-0`}>
+                <div className={`p-3 rounded-large ${borderStyle.split(' ')[1]} ${borderStyle.split(' ')[2]} flex-shrink-0`}>
                   <Icon size={20} />
                 </div>
                 <div className="space-y-1">
