@@ -14,7 +14,7 @@ RETURNS TRIGGER AS $$
 BEGIN
   PERFORM
     net.http_post(
-      url := 'https://api.resend.com/emails'::text, -- url as text
+      url := 'https://api.resend.com/emails'::text,
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
         'Authorization', 'Bearer re_QbosuxdX_FydtdZNPzvSNGDgaEm6zs1XW'
@@ -22,10 +22,10 @@ BEGIN
       body := jsonb_build_object( -- body as pure jsonb
         'from', 'onboarding@resend.dev',
         'to', jsonb_build_array('victasureglobal@gmail.com'),
-        'subject', '🚨 New B2B Lead Enquiry: ' || NEW.name, -- Removed (TEST)
+        'subject', '🚨 New B2B Lead Enquiry: ' || NEW.name,
         'html', '
           <div style="font-family: sans-serif; padding: 20px; color: #1e293b; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h2 style="color: #0284c7; margin-bottom: 20px;">New B2B Lead Enquiry</h2> -- Removed (TEST)
+            <h2 style="color: #0284c7; margin-bottom: 20px;">New B2B Lead Enquiry</h2>
             <table style="width: 100%; border-collapse: collapse;">
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; font-weight: bold; width: 150px;">Full Name:</td>
@@ -58,6 +58,11 @@ BEGIN
                 <p style="margin: 0; font-style: italic; color: #475569;">"' || NEW.message || '"</p>
               </div>
             ', '') || '
+            
+            <div style="margin-top: 25px; text-align: center;">
+              <a href="https://victasure.com/admin" style="background-color: #0284c7; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">View in Admin Portal</a>
+            </div>
+
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0;" />
             <p style="font-size: 11px; color: #94a3b8; text-align: center;">This is an automated notification from VictaSure Global Trade Portal.</p>
           </div>
@@ -82,7 +87,7 @@ RETURNS TRIGGER AS $$
 BEGIN
   PERFORM
     net.http_post(
-      url := 'https://api.resend.com/emails'::text, -- url as text
+      url := 'https://api.resend.com/emails'::text,
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
         'Authorization', 'Bearer re_QbosuxdX_FydtdZNPzvSNGDgaEm6zs1XW'
@@ -90,7 +95,7 @@ BEGIN
       body := jsonb_build_object( -- body as pure jsonb
         'from', 'onboarding@resend.dev',
         'to', jsonb_build_array('victasureglobal@gmail.com'), -- Sending to the registered Resend account email
-        'subject', '📥 Catalogue Download: ' || NEW.name, -- Removed (TEST)
+        'subject', '📥 Catalogue Download: ' || NEW.name,
         'html', '
           <div style="font-family: sans-serif; padding: 20px; color: #1e293b; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 12px;">
             <h2 style="color: #10b981; margin-bottom: 20px;">Catalogue Download Request</h2>
@@ -116,6 +121,11 @@ BEGIN
                 <td style="padding: 10px 0;">' || COALESCE(NEW.product_interest, 'General Catalogue') || ' (' || COALESCE(NEW.category_interest, 'All') || ')</td>
               </tr>
             </table>
+
+            <div style="margin-top: 25px; text-align: center;">
+              <a href="https://victasure.com/admin" style="background-color: #10b981; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">View in Admin Portal</a>
+            </div>
+
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0;" />
             <p style="font-size: 11px; color: #94a3b8; text-align: center;">This is an automated notification from VictaSure Global Trade Portal.</p>
           </div>
