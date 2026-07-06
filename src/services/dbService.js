@@ -409,7 +409,15 @@ export const dbService = {
   async createEnquiry(enquiry) {
     const newEnq = {
       id: 'enq-' + Math.random().toString(36).substr(2, 9),
-      ...enquiry,
+      name: enquiry.name,
+      email: enquiry.email,
+      country: enquiry.country || null,
+      phone: enquiry.phone || null,
+      state: enquiry.state || null,
+      pincode: enquiry.pincode || null,
+      product_interested: enquiry.product_interested || null,
+      product_code: enquiry.product_code || null,
+      message: enquiry.message || null,
       status: 'new',
       created_at: new Date().toISOString()
     };
@@ -465,7 +473,15 @@ export const dbService = {
   async createDownload(lead) {
     const newDl = {
       id: 'dl-' + Math.random().toString(36).substr(2, 9),
-      ...lead,
+      name: lead.full_name || lead.name,
+      email: lead.work_email || lead.email,
+      country: lead.country || null,
+      phone: lead.phone || null,
+      state: lead.state || null,
+      product_interest: lead.product_interest || null,
+      category_interest: lead.category_interest || null,
+      quantity: lead.quantity ? Number(lead.quantity) : null,
+      qty_unit: lead.qty_unit || null,
       created_at: new Date().toISOString()
     };
     if (isSupabaseConfigured()) {
