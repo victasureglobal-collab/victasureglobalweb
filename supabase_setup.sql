@@ -1,27 +1,27 @@
 -- =========================================================================
--- VICTASURE TRADE PORTAL - DIRECT SUPABASE TO RESEND EMAIL TRIGGERS
+-- VICTASURE TRADE PORTAL - PRODUCTION SUPABASE TO RESEND EMAIL TRIGGERS
 -- =========================================================================
 -- Copy and run this SQL script in the Supabase SQL Editor (https://supabase.com)
--- to automatically trigger email notifications directly to victasureglobal@gmail.com
+-- to automatically trigger email notifications directly to info@victasure.com.
 -- =========================================================================
 
 -- Enable pg_net extension to allow outbound HTTP requests natively from PostgreSQL
 create extension if not exists pg_net;
 
--- 1. Trigger Function for Enquiries (Using onboarding@resend.dev to victasureglobal@gmail.com)
+-- 1. Trigger Function for Enquiries (Using portal@updates.victasure.com to info@victasure.com)
 CREATE OR REPLACE FUNCTION notify_admin_on_enquiry_insert_direct()
 RETURNS TRIGGER AS $$
 BEGIN
   PERFORM
     net.http_post(
-      url := 'https://api.resend.com/emails'::text,
+      url := 'https://api.resend.com/emails'::text, -- url as text
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
         'Authorization', 'Bearer re_QbosuxdX_FydtdZNPzvSNGDgaEm6zs1XW'
       ),
       body := jsonb_build_object( -- body as pure jsonb
-        'from', 'onboarding@resend.dev',
-        'to', jsonb_build_array('victasureglobal@gmail.com'),
+        'from', 'VictaSure Portal <portal@updates.victasure.com>', -- Production verified sender
+        'to', jsonb_build_array('info@victasure.com'), -- Production recipient
         'subject', '🚨 New B2B Lead Enquiry: ' || NEW.name,
         'html', '
           <div style="font-family: sans-serif; padding: 20px; color: #1e293b; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 12px;">
@@ -81,7 +81,7 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_admin_on_enquiry_insert_direct();
 
 
--- 2. Trigger Function for Catalogue Downloads
+-- 2. Trigger Function for Catalogue Downloads (Using portal@updates.victasure.com to info@victasure.com)
 CREATE OR REPLACE FUNCTION notify_admin_on_download_insert_direct()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -93,8 +93,8 @@ BEGIN
         'Authorization', 'Bearer re_QbosuxdX_FydtdZNPzvSNGDgaEm6zs1XW'
       ),
       body := jsonb_build_object( -- body as pure jsonb
-        'from', 'onboarding@resend.dev',
-        'to', jsonb_build_array('victasureglobal@gmail.com'), -- Sending to the registered Resend account email
+        'from', 'VictaSure Portal <portal@updates.victasure.com>', -- Production verified sender
+        'to', jsonb_build_array('info@victasure.com'), -- Production recipient
         'subject', '📥 Catalogue Download: ' || NEW.name,
         'html', '
           <div style="font-family: sans-serif; padding: 20px; color: #1e293b; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 12px;">
