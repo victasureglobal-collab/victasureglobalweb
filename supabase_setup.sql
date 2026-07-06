@@ -8,7 +8,7 @@
 -- Enable pg_net extension to allow outbound HTTP requests natively from PostgreSQL
 create extension if not exists pg_net;
 
--- 1. Trigger Function for Enquiries (Using portal@updates.victasure.com to info@victasure.com)
+-- 1. Trigger Function for Enquiries (Using portal@victasure.com to info@victasure.com)
 CREATE OR REPLACE FUNCTION notify_admin_on_enquiry_insert_direct()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -20,7 +20,7 @@ BEGIN
         'Authorization', 'Bearer re_QbosuxdX_FydtdZNPzvSNGDgaEm6zs1XW'
       ),
       body := jsonb_build_object( -- body as pure jsonb
-        'from', 'VictaSure Portal <portal@updates.victasure.com>', -- Production verified sender
+        'from', 'VictaSure Portal <portal@victasure.com>', -- Changed from portal@updates.victasure.com to portal@victasure.com to match verified apex domain
         'to', jsonb_build_array('info@victasure.com'), -- Production recipient
         'subject', '🚨 New B2B Lead Enquiry: ' || NEW.name,
         'html', '
@@ -81,7 +81,7 @@ FOR EACH ROW
 EXECUTE FUNCTION notify_admin_on_enquiry_insert_direct();
 
 
--- 2. Trigger Function for Catalogue Downloads (Using portal@updates.victasure.com to info@victasure.com)
+-- 2. Trigger Function for Catalogue Downloads (Using portal@victasure.com to info@victasure.com)
 CREATE OR REPLACE FUNCTION notify_admin_on_download_insert_direct()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -93,7 +93,7 @@ BEGIN
         'Authorization', 'Bearer re_QbosuxdX_FydtdZNPzvSNGDgaEm6zs1XW'
       ),
       body := jsonb_build_object( -- body as pure jsonb
-        'from', 'VictaSure Portal <portal@updates.victasure.com>', -- Production verified sender
+        'from', 'VictaSure Portal <portal@victasure.com>', -- Changed from portal@updates.victasure.com to portal@victasure.com to match verified apex domain
         'to', jsonb_build_array('info@victasure.com'), -- Production recipient
         'subject', '📥 Catalogue Download: ' || NEW.name,
         'html', '
