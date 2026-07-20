@@ -486,9 +486,9 @@ export const dbService = {
     };
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('catalogue_downloads').insert(newDl).select().single();
+        const { error } = await supabase.from('catalogue_downloads').insert(newDl);
         if (error) throw error;
-        return data;
+        return newDl;
       } catch (err) {
         console.error("Supabase catalogue download log failed, using localStorage:", err);
       }
