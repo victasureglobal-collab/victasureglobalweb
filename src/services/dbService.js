@@ -423,9 +423,9 @@ export const dbService = {
     };
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('enquiries').insert(newEnq).select().single();
+        const { error } = await supabase.from('enquiries').insert(newEnq);
         if (error) throw error;
-        return data;
+        return newEnq;
       } catch (err) {
         console.error("Supabase enquiry creation failed, using localStorage:", err);
       }
